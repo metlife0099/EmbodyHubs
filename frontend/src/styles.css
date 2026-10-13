@@ -9,3 +9,21 @@ body{overflow-x:hidden}
 @media(max-width:740px){.hero-content{width:100%;padding-right:32px}.hero-actions{width:100%}.hero-actions .btn{width:auto}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.product-card:hover,.btn:hover{transform:none}}
 @media(max-width:740px){html,body,#root{max-width:100%;overflow-x:hidden}.auth-page{display:block;min-width:0;width:100%}.auth-aside,.auth-card{min-width:0;width:100%;max-width:100%}.auth-aside>p{overflow-wrap:anywhere}.header-actions .icon-btn:first-child{display:none}}
+
+.auth-page--register{grid-template-columns:.75fr 1.25fr}
+.auth-page--register .auth-aside{position:sticky;top:112px;height:calc(100vh - 112px)}
+.auth-page--register .auth-card{max-width:820px;padding-top:70px;padding-bottom:90px}
+.auth-card select{width:100%;border:1px solid #cfd7d4;background:#fbfcfa;min-height:48px;margin-top:7px;padding:10px 12px}
+.privacy-minimum{display:flex;gap:12px;align-items:flex-start;background:#edf5f2;border-left:3px solid var(--teal);padding:14px 16px;color:#455a60;font-size:11px}
+.privacy-minimum svg{width:18px;min-width:18px;color:var(--teal)}
+.privacy-minimum b{color:var(--ink)}
+.registration-questions{border:0;padding:0;margin:3px 0 8px;display:flex;flex-direction:column;gap:17px}
+.registration-questions legend{font:500 25px var(--serif);padding:0;margin-bottom:12px}
+.question-label{display:flex;align-items:center;gap:9px}
+.question-label b{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:var(--teal2);color:var(--teal);font-size:10px}
+.eligibility-note{margin:0;background:#eef4f2;border:1px solid #c8dcd7;padding:11px 13px;color:#355951;font-size:11px}
+.eligibility-note--warning{background:#f8e8e5;border-color:#e8c5bf;color:var(--red)}
+.registration-consents{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:19px}
+.registration-disclaimer{font-size:10px;color:var(--muted);margin:0}
+.btn:disabled{cursor:not-allowed;opacity:.55;transform:none;box-shadow:none}
+@media(max-width:740px){.auth-page--register .auth-aside{position:static;height:auto}.auth-page--register .auth-card{padding-top:55px;padding-bottom:70px}}

@@ -34,6 +34,7 @@ npm run build
 
 - Passwords use Argon2id and a 12-character minimum with complexity checks.
 - Registration requires a six-digit, single-use email code before activation.
+- Registration collects an age range, US state, broad service goal, and pharmacist-support preference. It rejects under-18 signups, records separate Terms and Privacy acknowledgements, and deliberately keeps symptoms, diagnoses, medication lists, and treatment history out of account creation.
 - Every password login requires a second one-time email code.
 - Codes are generated with cryptographic randomness, HMAC-hashed with `OTP_PEPPER`, expire after 10 minutes, allow five attempts, and have a 60-second resend cooldown.
 - Password reset uses a one-time verification challenge and a short-lived, single-use reset grant.

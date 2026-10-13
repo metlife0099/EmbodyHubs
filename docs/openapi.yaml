@@ -8,7 +8,7 @@ servers:
 paths:
   /auth/register:
     post:
-      summary: Create a pending account and send a Brevo email verification code
+      summary: Validate privacy-minimized onboarding answers, create a pending account, and send a Brevo email verification code
       responses:
         '202': { description: OTP challenge issued }
   /auth/login:
