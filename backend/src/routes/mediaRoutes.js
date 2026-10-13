@@ -1,0 +1,2 @@
+import { Router } from 'express';import { authenticate,authorize } from '../middleware/auth.js';import { requireCsrf } from '../middleware/csrf.js';import { removeAsset,signUpload } from '../controllers/mediaController.js';import { asyncHandler } from '../utils/asyncHandler.js';
+export const mediaRoutes=Router();mediaRoutes.use(authenticate,requireCsrf,authorize('media:write'));mediaRoutes.post('/signature',asyncHandler(signUpload));mediaRoutes.delete('/asset',asyncHandler(removeAsset));

@@ -1,7 +1,0 @@
-import { z } from 'zod';
-import { Consultation } from '../models/Consultation.js';
-import { classifyConsultation } from '../services/consultationService.js';
-import { AppError } from '../utils/AppError.js';
-const schema=z.object({productId:z.string().min(1),answers:z.object({age:z.string(),goal:z.string(),experience:z.string(),medical:z.array(z.string()),urgent:z.array(z.string())}),privacyConsent:z.literal(true)});
-export async function createConsultation(req,res){const data=schema.parse(req.body);if(data.answers.age==='under-18')throw new AppError('This pathway is available only to adults.',403,'AGE_INELIGIBLE');const classification=classifyConsultation(data.answers);const saved=await Consultation.create({userId:req.user?.sub,externalProductId:data.productId,answers:data.answers,privacyConsentAt:new Date(),...classification});res.status(201).json({success:true,data:{id:saved.id,status:saved.status,flags:saved.flags,canContinue:classification.canContinue},message:classification.canContinue?'Submitted for professional review.':'Urgent symptoms require immediate in-person care.'})}
-export async function updateConsultation(req,res){const body=z.object({status:z.enum(['ADDITIONAL_INFORMATION_REQUIRED','APPROVED_TO_PROCEED','UNABLE_TO_PROCEED']),reviewNote:z.string().max(2000)}).parse(req.body);const item=await Consultation.findByIdAndUpdate(req.params.id,{...body,reviewedBy:req.user.sub,reviewedAt:new Date()},{new:true});if(!item)throw new AppError('Consultation not found.',404);res.json({success:true,data:item})}

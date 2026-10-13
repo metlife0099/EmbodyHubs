@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import { publicReadiness,assertCanDispense } from '../src/services/pharmacyComplianceService.js';
+test('prescription dispensing is disabled by default',()=>{assert.equal(publicReadiness().prescriptionDispensingEnabled,false);assert.throws(()=>assertCanDispense({state:'CA',product:{controlledSubstance:false}}),error=>error.code==='PRESCRIPTION_DISPENSING_DISABLED')});

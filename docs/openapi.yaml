@@ -1,44 +1,62 @@
 openapi: 3.1.0
 info:
-  title: EMBODY API
-  version: 1.0.0
-  description: Safety-first commerce and workflow API. Clinical and pharmacy authorization remain external, credentialed responsibilities.
+  title: EMBODY Pharmacy API
+  version: 1.1.0
+  description: OTC commerce and pharmacy-readiness API. Prescription dispensing is disabled until verified configuration is supplied.
 servers:
   - url: http://localhost:4000/api/v1
 paths:
+  /auth/register:
+    post:
+      summary: Create a pending account and send a Brevo email verification code
+      responses:
+        '202': { description: OTP challenge issued }
+  /auth/login:
+    post:
+      summary: Validate password and send a login OTP
+      responses:
+        '202': { description: OTP challenge issued }
+  /auth/verify-otp:
+    post:
+      summary: Consume an email verification, login, or password-reset OTP
+      responses:
+        '200': { description: Verification completed }
+        '401': { description: Invalid code }
+        '410': { description: Expired code }
+  /auth/refresh:
+    post:
+      summary: Rotate the opaque refresh session
+      responses:
+        '200': { description: Session rotated }
   /products:
     get:
       summary: List published products
-      parameters:
-        - { name: page, in: query, schema: { type: integer, minimum: 1 } }
-        - { name: limit, in: query, schema: { type: integer, maximum: 48 } }
-        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
       responses:
         '200': { description: Paginated catalog }
-  /auth/register:
+  /media/signature:
     post:
-      summary: Register an adult customer
+      summary: Create an authorized Cloudinary upload signature
+      security: [{ sessionCookie: [] }]
       responses:
-        '201': { description: Account created; email verification remains required }
-        '422': { description: Validation error }
-  /consultations:
+        '200': { description: Signed upload parameters }
+        '403': { description: Permission or CSRF failure }
+  /orders/{id}/invoice/email:
     post:
-      summary: Submit consented initial intake for professional review
-      responses:
-        '201': { description: Intake stored and safely classified }
-        '403': { description: Age ineligible }
-  /consultations/{id}/review:
-    patch:
-      summary: Record an authorized clinical disposition
+      summary: Generate a PDF invoice and send it to the verified account email through Brevo
+      security: [{ sessionCookie: [] }]
       parameters:
         - { name: id, in: path, required: true, schema: { type: string } }
       responses:
-        '200': { description: Review state updated }
-        '403': { description: Required professional permission absent }
+        '200': { description: Invoice sent }
+  /pharmacy/readiness:
+    get:
+      summary: Return non-sensitive pharmacy configuration readiness
+      responses:
+        '200': { description: Readiness status }
   /checkout:
     post:
-      summary: Create an idempotent server-priced checkout
-      description: Safe-disabled in this repository until approved payment, pharmacy, tax, and shipping services are configured.
+      summary: Create a server-priced checkout
+      description: Safe-disabled until payment, pharmacy, tax, and shipping services are approved and configured.
       responses:
         '503': { description: Integration not configured }
 components:

@@ -1,2 +1,3 @@
 import { Router } from 'express';import { getProduct,listProducts,saveProduct } from '../controllers/productController.js';import { asyncHandler } from '../utils/asyncHandler.js';import { authenticate,authorize } from '../middleware/auth.js';
-export const productRoutes=Router();productRoutes.get('/',asyncHandler(listProducts));productRoutes.get('/:slug',asyncHandler(getProduct));productRoutes.post('/',authenticate,authorize('products:write'),asyncHandler(saveProduct));productRoutes.put('/:id',authenticate,authorize('products:write'),asyncHandler(saveProduct));
+import { requireCsrf } from '../middleware/csrf.js';
+export const productRoutes=Router();productRoutes.get('/',asyncHandler(listProducts));productRoutes.get('/:slug',asyncHandler(getProduct));productRoutes.post('/',authenticate,requireCsrf,authorize('products:write'),asyncHandler(saveProduct));productRoutes.put('/:id',authenticate,requireCsrf,authorize('products:write'),asyncHandler(saveProduct));

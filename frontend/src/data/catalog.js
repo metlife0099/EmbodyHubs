@@ -1,38 +1,18 @@
 export const categories = [
-  { slug: 'sexual-health', name: 'Sexual health', eyebrow: 'Discreet support', description: 'Clinician-reviewed pathways for common sexual health concerns.', icon: 'spark' },
-  { slug: 'hair-care', name: 'Hair care', eyebrow: 'Evidence-led care', description: 'Explore options for hair loss with clear education and review.', icon: 'leaf' },
-  { slug: 'everyday-wellness', name: 'Everyday wellness', eyebrow: 'Daily foundations', description: 'Non-prescription products selected for everyday wellbeing.', icon: 'heart' }
+  { slug: 'allergy-cold', name: 'Allergy & cold', eyebrow: 'Everyday relief', description: 'Clear-label, non-prescription options for common seasonal needs.', icon: 'wind' },
+  { slug: 'pain-fever', name: 'Pain & fever', eyebrow: 'Medicine cabinet', description: 'Common OTC products with label-first safety information.', icon: 'shield' },
+  { slug: 'daily-wellness', name: 'Daily wellness', eyebrow: 'Daily foundations', description: 'Wellness and personal-care products for everyday routines.', icon: 'heart' }
 ];
 
 export const products = [
-  {
-    id: 'sildenafil-50', slug: 'sildenafil-50mg', category: 'sexual-health', name: 'Sildenafil', ingredient: 'Sildenafil citrate', dosage: '50 mg', form: 'Tablet', pack: '6 tablets', price: 24, prescriptionRequired: true, stock: 36,
-    badge: 'Professional review required', tone: 'teal',
-    description: 'A prescription treatment option for erectile dysfunction. Eligibility, medicine choice, and dose must be determined by an appropriately licensed professional.',
-    warnings: ['Do not take with nitrates or riociguat.', 'Seek emergency care for chest pain, sudden vision or hearing loss, or an erection lasting more than 4 hours.']
-  },
-  {
-    id: 'tadalafil-10', slug: 'tadalafil-10mg', category: 'sexual-health', name: 'Tadalafil', ingredient: 'Tadalafil', dosage: '10 mg', form: 'Tablet', pack: '6 tablets', price: 29, prescriptionRequired: true, stock: 21,
-    badge: 'Professional review required', tone: 'navy',
-    description: 'A prescription treatment option for erectile dysfunction. A licensed professional must assess whether it is appropriate for you.',
-    warnings: ['Do not take with nitrates or riociguat.', 'Tell the reviewer about heart conditions, blood pressure medicines, and other ED treatments.']
-  },
-  {
-    id: 'minoxidil-foam', slug: 'minoxidil-foam-5', category: 'hair-care', name: 'Minoxidil foam', ingredient: 'Minoxidil', dosage: '5%', form: 'Topical foam', pack: '1 month supply', price: 31, prescriptionRequired: false, stock: 58,
-    badge: 'Non-prescription', tone: 'sage',
-    description: 'Topical minoxidil for certain patterns of hair loss. Read and follow the Drug Facts label before use.',
-    warnings: ['For external use only.', 'Stop use and ask a clinician if chest pain, rapid heartbeat, faintness, or scalp irritation occurs.']
-  },
-  {
-    id: 'daily-multi', slug: 'mens-daily-multivitamin', category: 'everyday-wellness', name: 'Daily essentials', ingredient: 'Vitamin and mineral blend', dosage: 'Daily', form: 'Capsule', pack: '30 capsules', price: 18, prescriptionRequired: false, stock: 84,
-    badge: 'Wellness', tone: 'sand',
-    description: 'A daily vitamin and mineral supplement. Supplements are not intended to diagnose, treat, cure, or prevent disease.',
-    warnings: ['Consult a healthcare professional if you take medicines or have a medical condition.', 'Keep out of reach of children.']
-  }
+  { id:'cetirizine-10',slug:'cetirizine-10mg',category:'allergy-cold',name:'Cetirizine',ingredient:'Cetirizine HCl',dosage:'10 mg',form:'Tablet',pack:'30 tablets',price:12,productType:'OTC',prescriptionRequired:false,stock:64,badge:'Over-the-counter',tone:'teal',description:'An OTC antihistamine for temporary relief of symptoms due to hay fever or other upper respiratory allergies. Always follow the Drug Facts label.',warnings:['May cause drowsiness. Use care when driving or operating machinery.','Ask a healthcare professional before use if you have liver or kidney disease.'] },
+  { id:'acetaminophen-500',slug:'acetaminophen-500mg',category:'pain-fever',name:'Acetaminophen',ingredient:'Acetaminophen',dosage:'500 mg',form:'Caplet',pack:'50 caplets',price:10,productType:'OTC',prescriptionRequired:false,stock:72,badge:'Over-the-counter',tone:'navy',description:'An OTC pain reliever and fever reducer. Read the complete Drug Facts label and do not exceed labeled dosing.',warnings:['Severe liver damage may occur if you take more than directed or combine products containing acetaminophen.','Ask a healthcare professional before use if you have liver disease or take warfarin.'] },
+  { id:'minoxidil-foam',slug:'minoxidil-foam-5',category:'daily-wellness',name:'Minoxidil foam',ingredient:'Minoxidil',dosage:'5%',form:'Topical foam',pack:'1 month supply',price:31,productType:'OTC',prescriptionRequired:false,stock:58,badge:'Over-the-counter',tone:'sage',description:'Topical minoxidil for certain patterns of hair loss. Read and follow the complete Drug Facts label before use.',warnings:['For external use only.','Stop use and ask a healthcare professional if chest pain, rapid heartbeat, faintness, or scalp irritation occurs.'] },
+  { id:'daily-multi',slug:'mens-daily-multivitamin',category:'daily-wellness',name:'Daily essentials',ingredient:'Vitamin and mineral blend',dosage:'Daily',form:'Capsule',pack:'30 capsules',price:18,productType:'WELLNESS',prescriptionRequired:false,stock:84,badge:'Wellness',tone:'sand',description:'A daily vitamin and mineral supplement. Supplements are not intended to diagnose, treat, cure, or prevent disease.',warnings:['Consult a healthcare professional if you take medicines or have a medical condition.','Keep out of reach of children.'] }
 ];
 
 export const articles = [
-  { slug: 'understanding-ed-care', category: 'Sexual health', title: 'What to expect from an ED care review', summary: 'Why a licensed professional asks about symptoms, medicines, and cardiovascular history.', read: '5 min', reviewed: 'Educational draft — clinical review required before publication' },
-  { slug: 'hair-loss-basics', category: 'Hair care', title: 'Hair loss: the useful basics', summary: 'Common patterns, when to seek help, and how to prepare for a conversation about options.', read: '6 min', reviewed: 'Educational draft — clinical review required before publication' },
-  { slug: 'medication-safety', category: 'Medication safety', title: 'Your medication list matters', summary: 'A simple guide to sharing medicines, supplements, and allergies safely.', read: '4 min', reviewed: 'Educational draft — clinical review required before publication' }
+  { slug:'read-drug-facts-label',category:'Medication safety',title:'How to read a Drug Facts label',summary:'A practical guide to active ingredients, warnings, directions, and when to ask a pharmacist.',read:'5 min',reviewed:'Educational draft — pharmacist review required before publication' },
+  { slug:'avoid-double-dosing',category:'Medication safety',title:'Avoiding accidental double dosing',summary:'How checking active ingredients can help prevent taking the same medicine twice.',read:'4 min',reviewed:'Educational draft — pharmacist review required before publication' },
+  { slug:'medication-list',category:'Pharmacy basics',title:'Why your medication list matters',summary:'A simple way to keep medicines, supplements, and allergies organized for pharmacy conversations.',read:'4 min',reviewed:'Educational draft — pharmacist review required before publication' }
 ];

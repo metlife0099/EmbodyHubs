@@ -1,2 +1,0 @@
-import { Router } from 'express';import { createConsultation,updateConsultation } from '../controllers/consultationController.js';import { asyncHandler } from '../utils/asyncHandler.js';import { authenticate,authorize } from '../middleware/auth.js';
-export const consultationRoutes=Router();consultationRoutes.post('/',asyncHandler(createConsultation));consultationRoutes.patch('/:id/review',authenticate,authorize('clinical:review'),asyncHandler(updateConsultation));

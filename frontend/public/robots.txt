@@ -3,5 +3,10 @@ Allow: /
 Disallow: /account
 Disallow: /checkout
 Disallow: /cart
-Disallow: /consultation
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /search
+Disallow: /tracking
 Sitemap: https://embody-mens-health.paleshore64.chatgpt.site/sitemap.xml

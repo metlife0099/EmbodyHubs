@@ -1,0 +1,5 @@
+import crypto from 'node:crypto';
+import { env } from '../config/env.js';
+import { EmailEvent } from '../models/EmailEvent.js';
+import { AppError } from '../utils/AppError.js';
+export async function brevoWebhook(req,res){const supplied=req.get('x-brevo-webhook-secret')||'';if(!env.BREVO_WEBHOOK_SECRET||supplied.length!==env.BREVO_WEBHOOK_SECRET.length||!crypto.timingSafeEqual(Buffer.from(supplied),Buffer.from(env.BREVO_WEBHOOK_SECRET)))throw new AppError('Invalid webhook authentication.',401,'WEBHOOK_UNAUTHORIZED');const payload=req.body||{};const payloadHash=crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');await EmailEvent.updateOne({payloadHash},{$setOnInsert:{messageId:payload['message-id'],event:String(payload.event||'unknown').slice(0,80),recipientHash:payload.email?crypto.createHash('sha256').update(payload.email.toLowerCase()).digest('hex'):undefined,occurredAt:payload.ts_epoch?new Date(Number(payload.ts_epoch)):new Date(),payloadHash}},{upsert:true});res.status(204).end()}

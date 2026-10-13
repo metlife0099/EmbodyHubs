@@ -1,0 +1,7 @@
+import { Order } from '../models/Order.js';
+import { User } from '../models/User.js';
+import { AppError } from '../utils/AppError.js';
+import { createInvoicePdf } from '../services/invoiceService.js';
+import { sendInvoiceEmail } from '../services/emailService.js';
+import { z } from 'zod';
+export async function emailInvoice(req,res){const{id}=z.object({id:z.string().regex(/^[a-f\d]{24}$/i)}).parse(req.params);const order=await Order.findById(id);if(!order)throw new AppError('Order not found.',404,'ORDER_NOT_FOUND');const isOwner=String(order.user)===req.user.sub;const maySend=req.user.role==='SUPER_ADMIN'||req.user.permissions?.includes('invoices:send');if(!isOwner&&!maySend)throw new AppError('You do not have access to this order.',403,'FORBIDDEN');if(order.paymentStatus!=='SUCCEEDED')throw new AppError('An invoice is available only for a completed payment.',409,'INVOICE_NOT_READY');const user=await User.findById(order.user);if(!user?.emailVerifiedAt)throw new AppError('The account email must be verified before an invoice can be sent.',409,'EMAIL_NOT_VERIFIED');order.invoice.number=order.invoice.number||`INV-${order.number}`;order.invoice.issuedAt=order.invoice.issuedAt||new Date();const pdf=await createInvoicePdf(order,user);const sent=await sendInvoiceEmail({email:user.email,name:user.firstName,order,attachment:pdf});order.invoice.brevoMessageId=sent.messageId;order.invoice.sentAt=new Date();await order.save();res.json({success:true,message:'Invoice sent to the verified account email.'})}
