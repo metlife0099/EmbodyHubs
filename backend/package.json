@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": { "dev": "node --watch src/server.js", "start": "node src/server.js", "test": "node --test", "seed": "node src/scripts/seed.js", "admin:json": "node src/scripts/generateAdminJson.js" },
+  "scripts": { "dev": "node --watch src/server.js", "start": "node src/server.js", "test": "node --test", "seed": "node src/scripts/seed.js", "admin:json": "node src/scripts/generateAdminJson.js", "admin:provision": "node src/scripts/provisionAdmin.js" },
   "dependencies": {
     "argon2": "0.44.0",
     "@getbrevo/brevo": "6.0.3",

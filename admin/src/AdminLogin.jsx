@@ -4,4 +4,52 @@ import { adminApi } from './api';
 import { useAdminAuth } from './AdminAuth';
 import './AdminAuth.css';
 
-export default function AdminLogin(){const[step,setStep]=useState('credentials');const[challenge,setChallenge]=useState(null);const[busy,setBusy]=useState(false);const[error,setError]=useState('');const{completeLogin}=useAdminAuth();const credentials=async event=>{event.preventDefault();setBusy(true);setError('');const form=Object.fromEntries(new FormData(event.currentTarget));try{const result=await adminApi.login(form);setChallenge(result.data);setStep('otp')}catch(err){setError(err.message)}finally{setBusy(false)}};const verify=async event=>{event.preventDefault();setBusy(true);setError('');try{const code=new FormData(event.currentTarget).get('code');const result=await adminApi.verifyOtp({challengeId:challenge.challengeId,code,purpose:challenge.purpose});if(result.data.user.role==='CUSTOMER')throw new Error('An administrator role is required.');completeLogin(result.data.user)}catch(err){setError(err.message)}finally{setBusy(false)}};return <main className="admin-login"><section><div className="login-brand"><b>E</b><span>EMBODY<small>SECURE OPERATIONS</small></span></div>{step==='credentials'?<><LockKeyhole className="login-symbol"/><span className="overline">Restricted access</span><h1>Admin sign in</h1><p>Use an authorized staff account. Password verification is followed by a one-time email code.</p><form onSubmit={credentials}><label>Email address<input required type="email" name="email" autoComplete="username"/></label><label>Password<input required type="password" name="password" autoComplete="current-password"/></label>{error&&<p className="admin-error" role="alert">{error}</p>}<button disabled={busy} className="primary">{busy?'Checking…':'Continue securely'}</button></form></>:<><MailCheck className="login-symbol"/><span className="overline">Two-step verification</span><h1>Check your email</h1><p>Enter the single-use six-digit code sent to {challenge.maskedEmail}. It expires after 10 minutes.</p><form onSubmit={verify}><label>One-time code<input className="admin-otp" required name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength="6"/></label>{error&&<p className="admin-error" role="alert">{error}</p>}<button disabled={busy} className="primary"><KeyRound/> {busy?'Verifying…':'Verify and enter'}</button></form></>}<div className="login-security"><ShieldCheck/> HttpOnly sessions, CSRF protection, role enforcement, and audit-ready server boundaries.</div></section></main>}
+export default function AdminLogin(){
+  const[step,setStep]=useState('credentials');
+  const[challenge,setChallenge]=useState(null);
+  const[busy,setBusy]=useState(false);
+  const[error,setError]=useState('');
+  const{completeLogin}=useAdminAuth();
+
+  const credentials=async event=>{
+    event.preventDefault();setBusy(true);setError('');
+    const form=Object.fromEntries(new FormData(event.currentTarget));
+    try{const result=await adminApi.login(form);setChallenge(result.data);setStep('otp')}
+    catch(err){setError(err.message)}finally{setBusy(false)}
+  };
+
+  const verify=async event=>{
+    event.preventDefault();setBusy(true);setError('');
+    try{
+      const code=new FormData(event.currentTarget).get('code');
+      const result=await adminApi.verifyOtp({challengeId:challenge.challengeId,code,purpose:challenge.purpose});
+      if(result.data.user.role==='CUSTOMER')throw new Error('An administrator role is required.');
+      completeLogin(result.data.user);
+    }catch(err){setError(err.message)}finally{setBusy(false)}
+  };
+
+  const databaseMode=challenge?.deliveryMode==='DATABASE_DEVELOPMENT_ONLY';
+  return <main className="admin-login"><section>
+    <div className="login-brand"><b>E</b><span>EMBODY<small>SECURE OPERATIONS</small></span></div>
+    {step==='credentials'?<>
+      <LockKeyhole className="login-symbol"/><span className="overline">Restricted access</span><h1>Admin sign in</h1>
+      <p>Use an authorized staff account. Password verification is followed by a one-time email code.</p>
+      <form onSubmit={credentials}>
+        <label>Email address<input required type="email" name="email" autoComplete="username"/></label>
+        <label>Password<input required type="password" name="password" autoComplete="current-password"/></label>
+        {error&&<p className="admin-error" role="alert">{error}</p>}
+        <button disabled={busy} className="primary">{busy?'Checking…':'Continue securely'}</button>
+      </form>
+    </>:<>
+      <MailCheck className="login-symbol"/><span className="overline">Two-step verification</span>
+      <h1>{databaseMode?'Get your local code':'Check your email'}</h1>
+      <p>{databaseMode?'Local development only: open Atlas, select embody_health → otpchallenges, and copy developmentCode from the newest active LOGIN record.':`Enter the single-use six-digit code sent to ${challenge.maskedEmail}.`} It expires after 10 minutes.</p>
+      <form onSubmit={verify}>
+        <label>One-time code<input className="admin-otp" required name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength="6"/></label>
+        {error&&<p className="admin-error" role="alert">{error}</p>}
+        <button disabled={busy} className="primary"><KeyRound/> {busy?'Verifying…':'Verify and enter'}</button>
+      </form>
+    </>}
+    <div className="login-security"><ShieldCheck/> HttpOnly sessions, CSRF protection, role enforcement, and audit-ready server boundaries.</div>
+  </section></main>;
+}

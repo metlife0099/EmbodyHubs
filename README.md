@@ -60,6 +60,7 @@ npm run build
 - Authorized staff can create and edit catalog products, variants, inventory, publication status, warnings, Cloudinary images, and the product-specific questionnaire from the operations dashboard.
 - Admin password login has a separate endpoint, rejects customer roles, requires email OTP, uses the same lockout controls as customer authentication, and establishes rotating HttpOnly cookie sessions protected by CSRF checks.
 - Create the initial `SUPER_ADMIN` by setting both `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` before `npm run seed`; no administrator password is hardcoded in source.
+- Run `npm run admin:provision` to create or repair that administrator, replace its password with an Argon2id hash, clear login locks, and revoke older sessions and OTP challenges.
 - If Atlas Data Explorer import is required, run `npm run admin:json` after setting those variables. Paste the generated ignored `admin-atlas.json` document into the `users` collection, then delete the file. The JSON contains an Argon2id hash, never a plaintext password.
 - The dashboard is built under `/admin/`, marked private in `robots.txt`, and every sensitive API route independently enforces role permissions.
 
@@ -68,6 +69,8 @@ npm run build
 Set `BREVO_API_KEY`, verify `EMAIL_FROM`, and optionally configure `BREVO_OTP_TEMPLATE_ID` and `BREVO_INVOICE_TEMPLATE_ID`. OTP and invoice mail uses Brevo transactional email with idempotency headers and disabled recipient tracking. PDF invoices are generated with PDFKit and attached without writing customer documents to disk.
 
 Configure the Brevo transactional webhook to `POST /api/v1/webhooks/brevo` with `X-Brevo-Webhook-Secret` matching `BREVO_WEBHOOK_SECRET`. Only hashed recipient identifiers and delivery metadata are retained.
+
+When `NODE_ENV=development` and Brevo is not configured, a newly issued OTP is stored temporarily as `developmentCode` on the active document in `embody_health.otpchallenges`. This field is excluded from application queries, removed after successful use, and deleted with the challenge by its TTL index. Production never stores a recoverable OTP.
 
 ## Cloudinary
 
