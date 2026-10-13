@@ -18,6 +18,9 @@ export default function Auth({mode='login'}){
   const[serviceGoal,setServiceGoal]=useState('');
   const{setUser,setNotice}=useApp();
   const navigate=useNavigate();
+  const location=useLocation();
+  const requestedReturn=new URLSearchParams(location.search).get('returnTo');
+  const returnTo=requestedReturn?.startsWith('/')&&!requestedReturn.startsWith('//')?requestedReturn:'/account';
 
   const submitCredentials=async event=>{
     event.preventDefault();
@@ -43,7 +46,7 @@ export default function Auth({mode='login'}){
       }else{
         setUser(result.data.user);
         setNotice({type:'success',message:'Your account is verified and secure.'});
-        navigate('/account');
+        navigate(returnTo);
       }
     }catch(err){setError(err.message)}finally{setBusy(false)}
   };
@@ -105,7 +108,7 @@ export default function Auth({mode='login'}){
           {error&&<p className="form-error" role="alert">{error}</p>}
           <button disabled={busy||ageRange==='UNDER_18'} className="btn btn-primary btn-wide">{busy?'Please wait…':forgot?'Send reset code':register?'Create and verify account':'Continue securely'}</button>
         </form>
-        {!forgot&&<p className="auth-switch">{register?'Already have an account?':'New to EMBODY?'} <Link to={register?'/login':'/register'}>{register?'Sign in':'Create an account'}</Link></p>}
+        {!forgot&&<p className="auth-switch">{register?'Already have an account?':'New to EMBODY?'} <Link to={`${register?'/login':'/register'}${returnTo!=='/account'?`?returnTo=${encodeURIComponent(returnTo)}`:''}`}>{register?'Sign in':'Create an account'}</Link></p>}
         {!register&&!forgot&&<Link className="forgot-link" to="/forgot-password">Forgot password?</Link>}
       </>}
       {step==='otp'&&<><button className="back-link plain" onClick={()=>{setStep('form');setError('')}}><ArrowLeft/> Start again</button><MailCheck className="auth-icon"/><span className="eyebrow">Email verification</span><h2>Check your inbox.</h2><p>Enter the six-digit code {challenge.maskedEmail?`sent to ${challenge.maskedEmail}`:'if an eligible account exists'}. Never share this code.</p><form onSubmit={verify}><label>One-time code<input className="otp-input" required name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength="6" placeholder="000000"/></label>{error&&<p className="form-error" role="alert">{error}</p>}<button disabled={busy} className="btn btn-primary btn-wide">{busy?'Verifying…':'Verify code'}</button><button disabled={busy} type="button" className="resend-button" onClick={resend}>Send a new code</button></form></>}

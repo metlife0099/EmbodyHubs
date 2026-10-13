@@ -14,6 +14,8 @@ A production-oriented US pharmacy storefront, Express/MongoDB API, and separate 
 
 Requirements: Node.js 22.12+ and MongoDB 8+.
 
+`MONGODB_DB_NAME` defaults to `embody_health`, including when an Atlas SRV URI does not contain a database path.
+
 ```bash
 npm install
 copy .env.example .env
@@ -23,7 +25,7 @@ npm run dev
 
 Storefront: `http://localhost:5173`  
 API: `http://localhost:4000/api/v1`  
-Admin: `http://localhost:5174`
+Admin: `http://localhost:5174/admin/`
 
 ```bash
 npm test
@@ -42,6 +44,24 @@ npm run build
 - Access tokens expire after 10 minutes and are checked against the server-side session and user session version.
 - Cookie-authenticated mutations use a double-submit CSRF token checked against the session.
 - Login errors are generic, missing-account password checks are timing-equalized, and repeated failures trigger a temporary lock.
+
+## Authenticated cart and customer questions
+
+- An anonymous add-to-cart attempt never changes cart state. It opens a clear login/create-account prompt and preserves the intended return route.
+- Only signed-in customers can add items. Logging out clears the device-local cart so it cannot be reused by another person on the device.
+- Each product has an administrator-controlled add-to-cart questionnaire toggle. When enabled, the customer must complete the current required questions before that product enters the cart; when disabled, the product is added immediately.
+- The product editor supports fully customizable multiple-choice questions with two to eight unique options. Administrators can also manage reusable global yes/no, single-choice, and multiple-choice questions.
+- The API validates the authenticated customer, product, current question revisions, answer choices, and ownership of the completed response. Answer bodies are redacted from request logs.
+- Checkout revalidates each response after confirmed payment and stores an immutable question-and-answer snapshot on the order. Authorized staff can review those answers in admin order details.
+- The production payment path fails closed until a verified provider adapter and signed webhooks are configured. Development uses the explicit `sandbox_paid` confirmation only.
+
+## Products and admin access
+
+- Authorized staff can create and edit catalog products, variants, inventory, publication status, warnings, Cloudinary images, and the product-specific questionnaire from the operations dashboard.
+- Admin password login has a separate endpoint, rejects customer roles, requires email OTP, uses the same lockout controls as customer authentication, and establishes rotating HttpOnly cookie sessions protected by CSRF checks.
+- Create the initial `SUPER_ADMIN` by setting both `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` before `npm run seed`; no administrator password is hardcoded in source.
+- If Atlas Data Explorer import is required, run `npm run admin:json` after setting those variables. Paste the generated ignored `admin-atlas.json` document into the `users` collection, then delete the file. The JSON contains an Argon2id hash, never a plaintext password.
+- The dashboard is built under `/admin/`, marked private in `robots.txt`, and every sensitive API route independently enforces role permissions.
 
 ## Brevo
 

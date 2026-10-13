@@ -7,7 +7,8 @@
     "dev": "concurrently -n STORE,API,ADMIN -c cyan,green,yellow \"npm:dev -w frontend\" \"npm:dev -w backend\" \"npm:dev -w admin\"",
     "build": "npm run build -w frontend && npm run build -w admin",
     "test": "npm test -w backend && npm test -w frontend",
-    "seed": "npm run seed -w backend"
+    "seed": "npm run seed -w backend",
+    "admin:json": "npm run admin:json -w backend"
   },
   "devDependencies": {
     "concurrently": "9.2.5"

@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ArrowRight, CheckCircle2, ClipboardCheck, HeartHandshake, PackageCheck, ShieldCheck, Stethoscope } from 'lucide-react';
-import { products, categories, articles } from '../data/catalog';
+import { categories, articles } from '../data/catalog';
 import ProductCard from '../components/ProductCard';
+import { useApp } from '../context/AppContext';
 
 const reveal = { initial:{opacity:0,y:24}, whileInView:{opacity:1,y:0}, viewport:{once:true,margin:'-80px'}, transition:{duration:.55} };
 
 export default function Home() {
+  const{catalogProducts:products}=useApp();
   return <>
     <section className="hero">
       <div className="hero-image" role="img" aria-label="Adult man in a calm, private home setting"/>

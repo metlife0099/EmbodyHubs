@@ -27,3 +27,33 @@ body{overflow-x:hidden}
 .registration-disclaimer{font-size:10px;color:var(--muted);margin:0}
 .btn:disabled{cursor:not-allowed;opacity:.55;transform:none;box-shadow:none}
 @media(max-width:740px){.auth-page--register .auth-aside{position:static;height:auto}.auth-page--register .auth-card{padding-top:55px;padding-bottom:70px}}
+.cart-questionnaire{background:#fff;width:min(720px,100%);max-height:94vh;overflow:auto;box-shadow:0 30px 100px #0006}
+.cart-questionnaire>header{display:flex;align-items:flex-start;justify-content:space-between;padding:24px 28px;border-bottom:1px solid var(--line)}
+.cart-questionnaire>header span{font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:var(--teal);font-weight:700}
+.cart-questionnaire>header h2{font:500 30px/1.1 var(--serif);margin:6px 0 0}
+.cart-questionnaire>header button{border:0;background:none;color:var(--muted)}
+.cart-questionnaire>header svg{width:20px}
+.cart-questionnaire form{padding:26px 28px}
+.questionnaire-intro{display:flex;gap:12px;background:#edf5f2;padding:14px 16px;margin-bottom:22px;color:#455a60}
+.questionnaire-intro svg{width:19px;min-width:19px;color:var(--teal)}
+.questionnaire-intro p{font-size:11px;margin:0}
+.cart-question{border:0;border-top:1px solid var(--line);padding:22px 0 4px;margin:0}
+.cart-question legend{width:100%;display:flex;align-items:center;gap:9px;font:500 19px var(--serif);padding-top:20px}
+.cart-question legend b{font:700 9px var(--sans);width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:var(--teal2);color:var(--teal)}
+.cart-question legend em{font:700 8px var(--sans);font-style:normal;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-left:auto}
+.cart-question>p{font-size:11px;color:var(--muted)}
+.question-options{display:grid;gap:8px;margin-top:14px}
+.question-options label{display:grid;grid-template-columns:18px 1fr 18px;gap:9px;align-items:center;border:1px solid var(--line);padding:13px;font-size:11px;font-weight:500}
+.question-options label.selected{border-color:var(--teal);background:#eff6f3}
+.question-options input{width:15px;min-height:auto;margin:0}
+.question-options svg{width:16px;color:var(--teal)}
+.cart-questionnaire footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+.questionnaire-loading{min-height:230px;display:grid;place-items:center;align-content:center;color:var(--muted)}
+.questionnaire-loading svg{animation:spin 1s linear infinite;color:var(--teal)}
+.questionnaire-loading p{font-size:11px}
+.cart-questionnaire .form-error{display:flex;align-items:center;gap:8px}
+.cart-questionnaire .form-error svg{width:17px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:740px){.cart-questionnaire{height:100vh;max-height:100vh}.cart-questionnaire>header,.cart-questionnaire form{padding:22px}.cart-questionnaire footer{position:sticky;bottom:0;background:#fff;padding:14px 0}.cart-questionnaire footer .btn{padding:0 14px}}
+.login-required-modal{position:relative;background:#fff;width:min(470px,100%);padding:46px;text-align:center;box-shadow:0 30px 100px #0006}.login-required-modal>svg{width:42px;height:42px;color:var(--teal);margin-bottom:18px}.login-required-modal h2{font:500 39px var(--serif);margin:10px 0}.login-required-modal p{font-size:13px;color:var(--muted);margin:0 0 25px}.login-required-modal .btn+.btn{margin-top:9px}.modal-close{position:absolute;right:17px;top:17px;border:0;background:none;color:var(--muted)}.modal-close svg{width:19px}@media(max-width:740px){.login-required-modal{padding:42px 24px}}
+.product-photo{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;padding:35px}.pdp-photo{max-width:80%;max-height:80%;object-fit:contain;position:relative;z-index:1}

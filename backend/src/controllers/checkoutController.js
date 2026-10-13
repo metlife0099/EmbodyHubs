@@ -1,0 +1,41 @@
+import crypto from 'node:crypto';
+import { z } from 'zod';
+import { Product } from '../models/Product.js';
+import { CartQuestion } from '../models/CartQuestion.js';
+import { CartQuestionResponse } from '../models/CartQuestionResponse.js';
+import { Order } from '../models/Order.js';
+import { AppError } from '../utils/AppError.js';
+import { verifyCompletedPayment } from '../services/paymentService.js';
+
+const checkoutSchema=z.object({items:z.array(z.object({productSlug:z.string().regex(/^[a-z0-9-]{2,100}$/),quantity:z.number().int().min(1).max(10),questionnaireResponseId:z.string().regex(/^[a-f\d]{24}$/i).nullable().optional()})).min(1).max(40),shippingAddress:z.object({name:z.string().trim().min(2).max(120),line1:z.string().trim().min(3).max(160),line2:z.string().trim().max(160).optional().default(''),city:z.string().trim().min(2).max(100),state:z.string().regex(/^[A-Z]{2}$/),postalCode:z.string().regex(/^\d{5}(-\d{4})?$/),country:z.literal('US').default('US')}),paymentConfirmationId:z.string().min(3).max(200)});
+
+export async function createCheckoutOrder(req,res){
+  const idempotencyKey=String(req.get('idempotency-key')||'');
+  if(!/^[a-zA-Z0-9_-]{8,100}$/.test(idempotencyKey))throw new AppError('A valid idempotency key is required.',400,'IDEMPOTENCY_KEY_REQUIRED');
+  const existing=await Order.findOne({idempotencyKey,user:req.user.sub}).lean();
+  if(existing)return res.json({success:true,data:publicOrder(existing),message:'Order already processed.'});
+  const data=checkoutSchema.parse(req.body);const slugs=[...new Set(data.items.map(item=>item.productSlug))];const products=await Product.find({slug:{$in:slugs},publicationStatus:'PUBLISHED'}).lean();
+  if(products.length!==slugs.length)throw new AppError('One or more products are unavailable.',409,'PRODUCT_UNAVAILABLE');
+  const orderItems=[];
+  for(const requested of data.items){
+    const product=products.find(item=>item.slug===requested.productSlug);const variant=product.variants.find(item=>item.active!==false&&item.stock>=requested.quantity);
+    if(!variant)throw new AppError(`${product.name} does not have enough available stock.`,409,'INSUFFICIENT_STOCK');
+    if(product.prescriptionRequired)throw new AppError('Prescription checkout remains disabled.',409,'PRESCRIPTION_CHECKOUT_DISABLED');
+    let questionnaire;
+    if(product.cartQuestionnaireEnabled){
+      if(!requested.questionnaireResponseId)throw new AppError(`Complete the questions for ${product.name} before checkout.`,409,'QUESTIONNAIRE_REQUIRED');
+      const response=await CartQuestionResponse.findOne({_id:requested.questionnaireResponseId,user:req.user.sub,productSlug:product.slug,completedAt:{$gte:new Date(Date.now()-24*60*60*1000)}}).lean();
+      if(!response)throw new AppError(`The answers for ${product.name} are missing or expired.`,409,'QUESTIONNAIRE_EXPIRED');
+      const current=await CartQuestion.find({active:true,$or:[{productSlugs:{$size:0}},{productSlugs:product.slug}]}).select('_id revision').lean();
+      if(current.some(question=>!response.answers.some(answer=>String(answer.question)===String(question._id)&&answer.questionRevision===question.revision)))throw new AppError(`The questions for ${product.name} changed. Please answer them again.`,409,'QUESTIONNAIRE_CHANGED');
+      questionnaire={response:response._id,completedAt:response.completedAt,answers:response.answers.map(answer=>({questionRevision:answer.questionRevision,prompt:answer.prompt,selectedLabels:answer.selectedLabels}))};
+    }
+    orderItems.push({product:product._id,productSlug:product.slug,variantId:variant._id,name:product.name,sku:variant.sku,quantity:requested.quantity,unitPriceCents:variant.priceCents,prescriptionRequired:false,questionnaire});
+  }
+  const subtotalCents=orderItems.reduce((sum,item)=>sum+item.unitPriceCents*item.quantity,0);const shippingCents=subtotalCents>=5000?0:600;const taxCents=0;const totalCents=subtotalCents+shippingCents;
+  const payment=await verifyCompletedPayment({confirmationId:data.paymentConfirmationId,amountCents:totalCents});
+  const order=await Order.create({number:`EH-${crypto.randomInt(100000,999999)}`,user:req.user.sub,items:orderItems,status:'PAID_REVIEW_REQUIRED',paymentStatus:'SUCCEEDED',payment,currency:'usd',subtotalCents,taxCents,shippingCents,totalCents,idempotencyKey,shippingAddress:data.shippingAddress});
+  res.status(201).json({success:true,data:publicOrder(order.toObject()),message:'Payment confirmed and order created.'});
+}
+
+function publicOrder(order){return{id:String(order._id),number:order.number,status:order.status,paymentStatus:order.paymentStatus,totalCents:order.totalCents,createdAt:order.createdAt}}

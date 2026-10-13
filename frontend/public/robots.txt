@@ -9,4 +9,5 @@ Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /search
 Disallow: /tracking
+Disallow: /admin/
 Sitemap: https://embody-mens-health.paleshore64.chatgpt.site/sitemap.xml

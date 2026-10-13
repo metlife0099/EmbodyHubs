@@ -4,6 +4,8 @@ import { Menu, Search, ShoppingBag, UserRound, X, ArrowRight, Camera, BriefcaseB
 import Brand from './Brand';
 import SeoManager from './SeoManager';
 import { useApp } from '../context/AppContext';
+import CartQuestionnaire from './CartQuestionnaire';
+import LoginRequiredModal from './LoginRequiredModal';
 
 const nav = [['Shop', '/shop'], ['How it works', '/how-it-works'], ['Learn', '/learn'], ['About', '/about']];
 
@@ -44,5 +46,7 @@ export default function Layout({ children }) {
       <div className="footer-bottom"><span>© {new Date().getFullYear()} EMBODY Pharmacy</span><span>Built for legal, pharmacy, privacy, and security review before launch.</span></div>
     </footer>
     {notice && <div className={`toast toast--${notice.type}`} role="status">{notice.message}</div>}
+    <CartQuestionnaire/>
+    <LoginRequiredModal/>
   </>;
 }
