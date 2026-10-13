@@ -37,7 +37,7 @@ npm run build
 - Passwords use Argon2id and a 12-character minimum with complexity checks.
 - Registration requires a six-digit, single-use email code before activation.
 - Registration collects an age range, US state, broad service goal, and pharmacist-support preference. It rejects under-18 signups, records separate Terms and Privacy acknowledgements, and deliberately keeps symptoms, diagnoses, medication lists, and treatment history out of account creation.
-- Every password login requires a second one-time email code.
+- Customer password login requires a second one-time email code. Privileged administrator login uses the dedicated role-gated endpoint and a fixed 24-hour session without email OTP, per the current operations requirement.
 - Codes are generated with cryptographic randomness, HMAC-hashed with `OTP_PEPPER`, expire after 10 minutes, allow five attempts, and have a 60-second resend cooldown.
 - Password reset uses a one-time verification challenge and a short-lived, single-use reset grant.
 - Refresh tokens are opaque, SHA-256 hashed in MongoDB, rotated after use, revocable, and stored only in Secure/HttpOnly/SameSite cookies.
@@ -58,7 +58,8 @@ npm run build
 ## Products and admin access
 
 - Authorized staff can create and edit catalog products, variants, inventory, publication status, warnings, Cloudinary images, and the product-specific questionnaire from the operations dashboard.
-- Admin password login has a separate endpoint, rejects customer roles, requires email OTP, uses the same lockout controls as customer authentication, and establishes rotating HttpOnly cookie sessions protected by CSRF checks.
+- Admin password login has a separate endpoint, rejects customer roles, uses the same lockout controls as customer authentication, and establishes a fixed, non-extendable 24-hour HttpOnly cookie session protected by CSRF checks.
+- The permission-gated Customers module shows customer identity, verification status, account dates, and the privacy-minimized answers captured during registration. Password material, session data, OTP records, and network identifiers are never returned.
 - Create the initial `SUPER_ADMIN` by setting both `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` before `npm run seed`; no administrator password is hardcoded in source.
 - Run `npm run admin:provision` to create or repair that administrator, replace its password with an Argon2id hash, clear login locks, and revoke older sessions and OTP challenges.
 - If Atlas Data Explorer import is required, run `npm run admin:json` after setting those variables. Paste the generated ignored `admin-atlas.json` document into the `users` collection, then delete the file. The JSON contains an Argon2id hash, never a plaintext password.
@@ -105,7 +106,7 @@ A Vite SPA is not equivalent to complete SSR. For a public production launch, ad
 1. Obtain state-by-state pharmacy and legal approval, validate the actual operating entity, and complete NABP/`.pharmacy` evaluation if pursued.
 2. Configure Brevo domain authentication, templates, webhook delivery, suppression handling, and appropriate privacy/BAA review.
 3. Configure Cloudinary product-media presets, least-privilege credentials, retention, backups, and webhook verification.
-4. Add WebAuthn or authenticator-app MFA for privileged staff; email OTP is implemented but should not be the only factor for high-risk administrative roles.
+4. Add WebAuthn or authenticator-app MFA for privileged staff before production launch. The current password-only admin flow was requested for local operations and provides less protection than phishing-resistant MFA.
 5. Add a distributed rate-limit/session layer such as managed Valkey when running multiple API instances.
 6. Complete payment-provider pharmacy underwriting, signed webhooks, taxes, MongoDB transaction-backed stock reservations, USPS/provider certification, refunds, and reconciliation.
 7. Complete threat modeling, penetration testing, WCAG 2.2 AA audit, incident-response exercises, vendor agreements, breach procedures, and state-law review.

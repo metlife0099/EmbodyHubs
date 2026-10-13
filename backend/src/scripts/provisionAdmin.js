@@ -15,7 +15,7 @@ try{
   const now=new Date();
   let user=await User.findOne({email}).select('+passwordHash');
   if(!user){
-    user=await User.create({email,passwordHash:await User.hashPassword(env.ADMIN_SEED_PASSWORD),firstName:'Store',lastName:'Administrator',role:'SUPER_ADMIN',permissions:[],emailVerifiedAt:now,adultConfirmedAt:now,termsAcceptedAt:now,privacyAcknowledgedAt:now,privacyNoticeVersion:'2026-10-13',status:'ACTIVE',failedLogins:0,sessionVersion:0,mfaRequired:true,passwordChangedAt:now});
+    user=await User.create({email,passwordHash:await User.hashPassword(env.ADMIN_SEED_PASSWORD),firstName:'Store',lastName:'Administrator',role:'SUPER_ADMIN',permissions:[],emailVerifiedAt:now,adultConfirmedAt:now,termsAcceptedAt:now,privacyAcknowledgedAt:now,privacyNoticeVersion:'2026-10-13',status:'ACTIVE',failedLogins:0,sessionVersion:0,mfaRequired:false,passwordChangedAt:now});
   }else{
     user.passwordHash=await User.hashPassword(env.ADMIN_SEED_PASSWORD);
     user.role='SUPER_ADMIN';
@@ -29,7 +29,7 @@ try{
     user.lockedUntil=undefined;
     user.passwordChangedAt=now;
     user.sessionVersion=(user.sessionVersion||0)+1;
-    user.mfaRequired=true;
+    user.mfaRequired=false;
     await user.save();
   }
   await Promise.all([

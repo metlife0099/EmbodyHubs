@@ -27,7 +27,7 @@ const admin={
   status:'ACTIVE',
   failedLogins:0,
   sessionVersion:0,
-  mfaRequired:true,
+  mfaRequired:false,
   passwordChangedAt:asDate(now),
   createdAt:asDate(now),
   updatedAt:asDate(now),
