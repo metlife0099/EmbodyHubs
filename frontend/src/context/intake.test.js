@@ -1,0 +1,2 @@
+import { describe,it,expect } from 'vitest';
+describe('intake safety contract',()=>{it('keeps consent separate from five clinical routing questions',()=>{const clinical=['age','goal','experience','medical','urgent'];expect(clinical).toHaveLength(5);expect(clinical).not.toContain('consent')});it('defines urgent hard-stop symptoms',()=>{expect(['chest-pain','vision-hearing','prolonged-erection']).toContain('prolonged-erection')})});

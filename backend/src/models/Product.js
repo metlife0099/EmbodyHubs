@@ -1,0 +1,5 @@
+import mongoose from 'mongoose';
+const variantSchema=new mongoose.Schema({sku:{type:String,required:true},dosage:String,form:String,packSize:String,priceCents:{type:Number,required:true,min:0},stock:{type:Number,default:0,min:0},reserved:{type:Number,default:0,min:0},active:{type:Boolean,default:true}},{_id:true});
+const schema=new mongoose.Schema({name:{type:String,required:true},slug:{type:String,required:true,unique:true,index:true},category:{type:mongoose.Schema.Types.ObjectId,ref:'Category',index:true},activeIngredient:String,description:String,directions:String,warnings:[String],images:[{url:String,alt:String}],prescriptionRequired:{type:Boolean,default:false,index:true},publicationStatus:{type:String,enum:['DRAFT','PUBLISHED','ARCHIVED'],default:'DRAFT',index:true},variants:[variantSchema],seo:{title:String,description:String,canonical:String}},{timestamps:true});
+schema.index({name:'text',activeIngredient:'text',description:'text'});
+export const Product=mongoose.model('Product',schema);

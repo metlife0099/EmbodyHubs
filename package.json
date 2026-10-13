@@ -1,0 +1,16 @@
+{
+  "name": "embody-mens-health",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["frontend", "backend", "admin"],
+  "scripts": {
+    "dev": "concurrently -n STORE,API,ADMIN -c cyan,green,yellow \"npm:dev -w frontend\" \"npm:dev -w backend\" \"npm:dev -w admin\"",
+    "build": "npm run build -w frontend && npm run build -w admin",
+    "test": "npm test -w backend && npm test -w frontend",
+    "seed": "npm run seed -w backend"
+  },
+  "devDependencies": {
+    "concurrently": "9.2.5"
+  },
+  "engines": { "node": ">=22.12.0" }
+}

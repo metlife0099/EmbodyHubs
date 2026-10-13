@@ -1,0 +1,10 @@
+import { z } from 'zod';
+import { User } from '../models/User.js';
+import { AppError } from '../utils/AppError.js';
+import { clearSession, setSession } from '../services/tokenService.js';
+
+const registerSchema=z.object({email:z.email(),password:z.string().min(10).max(128),firstName:z.string().trim().min(1).max(60),lastName:z.string().trim().min(1).max(60),adult:z.union([z.literal('true'),z.literal(true)]),marketing:z.union([z.literal('true'),z.literal(true)]).optional()});
+export async function register(req,res){const data=registerSchema.parse(req.body);if(await User.exists({email:data.email.toLowerCase()}))throw new AppError('An account with this email already exists.',409,'ACCOUNT_EXISTS');const user=await User.create({email:data.email,passwordHash:await User.hashPassword(data.password),firstName:data.firstName,lastName:data.lastName,adultConfirmedAt:new Date(),marketingConsentAt:data.marketing?new Date():undefined});setSession(res,user);res.status(201).json({success:true,data:{user:{id:user.id,email:user.email,firstName:user.firstName,lastName:user.lastName,emailVerified:false}},message:'Account created. Email verification is required.'})}
+const loginSchema=z.object({email:z.email(),password:z.string().min(1).max(128)});
+export async function login(req,res){const data=loginSchema.parse(req.body);const user=await User.findOne({email:data.email.toLowerCase()}).select('+passwordHash');if(!user||!(await user.verifyPassword(data.password)))throw new AppError('Email or password is incorrect.',401,'INVALID_CREDENTIALS');if(user.status!=='ACTIVE'||(user.lockedUntil&&user.lockedUntil>new Date()))throw new AppError('This account is temporarily unavailable.',423,'ACCOUNT_LOCKED');user.lastLoginAt=new Date();user.failedLogins=0;await user.save();setSession(res,user);res.json({success:true,data:{user:{id:user.id,email:user.email,firstName:user.firstName,lastName:user.lastName,role:user.role}}})}
+export async function logout(_req,res){clearSession(res);res.json({success:true,message:'Signed out securely.'})}

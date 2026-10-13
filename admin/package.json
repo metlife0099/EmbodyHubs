@@ -1,0 +1,9 @@
+{
+  "name": "@embody/admin",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": { "dev": "vite --port 5174", "build": "vite build", "preview": "vite preview --port 4174" },
+  "dependencies": { "@tailwindcss/vite": "4.3.3", "lucide-react": "1.56.0", "motion": "14.1.0", "react": "19.3.0", "react-dom": "19.3.0", "react-router-dom": "7.18.4", "tailwindcss": "4.3.3" },
+  "devDependencies": { "@vitejs/plugin-react": "5.0.4", "vite": "7.3.7" }
+}

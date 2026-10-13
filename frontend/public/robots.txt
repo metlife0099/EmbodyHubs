@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /checkout
+Disallow: /cart
+Disallow: /consultation
+Sitemap: https://embody-mens-health.paleshore64.chatgpt.site/sitemap.xml

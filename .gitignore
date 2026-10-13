@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.npm-cache/
+coverage/
+*.log
+.DS_Store
+tmp/
+.openai/
