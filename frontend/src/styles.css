@@ -57,3 +57,117 @@ body{overflow-x:hidden}
 @media(max-width:740px){.cart-questionnaire{height:100vh;max-height:100vh}.cart-questionnaire>header,.cart-questionnaire form{padding:22px}.cart-questionnaire footer{position:sticky;bottom:0;background:#fff;padding:14px 0}.cart-questionnaire footer .btn{padding:0 14px}}
 .login-required-modal{position:relative;background:#fff;width:min(470px,100%);padding:46px;text-align:center;box-shadow:0 30px 100px #0006}.login-required-modal>svg{width:42px;height:42px;color:var(--teal);margin-bottom:18px}.login-required-modal h2{font:500 39px var(--serif);margin:10px 0}.login-required-modal p{font-size:13px;color:var(--muted);margin:0 0 25px}.login-required-modal .btn+.btn{margin-top:9px}.modal-close{position:absolute;right:17px;top:17px;border:0;background:none;color:var(--muted)}.modal-close svg{width:19px}@media(max-width:740px){.login-required-modal{padding:42px 24px}}
 .product-photo{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;padding:35px}.pdp-photo{max-width:80%;max-height:80%;object-fit:contain;position:relative;z-index:1}
+
+/* Responsive visual-system refinement */
+:where(main,section,article,aside,header,footer,nav,div,form,fieldset,label,span,a){min-width:0}
+:where(h1,h2,h3,p,span,a,button,label,small,dd){overflow-wrap:anywhere}
+h1,h2,h3{text-wrap:balance}
+input,select,textarea{max-width:100%;border-radius:10px!important;transition:border-color .2s,box-shadow .2s,background .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)!important;box-shadow:0 0 0 4px rgba(29,116,110,.1);outline:0}
+.btn{border-radius:999px;white-space:normal;text-align:center}
+.page-shell{width:100%}
+.simple-header{max-width:780px}
+
+.auth-page{min-height:calc(100svh - 112px);grid-template-columns:minmax(380px,.92fr) minmax(0,1.08fr);background:#f5f7f4}
+.auth-aside{isolation:isolate;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:clamp(54px,8vw,120px) clamp(38px,6vw,96px);background-image:linear-gradient(125deg,rgba(6,27,37,.96),rgba(6,27,37,.77) 55%,rgba(6,27,37,.42)),url('/images/pharmacy-still-life-v2.png');background-size:cover;background-position:58% center}
+.auth-aside:after{content:'';position:absolute;inset:auto -18% -30% auto;width:440px;aspect-ratio:1;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 70px rgba(255,255,255,.025),0 0 0 140px rgba(255,255,255,.018);z-index:-1}
+.auth-aside>*{position:relative;z-index:1}
+.auth-aside h1{font-size:clamp(48px,5.4vw,78px);max-width:620px;margin:26px 0 24px}
+.auth-aside>p{font-size:clamp(15px,1.3vw,18px);line-height:1.7;color:#d8e4e0;max-width:560px}
+.auth-aside>div{display:grid;grid-template-columns:1fr;gap:10px;margin-top:42px;max-width:420px}
+.auth-aside>div span{width:fit-content;max-width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(4,21,30,.34);backdrop-filter:blur(10px);font-size:12px;color:#eff6f3}
+.auth-card{align-self:center;width:min(100%,760px);max-width:none;margin:auto;padding:clamp(56px,7vw,96px) clamp(28px,7vw,92px)}
+.auth-card h2{font-size:clamp(40px,4vw,56px);line-height:1.02;margin-top:14px}
+.auth-card>p{font-size:14px;line-height:1.7;max-width:620px}
+.auth-card form{gap:20px}
+.auth-card label{font-size:12px}
+.auth-card input,.auth-card select{min-height:54px;padding:12px 15px;background:#fff}
+.password-field input{padding-right:50px}
+.password-field button{top:14px;right:10px;width:34px;height:34px;display:grid;place-items:center;border-radius:50%}
+.auth-switch{margin:20px 0 8px}
+.forgot-link{display:inline-block;margin-top:8px}
+.auth-page--register{grid-template-columns:minmax(360px,.72fr) minmax(0,1.28fr)}
+.auth-page--register .auth-aside{top:112px;height:calc(100svh - 112px);background-position:63% center}
+.auth-page--register .auth-card{width:min(100%,900px);padding-inline:clamp(28px,6vw,78px)}
+.privacy-minimum{border:1px solid #cfe3dd;border-left:4px solid var(--teal);border-radius:12px;background:linear-gradient(135deg,#edf6f2,#f8faf8);padding:17px 18px;line-height:1.55}
+.registration-questions{gap:20px;padding:24px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 16px 45px rgba(11,31,42,.05)}
+.registration-questions legend{margin:0;padding:0 10px;font-size:28px}
+.question-label{line-height:1.4}
+.question-label b{min-width:25px;width:25px;height:25px}
+.registration-consents{padding:20px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.checkbox.optional{border-radius:10px}
+
+.cart-page{padding-top:48px}
+.cart-hero{position:relative;isolation:isolate;overflow:hidden;max-width:none;min-height:280px;margin-bottom:34px;padding:clamp(34px,5vw,62px);display:flex;align-items:flex-end;justify-content:space-between;gap:30px;border-radius:26px;color:#fff;background-image:linear-gradient(90deg,rgba(6,27,37,.98),rgba(6,27,37,.78) 48%,rgba(6,27,37,.2)),url('/images/pharmacy-still-life-v2.png');background-size:cover;background-position:center}
+.cart-hero:after{content:'';position:absolute;inset:0;border:1px solid rgba(255,255,255,.12);border-radius:inherit;pointer-events:none}
+.cart-hero h1{color:#fff;font-size:clamp(48px,6vw,76px);margin:14px 0 12px}
+.cart-hero p{color:#d9e5e2;max-width:590px;margin:0}
+.cart-hero .eyebrow{color:#a9d8ce}
+.cart-hero-trust{display:flex;align-items:center;gap:12px;min-width:280px;padding:16px 18px;border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(5,25,34,.5);backdrop-filter:blur(12px)}
+.cart-hero-trust svg{width:22px;color:#9ed2c7;flex:none}
+.cart-hero-trust span,.cart-hero-trust b,.cart-hero-trust small{display:block}
+.cart-hero-trust b{font-size:12px}.cart-hero-trust small{font-size:10px;color:#c8d8d4;margin-top:3px}
+.cart-grid{grid-template-columns:minmax(0,1fr) minmax(310px,380px);align-items:start;gap:24px}
+.cart-items,.order-summary{border:1px solid rgba(11,31,42,.08);border-radius:20px;overflow:hidden;box-shadow:0 18px 55px rgba(11,31,42,.07)}
+.cart-item{grid-template-columns:130px minmax(0,1fr) auto;gap:22px;padding:24px;align-items:center}
+.cart-thumb{height:130px;border-radius:15px;overflow:hidden}
+.cart-copy h2{font-size:28px}.cart-copy p{font-size:12px}
+.cart-item>strong{align-self:start;font:500 19px var(--serif);white-space:nowrap}
+.quantity-control{display:grid!important;grid-template-columns:44px 48px 44px;align-items:center;width:max-content;height:44px;border:1px solid #cbd6d2!important;border-radius:999px;overflow:hidden;background:#f5f7f4;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+.quantity-control button{width:44px!important;height:44px!important;padding:0;border:0;background:transparent;display:grid!important;place-items:center;color:var(--navy);transition:background .2s,color .2s,opacity .2s}
+.quantity-control button:hover:not(:disabled){background:#dceae5;color:var(--teal)}
+.quantity-control button:disabled{cursor:not-allowed;opacity:.32}
+.quantity-control button svg{display:block;width:15px!important;height:15px}
+.quantity-value{width:48px;height:44px;display:grid;place-items:center;border-inline:1px solid #d7dfdc;background:#fff;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.remove-btn{min-height:40px;padding:0 10px;align-items:center;border-radius:999px;transition:background .2s,color .2s}
+.remove-btn:hover{background:#f1e8e5;color:var(--red)}
+.review-status{border-radius:999px;margin-top:7px}
+.order-summary{padding:30px;top:126px}
+.order-summary h2{font-size:31px}
+.order-summary .btn{margin-top:12px}
+.empty-cart{position:relative;isolation:isolate;min-height:calc(100svh - 112px);padding:60px 20px;background-image:linear-gradient(90deg,rgba(6,27,37,.82),rgba(6,27,37,.25)),url('/images/pharmacy-still-life-v2.png');background-size:cover;background-position:center}
+.empty-cart-card{width:min(620px,100%);margin-right:auto;margin-left:max(0px,calc((100vw - 1400px)/2));padding:clamp(30px,5vw,58px);border-radius:24px;background:rgba(255,255,255,.94);box-shadow:0 24px 80px rgba(0,0,0,.2);backdrop-filter:blur(14px);text-align:left}
+.empty-cart-card h1{font-size:clamp(46px,6vw,72px);line-height:.98}
+.empty-cart-card p{font-size:15px;line-height:1.7;margin-left:0}
+
+@media(max-width:1000px){
+  .auth-page{grid-template-columns:minmax(320px,.8fr) minmax(0,1.2fr)}
+  .auth-aside{padding:50px 36px}.auth-aside h1{font-size:52px}
+  .auth-card{padding:58px 38px}
+  .cart-hero-trust{min-width:240px}
+}
+@media(max-width:740px){
+  .auth-page,.auth-page--register{display:block;min-height:auto}
+  .auth-aside,.auth-page--register .auth-aside{position:relative;top:auto;height:auto;min-height:400px;padding:60px 24px 44px;background-position:66% center}
+  .auth-aside h1{font-size:clamp(45px,13vw,60px);max-width:340px;margin:20px 0}
+  .auth-aside>p{font-size:15px;max-width:340px}
+  .auth-aside>div{margin-top:28px;gap:7px}.auth-aside>div span{font-size:10px;padding:8px 11px}
+  .auth-card,.auth-page--register .auth-card{width:100%;padding:48px 20px 68px;overflow:visible}
+  .auth-card h2{font-size:clamp(39px,11vw,50px)}
+  .auth-card>p,.auth-card form,.privacy-minimum,.registration-questions,.registration-consents,.field-row{width:100%;max-width:100%}
+  .privacy-minimum>span{flex:1;min-width:0}
+  .registration-questions label{display:block;width:100%;min-width:0}
+  .field-row,.field-row.three{display:grid;grid-template-columns:minmax(0,1fr)}
+  .registration-questions{padding:18px 14px;border-radius:14px}
+  .registration-questions legend{font-size:25px}
+  .privacy-minimum{padding:14px}
+  .registration-consents{padding:16px 14px}
+  .cart-page{padding-top:28px}
+  .cart-hero{min-height:360px;padding:30px 24px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;background-image:linear-gradient(0deg,rgba(6,27,37,.98),rgba(6,27,37,.62) 70%,rgba(6,27,37,.22)),url('/images/pharmacy-still-life-v2.png');background-position:67% center}
+  .cart-hero h1{font-size:50px}.cart-hero p{font-size:13px}
+  .cart-hero-trust{width:100%;min-width:0}
+  .cart-grid{grid-template-columns:minmax(0,1fr)}
+  .cart-item{grid-template-columns:88px minmax(0,1fr) auto;gap:14px;padding:18px 14px;align-items:start}
+  .cart-thumb{height:94px}.mini-pack{width:65px;height:82px;padding:11px;font-size:12px}
+  .cart-copy h2{font-size:23px}.cart-copy p{font-size:10px}
+  .cart-controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .cart-item>strong{grid-column:3;grid-row:1;font-size:16px}
+  .order-summary{padding:24px;border-radius:18px}
+  .empty-cart{min-height:calc(100svh - 95px);padding:32px 16px;background-position:64% center}
+  .empty-cart-card{padding:32px 24px;border-radius:18px}
+}
+@media(max-width:430px){
+  .auth-aside{min-height:430px}.auth-aside>div span{width:100%}
+  .cart-item{grid-template-columns:72px minmax(0,1fr)}.cart-item>strong{grid-column:2;grid-row:auto;justify-self:start}.cart-thumb{height:78px}
+  .cart-controls{align-items:flex-start}.review-status{white-space:normal}
+}
