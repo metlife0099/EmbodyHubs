@@ -1,6 +1,11 @@
+import mongoose from 'mongoose';
 import { z } from 'zod';
 import { Product } from '../models/Product.js';
 import { CartQuestion } from '../models/CartQuestion.js';
+import { CartQuestionResponse } from '../models/CartQuestionResponse.js';
+import { Order } from '../models/Order.js';
+import { InventoryAdjustment } from '../models/InventoryAdjustment.js';
+import { AuditLog } from '../models/AuditLog.js';
 import { AppError } from '../utils/AppError.js';
 import { publicReadiness } from '../services/pharmacyComplianceService.js';
 
@@ -39,4 +44,27 @@ export async function saveProduct(req,res){
     }
   }
   res.status(req.params.id?200:201).json({success:true,data:product});
+}
+
+export function productRemovalMode({orders=false,inventory=false,responses=false}){return orders||inventory||responses?'ARCHIVED':'DELETED'}
+
+export async function removeProduct(req,res){
+  const{id}=z.object({id:z.string().regex(/^[a-f\d]{24}$/i)}).parse(req.params);const session=await mongoose.startSession();let result;
+  try{
+    await session.withTransaction(async()=>{
+      const product=await Product.findById(id).session(session);
+      if(!product)throw new AppError('Product not found.',404,'PRODUCT_NOT_FOUND');
+      const[orders,inventory,responses]=await Promise.all([Order.exists({'items.product':product._id}).session(session),InventoryAdjustment.exists({product:product._id}).session(session),CartQuestionResponse.exists({productSlug:product.slug}).session(session)]);
+      const mode=productRemovalMode({orders:Boolean(orders),inventory:Boolean(inventory),responses:Boolean(responses)});
+      if(mode==='ARCHIVED'){
+        product.publicationStatus='ARCHIVED';product.cartQuestionnaireEnabled=false;product.variants.forEach(variant=>{variant.active=false});await product.save({session});
+        await CartQuestion.updateMany({managedProductSlug:product.slug},{$set:{active:false,updatedBy:req.user.sub}},{session});
+      }else{
+        await CartQuestion.deleteMany({managedProductSlug:product.slug},{session});await Product.deleteOne({_id:product._id},{session});
+      }
+      await AuditLog.create([{actor:req.user.sub,action:mode==='ARCHIVED'?'PRODUCT_ARCHIVED':'PRODUCT_DELETED',resourceType:'Product',resourceId:String(product._id),requestId:req.id,metadata:{name:product.name,slug:product.slug,reason:mode==='ARCHIVED'?'Historical records retained':'Unused catalog record removed'}}],{session});
+      result={id:String(product._id),mode};
+    });
+  }finally{await session.endSession()}
+  res.json({success:true,data:result,message:result.mode==='ARCHIVED'?'Product has order, inventory, or questionnaire history, so it was safely archived.':'Unused product was permanently deleted.'});
 }
