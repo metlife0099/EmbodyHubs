@@ -8,7 +8,7 @@ async function request(path, options = {}) {
     headers: { 'Content-Type': 'application/json', 'X-Client': 'storefront', ...headers }
   });
   const data = await response.json().catch(() => ({ success: false, message: 'Unexpected server response.' }));
-  if (!response.ok) throw new Error(data.message || 'Request failed. Please try again.');
+  if (!response.ok) { const detail=Object.values(data.errors||{}).flat().find(Boolean); throw new Error(detail||data.message||'Request failed. Please try again.'); }
   return data;
 }
 

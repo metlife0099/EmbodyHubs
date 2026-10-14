@@ -8,7 +8,7 @@ const SUCCESS_MESSAGE='Thanks for subscribing. You are on the EMBODY newsletter 
 export async function subscribe(req,res){
   const data=newsletterSubscriptionSchema.parse(req.body);
   const now=new Date();
-  const update={$set:{fullName:data.fullName,status:'ACTIVE',lastSubscribedAt:now,unsubscribedAt:null,'brevoSync.status':'PENDING','brevoSync.lastAttemptAt':now},$setOnInsert:{consentedAt:now,consentVersion:'2026-10-14',source:'STOREFRONT'}};
+  const update={$set:{fullName:data.fullName,status:'ACTIVE',lastSubscribedAt:now,unsubscribedAt:null,'brevoSync.status':'PENDING','brevoSync.lastAttemptAt':now},$setOnInsert:{consentedAt:now,consentVersion:'2026-10-14',consentMethod:'SUBSCRIBE_BUTTON',source:'STOREFRONT'}};
   let subscriber;
   try{subscriber=await NewsletterSubscriber.findOneAndUpdate({email:data.email},update,{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true})}
   catch(error){if(error?.code!==11000)throw error;subscriber=await NewsletterSubscriber.findOneAndUpdate({email:data.email},update,{new:true,runValidators:true})}
@@ -30,11 +30,13 @@ export async function listSubscribers(req,res){
   const q=String(req.query.q||'').trim().slice(0,100);
   const filter={};
   if(q){const escaped=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');filter.$or=[{fullName:{$regex:escaped,$options:'i'}},{email:{$regex:escaped,$options:'i'}}]}
-  const[items,total,all,active]=await Promise.all([
+  const status=String(req.query.status||'').toUpperCase();if(['ACTIVE','UNSUBSCRIBED'].includes(status))filter.status=status;
+  const sync=String(req.query.sync||'').toUpperCase();if(['SYNCED','PENDING','FAILED','NOT_CONFIGURED'].includes(sync))filter['brevoSync.status']=sync;
+  const[items,total,summary]=await Promise.all([
     NewsletterSubscriber.find(filter).select('fullName email status consentedAt lastSubscribedAt createdAt brevoSync.status').sort({createdAt:-1}).skip((page-1)*limit).limit(limit).lean(),
     NewsletterSubscriber.countDocuments(filter),
-    NewsletterSubscriber.countDocuments(),
-    NewsletterSubscriber.countDocuments({status:'ACTIVE'})
+    NewsletterSubscriber.aggregate([{$group:{_id:null,all:{$sum:1},active:{$sum:{$cond:[{$eq:['$status','ACTIVE']},1,0]}},synced:{$sum:{$cond:[{$eq:['$brevoSync.status','SYNCED']},1,0]}},attention:{$sum:{$cond:[{$in:['$brevoSync.status',['FAILED','PENDING']]},1,0]}}}}])
   ]);
-  res.json({success:true,data:items.map(item=>({id:String(item._id),fullName:item.fullName,email:item.email,status:item.status,consentedAt:item.consentedAt,lastSubscribedAt:item.lastSubscribedAt,createdAt:item.createdAt,syncStatus:item.brevoSync?.status||'NOT_CONFIGURED'})),meta:{page,limit,total,all,active,pages:Math.max(1,Math.ceil(total/limit))}});
+  const rawStats=summary[0]||{};const stats={all:rawStats.all||0,active:rawStats.active||0,synced:rawStats.synced||0,attention:rawStats.attention||0};
+  res.json({success:true,data:items.map(item=>({id:String(item._id),fullName:item.fullName,email:item.email,status:item.status,consentedAt:item.consentedAt,lastSubscribedAt:item.lastSubscribedAt,createdAt:item.createdAt,syncStatus:item.brevoSync?.status||'NOT_CONFIGURED'})),meta:{page,limit,total,stats,pages:Math.max(1,Math.ceil(total/limit))}});
 }
