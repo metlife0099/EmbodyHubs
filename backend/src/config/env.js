@@ -23,7 +23,7 @@ const schema = z.object({
   OTP_PEPPER: z.string().min(32).default('development-only-otp-pepper-change-me'),
   STRIPE_SECRET_KEY: optional(z.string()), STRIPE_WEBHOOK_SECRET: optional(z.string()),
   USPS_CLIENT_ID: optional(z.string()), USPS_CLIENT_SECRET: optional(z.string()), USPS_BASE_URL: z.string().url().default('https://apis-tem.usps.com'),
-  BREVO_API_KEY: optional(z.string()), BREVO_OTP_TEMPLATE_ID: optional(z.coerce.number().int().positive()), BREVO_INVOICE_TEMPLATE_ID: optional(z.coerce.number().int().positive()), BREVO_WEBHOOK_SECRET: optional(z.string()),
+  BREVO_API_KEY: optional(z.string()), BREVO_OTP_TEMPLATE_ID: optional(z.coerce.number().int().positive()), BREVO_INVOICE_TEMPLATE_ID: optional(z.coerce.number().int().positive()), BREVO_NEWSLETTER_LIST_ID: optional(z.coerce.number().int().positive()), BREVO_WEBHOOK_SECRET: optional(z.string()),
   EMAIL_FROM: z.string().email().default('care@example.com'), EMAIL_FROM_NAME: z.string().default('EMBODY Pharmacy'),
   CLOUDINARY_CLOUD_NAME: optional(z.string()), CLOUDINARY_API_KEY: optional(z.string()), CLOUDINARY_API_SECRET: optional(z.string()), CLOUDINARY_UPLOAD_FOLDER: z.string().regex(/^[a-zA-Z0-9/_-]+$/).default('embody-pharmacy'), CLOUDINARY_UPLOAD_PRESET: optional(z.string().regex(/^[a-zA-Z0-9_-]+$/)),
   PHARMACY_LEGAL_NAME: optional(z.string()), PHARMACY_US_ADDRESS: optional(z.string()), PHARMACY_US_PHONE: optional(z.string()), PHARMACIST_CONTACT_EMAIL: optional(z.string().email()), PHARMACY_LICENSES_JSON: z.string().default('{}'), PHARMACY_LICENSED_STATES: z.string().default(''),

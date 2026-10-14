@@ -25,6 +25,7 @@ export const api = {
   cartQuestions: (productSlug) => request(`/questions/cart?productSlug=${encodeURIComponent(productSlug)}`),
   submitCartAnswers: (payload) => request('/questions/cart/responses', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   checkout: (payload,idempotencyKey) => request('/checkout', { method: 'POST', headers: { ...csrfHeaders(),'Idempotency-Key': idempotencyKey }, body: JSON.stringify(payload) }),
-  contact: (payload) => request('/support', { method: 'POST', body: JSON.stringify(payload) })
+  contact: (payload) => request('/support', { method: 'POST', body: JSON.stringify(payload) }),
+  subscribeNewsletter: (payload) => request('/newsletter/subscribe', { method: 'POST', body: JSON.stringify(payload) })
 };
 function csrfHeaders(){const token=document.cookie.split('; ').find(v=>v.startsWith('csrfToken='))?.split('=')[1];return token?{'X-CSRF-Token':decodeURIComponent(token)}:{}}

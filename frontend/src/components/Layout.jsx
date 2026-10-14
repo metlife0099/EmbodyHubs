@@ -6,6 +6,7 @@ import SeoManager from './SeoManager';
 import { useApp } from '../context/AppContext';
 import CartQuestionnaire from './CartQuestionnaire';
 import LoginRequiredModal from './LoginRequiredModal';
+import NewsletterSignup from './NewsletterSignup';
 
 const nav = [['Shop', '/shop'], ['How it works', '/how-it-works'], ['Learn', '/learn'], ['About', '/about']];
 
@@ -36,6 +37,7 @@ export default function Layout({ children }) {
     </header>
     {search && <div className="search-overlay" role="dialog" aria-modal="true" aria-label="Search"><button className="close-search" onClick={() => setSearch(false)} aria-label="Close search"><X/></button><form action="/search"><label htmlFor="site-search">What can we help you find?</label><div><input id="site-search" name="q" autoFocus placeholder="Search products and guidance"/><button className="btn btn-primary">Search</button></div><p>Popular: allergy relief, pain relief, medication safety</p></form></div>}
     <main id="main">{children}</main>
+    <NewsletterSignup/>
     <footer className="site-footer">
       <div className="footer-top"><div><Brand light/><p>Everyday pharmacy shopping designed around privacy, safety, and informed decisions.</p><div className="socials"><a href="#social" aria-label="Social updates"><Camera/></a><a href="#company" aria-label="Company updates"><BriefcaseBusiness/></a></div></div>
         <div><h3>Pharmacy</h3><Link to="/shop">Shop OTC</Link><Link to="/how-it-works">How it works</Link><Link to="/tracking">Track an order</Link><Link to="/contact">Ask for help</Link></div>
