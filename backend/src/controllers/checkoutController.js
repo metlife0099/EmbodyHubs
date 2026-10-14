@@ -1,13 +1,16 @@
 import crypto from 'node:crypto';
+import mongoose from 'mongoose';
 import { z } from 'zod';
 import { Product } from '../models/Product.js';
 import { CartQuestion } from '../models/CartQuestion.js';
 import { CartQuestionResponse } from '../models/CartQuestionResponse.js';
 import { Order } from '../models/Order.js';
+import { InventoryAdjustment } from '../models/InventoryAdjustment.js';
+import { AuditLog } from '../models/AuditLog.js';
 import { AppError } from '../utils/AppError.js';
 import { verifyCompletedPayment } from '../services/paymentService.js';
 
-const checkoutSchema=z.object({items:z.array(z.object({productSlug:z.string().regex(/^[a-z0-9-]{2,100}$/),quantity:z.number().int().min(1).max(10),questionnaireResponseId:z.string().regex(/^[a-f\d]{24}$/i).nullable().optional()})).min(1).max(40),shippingAddress:z.object({name:z.string().trim().min(2).max(120),line1:z.string().trim().min(3).max(160),line2:z.string().trim().max(160).optional().default(''),city:z.string().trim().min(2).max(100),state:z.string().regex(/^[A-Z]{2}$/),postalCode:z.string().regex(/^\d{5}(-\d{4})?$/),country:z.literal('US').default('US')}),paymentConfirmationId:z.string().min(3).max(200)});
+const checkoutSchema=z.object({items:z.array(z.object({productSlug:z.string().regex(/^[a-z0-9-]{2,100}$/),quantity:z.number().int().min(1).max(10),questionnaireResponseId:z.string().regex(/^[a-f\d]{24}$/i).nullable().optional()})).min(1).max(40),shippingAddress:z.object({name:z.string().trim().min(2).max(120),line1:z.string().trim().min(3).max(160),line2:z.string().trim().max(160).optional().default(''),city:z.string().trim().min(2).max(100),state:z.string().regex(/^[A-Z]{2}$/),postalCode:z.string().regex(/^\d{5}(-\d{4})?$/),country:z.literal('US').default('US')}),paymentConfirmationId:z.string().min(3).max(200)}).superRefine((data,ctx)=>{const slugs=data.items.map(item=>item.productSlug);if(new Set(slugs).size!==slugs.length)ctx.addIssue({code:'custom',path:['items'],message:'Each product may appear only once per checkout.'})});
 
 export async function createCheckoutOrder(req,res){
   const idempotencyKey=String(req.get('idempotency-key')||'');
@@ -34,8 +37,22 @@ export async function createCheckoutOrder(req,res){
   }
   const subtotalCents=orderItems.reduce((sum,item)=>sum+item.unitPriceCents*item.quantity,0);const shippingCents=subtotalCents>=5000?0:600;const taxCents=0;const totalCents=subtotalCents+shippingCents;
   const payment=await verifyCompletedPayment({confirmationId:data.paymentConfirmationId,amountCents:totalCents});
-  const order=await Order.create({number:`EH-${crypto.randomInt(100000,999999)}`,user:req.user.sub,items:orderItems,status:'PAID_REVIEW_REQUIRED',paymentStatus:'SUCCEEDED',payment,currency:'usd',subtotalCents,taxCents,shippingCents,totalCents,idempotencyKey,shippingAddress:data.shippingAddress});
-  res.status(201).json({success:true,data:publicOrder(order.toObject()),message:'Payment confirmed and order created.'});
+  const session=await mongoose.startSession();let order;
+  try{
+    await session.withTransaction(async()=>{
+      const duplicate=await Order.findOne({idempotencyKey,user:req.user.sub}).session(session);
+      if(duplicate){order=duplicate;return}
+      for(const item of orderItems){
+        const previous=await Product.findOneAndUpdate({_id:item.product,variants:{$elemMatch:{_id:item.variantId,stock:{$gte:item.quantity}}}},{$inc:{'variants.$.stock':-item.quantity}},{new:false,session});
+        if(!previous)throw new AppError(`${item.name} no longer has enough available stock.`,409,'INSUFFICIENT_STOCK');
+        const variant=previous.variants.id(item.variantId);const after=variant.stock-item.quantity;
+        await InventoryAdjustment.create([{product:item.product,variantId:item.variantId,sku:item.sku,delta:-item.quantity,reason:'ORDER_ALLOCATION',reference:idempotencyKey,idempotencyKey:`order-${idempotencyKey}-${item.variantId}`,actor:req.user.sub,before:variant.stock,after}],{session});
+      }
+      [order]=await Order.create([{number:`EH-${crypto.randomInt(100000,999999)}`,user:req.user.sub,items:orderItems,status:'PAID_REVIEW_REQUIRED',paymentStatus:'SUCCEEDED',payment,currency:'usd',subtotalCents,taxCents,shippingCents,totalCents,idempotencyKey,shippingAddress:data.shippingAddress}],{session});
+      await AuditLog.create([{actor:req.user.sub,action:'ORDER_CREATED',resourceType:'Order',resourceId:String(order._id),requestId:req.id,metadata:{orderNumber:order.number,itemCount:orderItems.length,totalCents}}],{session});
+    });
+  }finally{await session.endSession()}
+  res.status(201).json({success:true,data:publicOrder(order.toObject()),message:'Payment confirmed, inventory allocated, and order created.'});
 }
 
 function publicOrder(order){return{id:String(order._id),number:order.number,status:order.status,paymentStatus:order.paymentStatus,totalCents:order.totalCents,createdAt:order.createdAt}}

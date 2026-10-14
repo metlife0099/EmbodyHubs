@@ -1,2 +1,21 @@
-import { Router } from 'express';import { getOrder,listCustomers,listOrders,metrics } from '../controllers/adminController.js';import { listSubscribers } from '../controllers/newsletterController.js';import { authenticate,authorize } from '../middleware/auth.js';import { asyncHandler } from '../utils/asyncHandler.js';
-export const adminRoutes=Router();adminRoutes.use(authenticate);adminRoutes.get('/metrics',authorize('orders:read','audit:read'),asyncHandler(metrics));adminRoutes.get('/customers',authorize('customers:read'),asyncHandler(listCustomers));adminRoutes.get('/newsletter-subscribers',authorize('newsletter:read'),asyncHandler(listSubscribers));adminRoutes.get('/orders',authorize('orders:read'),asyncHandler(listOrders));adminRoutes.get('/orders/:id',authorize('orders:read'),asyncHandler(getOrder));
+import { Router } from 'express';
+import { getOrder,listCustomers,listOrders,metrics } from '../controllers/adminController.js';
+import { listSubscribers } from '../controllers/newsletterController.js';
+import { listInventory,adjustInventory } from '../controllers/inventoryController.js';
+import { authorizeFulfillment,listShipments,updateShipment } from '../controllers/shippingController.js';
+import { authenticate,authorize } from '../middleware/auth.js';
+import { requireCsrf } from '../middleware/csrf.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+
+export const adminRoutes=Router();
+adminRoutes.use(authenticate);
+adminRoutes.get('/metrics',authorize('orders:read','audit:read'),asyncHandler(metrics));
+adminRoutes.get('/customers',authorize('customers:read'),asyncHandler(listCustomers));
+adminRoutes.get('/newsletter-subscribers',authorize('newsletter:read'),asyncHandler(listSubscribers));
+adminRoutes.get('/inventory',authorize('inventory:read','inventory:write'),asyncHandler(listInventory));
+adminRoutes.post('/inventory/:productId/:variantId/adjust',requireCsrf,authorize('inventory:write'),asyncHandler(adjustInventory));
+adminRoutes.get('/shipping',authorize('shipping:read','shipping:write','orders:read','orders:fulfillable'),asyncHandler(listShipments));
+adminRoutes.post('/shipping/:id/authorize',requireCsrf,authorize('fulfillment:authorize','fulfillment:write'),asyncHandler(authorizeFulfillment));
+adminRoutes.patch('/shipping/:id',requireCsrf,authorize('shipping:write'),asyncHandler(updateShipment));
+adminRoutes.get('/orders',authorize('orders:read'),asyncHandler(listOrders));
+adminRoutes.get('/orders/:id',authorize('orders:read'),asyncHandler(getOrder));

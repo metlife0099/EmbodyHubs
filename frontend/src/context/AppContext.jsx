@@ -37,6 +37,7 @@ export function AppProvider({children}){
   };
 
   const requestAdd=async(product,{existing=false}={})=>{
+    if(product.stock<=0){setNotice({type:'error',message:`${product.name} is currently out of stock.`});return}
     if(product.prescriptionRequired){setNotice({type:'error',message:'Prescription ordering is unavailable until pharmacy licensing is configured.'});return}
     if(!user){setLoginPrompt(product);return}
     setQuestionnaire({product,existing,questions:[],loading:true,error:''});
