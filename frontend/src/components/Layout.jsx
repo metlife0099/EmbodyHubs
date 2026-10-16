@@ -7,6 +7,7 @@ import { useApp } from '../context/AppContext';
 import CartQuestionnaire from './CartQuestionnaire';
 import LoginRequiredModal from './LoginRequiredModal';
 import NewsletterSignup from './NewsletterSignup';
+import SupportChatWidget from './SupportChatWidget';
 
 const nav = [['Shop', '/shop'], ['How it works', '/how-it-works'], ['Learn', '/learn'], ['About', '/about']];
 
@@ -30,6 +31,7 @@ export default function Layout({ children }) {
         </nav>
         <div className="header-actions">
           <button className="icon-btn" onClick={() => setSearch(true)} aria-label="Search"><Search/></button>
+          <Link className="icon-btn hide-mobile" to="/support/chat" aria-label="Customer support chat"><BriefcaseBusiness/></Link>
           <Link className="icon-btn hide-mobile" to="/account" aria-label="Account"><UserRound/></Link>
           <Link className="icon-btn cart-icon" to="/cart" aria-label={`Cart with ${count} items`}><ShoppingBag/>{count > 0 && <span>{count}</span>}</Link>
         </div>
@@ -40,7 +42,7 @@ export default function Layout({ children }) {
     <NewsletterSignup/>
     <footer className="site-footer">
       <div className="footer-top"><div><Brand light/><p>Everyday pharmacy shopping designed around privacy, safety, and informed decisions.</p><div className="socials"><a href="#social" aria-label="Social updates"><Camera/></a><a href="#company" aria-label="Company updates"><BriefcaseBusiness/></a></div></div>
-        <div><h3>Pharmacy</h3><Link to="/shop">Shop OTC</Link><Link to="/how-it-works">How it works</Link><Link to="/tracking">Track an order</Link><Link to="/contact">Ask for help</Link></div>
+        <div><h3>Pharmacy</h3><Link to="/shop">Shop OTC</Link><Link to="/how-it-works">How it works</Link><Link to="/tracking">Track an order</Link><Link to="/support/chat">Customer chat</Link></div>
         <div><h3>Company</h3><Link to="/about">About</Link><Link to="/learn">Learn</Link><Link to="/contact">Contact</Link><Link to="/account">My account</Link></div>
         <div><h3>Important</h3><Link to="/policies/privacy">Privacy</Link><Link to="/policies/terms">Terms</Link><Link to="/policies/shipping">Shipping</Link><Link to="/policies/prescription">Prescription policy</Link></div>
       </div>
@@ -50,5 +52,6 @@ export default function Layout({ children }) {
     {notice && <div className={`toast toast--${notice.type}`} role="status">{notice.message}</div>}
     <CartQuestionnaire/>
     <LoginRequiredModal/>
+    <SupportChatWidget/>
   </>;
 }

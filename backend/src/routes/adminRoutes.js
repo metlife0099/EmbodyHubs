@@ -6,6 +6,7 @@ import { authorizeFulfillment,listShipments,updateShipment } from '../controller
 import { authenticate,authorize } from '../middleware/auth.js';
 import { requireCsrf } from '../middleware/csrf.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { adminChatSummary,getAdminChat,listAdminChats,markAdminChatRead,sendAdminMessage,updateAdminChatStatus } from '../controllers/chatController.js';
 
 export const adminRoutes=Router();
 adminRoutes.use(authenticate);
@@ -19,3 +20,9 @@ adminRoutes.post('/shipping/:id/authorize',requireCsrf,authorize('fulfillment:au
 adminRoutes.patch('/shipping/:id',requireCsrf,authorize('shipping:write'),asyncHandler(updateShipment));
 adminRoutes.get('/orders',authorize('orders:read'),asyncHandler(listOrders));
 adminRoutes.get('/orders/:id',authorize('orders:read'),asyncHandler(getOrder));
+adminRoutes.get('/chat/summary',authorize('chat:read','support:write'),asyncHandler(adminChatSummary));
+adminRoutes.get('/chat',authorize('chat:read','support:write'),asyncHandler(listAdminChats));
+adminRoutes.get('/chat/:id',authorize('chat:read','support:write'),asyncHandler(getAdminChat));
+adminRoutes.post('/chat/:id/messages',requireCsrf,authorize('chat:write','support:write'),asyncHandler(sendAdminMessage));
+adminRoutes.post('/chat/:id/read',requireCsrf,authorize('chat:read','support:write'),asyncHandler(markAdminChatRead));
+adminRoutes.patch('/chat/:id/status',requireCsrf,authorize('chat:write','support:write'),asyncHandler(updateAdminChatStatus));

@@ -4,9 +4,10 @@ import { authRoutes } from './authRoutes.js';import { productRoutes } from './pr
 import { asyncHandler } from '../utils/asyncHandler.js';import { mediaRoutes } from './mediaRoutes.js';import { orderRoutes } from './orderRoutes.js';import { cartQuestionRoutes } from './cartQuestionRoutes.js';import { publicReadiness } from '../services/pharmacyComplianceService.js';import { brevoWebhook } from '../controllers/webhookController.js';import { trackShipment } from '../controllers/shippingController.js';
 import { authenticate } from '../middleware/auth.js';import { requireCsrf } from '../middleware/csrf.js';import { createCheckoutOrder } from '../controllers/checkoutController.js';
 import { newsletterRoutes } from './newsletterRoutes.js';
+import { chatRoutes } from './chatRoutes.js';
 export const apiRouter=Router();
 const trackingLimiter=rateLimit({windowMs:15*60*1000,limit:60,standardHeaders:'draft-8',legacyHeaders:false,message:{success:false,code:'RATE_LIMITED',message:'Too many tracking requests. Please try again later.'}});
-apiRouter.use('/auth',authRoutes);apiRouter.use('/products',productRoutes);apiRouter.use('/admin',adminRoutes);apiRouter.use('/media',mediaRoutes);apiRouter.use('/orders',orderRoutes);apiRouter.use('/questions',cartQuestionRoutes);apiRouter.use('/newsletter',newsletterRoutes);
+apiRouter.use('/auth',authRoutes);apiRouter.use('/products',productRoutes);apiRouter.use('/admin',adminRoutes);apiRouter.use('/media',mediaRoutes);apiRouter.use('/orders',orderRoutes);apiRouter.use('/questions',cartQuestionRoutes);apiRouter.use('/newsletter',newsletterRoutes);apiRouter.use('/chat',chatRoutes);
 apiRouter.get('/pharmacy/readiness',(_req,res)=>res.json({success:true,data:publicReadiness()}));apiRouter.post('/webhooks/brevo',asyncHandler(brevoWebhook));
 apiRouter.post('/checkout',authenticate,requireCsrf,asyncHandler(createCheckoutOrder));
 apiRouter.get('/shipping/tracking/:number',trackingLimiter,asyncHandler(trackShipment));

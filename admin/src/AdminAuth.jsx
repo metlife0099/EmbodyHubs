@@ -43,7 +43,7 @@ export function AdminAuthProvider({children}){
   };
 
   useEffect(()=>{
-    if(!document.cookie.includes('csrfToken=')){
+    if(!document.cookie.includes('adminCsrfToken=')&&!document.cookie.includes('csrfToken=')){
       clearLocalSession();
       setChecking(false);
       return;

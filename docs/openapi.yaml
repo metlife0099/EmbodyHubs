@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EMBODY Pharmacy API
-  version: 1.1.0
+  version: 1.2.0
   description: OTC commerce and pharmacy-readiness API. Prescription dispensing is disabled until verified configuration is supplied.
 servers:
   - url: http://localhost:4000/api/v1
@@ -53,6 +53,37 @@ paths:
       summary: Return non-sensitive pharmacy configuration readiness
       responses:
         '200': { description: Readiness status }
+  /chat:
+    get:
+      summary: Return the authenticated customer's support conversation and latest 100 messages
+      security: [{ sessionCookie: [] }]
+      responses:
+        '200': { description: Customer conversation }
+        '401': { description: Authentication required }
+  /chat/messages:
+    post:
+      summary: Send an idempotent customer message and notify the support mailbox through Brevo
+      security: [{ sessionCookie: [] }]
+      responses:
+        '201': { description: Message accepted }
+        '403': { description: Customer role or CSRF check failed }
+        '429': { description: Message rate limit reached }
+  /admin/chat:
+    get:
+      summary: List customer conversations with identity and unread state for authorized staff
+      security: [{ sessionCookie: [] }]
+      responses:
+        '200': { description: Paginated support inbox }
+        '403': { description: Support permission required }
+  /admin/chat/{id}/messages:
+    post:
+      summary: Send an audited human support reply
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '201': { description: Reply sent }
+        '403': { description: Chat write permission or CSRF check failed }
   /checkout:
     post:
       summary: Create a server-priced checkout

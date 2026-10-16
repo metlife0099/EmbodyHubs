@@ -17,6 +17,7 @@ export function AppProvider({children}){
   useEffect(()=>user?localStorage.setItem('embody-user',JSON.stringify(user)):localStorage.removeItem('embody-user'),[user]);
   useEffect(()=>{if(!notice)return;const id=setTimeout(()=>setNotice(null),4200);return()=>clearTimeout(id)},[notice]);
   useEffect(()=>{api.products('?limit=48&sort=newest').then(result=>{if(result.data?.length)setCatalogProducts(result.data.map(normalizeProduct))}).catch(()=>{})},[]);
+  useEffect(()=>{const expire=()=>{setStoredUser(null);setCart([]);localStorage.removeItem('embody-user');setNotice({type:'error',message:'Your session expired. Sign in again to continue.'})};window.addEventListener('embody:auth-expired',expire);return()=>window.removeEventListener('embody:auth-expired',expire)},[]);
   const setUser=nextUser=>{setStoredUser(nextUser);if(!nextUser)setCart([])};
 
   const addItem=(product,questionnaireCompleted=false,questionnaireResponseId=null)=>{

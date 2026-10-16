@@ -1,7 +1,7 @@
 const API=import.meta.env.VITE_API_BASE_URL||'/api/v1';
 export class ApiError extends Error{constructor(message,status,code){super(message);this.status=status;this.code=code}}
 async function request(path,options={}){const response=await fetch(`${API}${path}`,{credentials:'include',...options,headers:{'Content-Type':'application/json','X-Client':'admin',...(options.mutate?csrfHeaders():{}),...(options.headers||{})}});const data=await response.json().catch(()=>({message:'Unexpected server response.'}));if(!response.ok)throw new ApiError(data.message||'Request failed.',response.status,data.code);return data}
-function csrfHeaders(){const token=document.cookie.split('; ').find(value=>value.startsWith('csrfToken='))?.split('=')[1];return token?{'X-CSRF-Token':decodeURIComponent(token)}:{}}
+function csrfHeaders(){const cookies=document.cookie.split('; ');const token=(cookies.find(value=>value.startsWith('adminCsrfToken='))||cookies.find(value=>value.startsWith('csrfToken=')))?.split('=')[1];return token?{'X-CSRF-Token':decodeURIComponent(token)}:{}}
 export const adminApi={
   login:payload=>request('/auth/admin/login',{method:'POST',body:JSON.stringify(payload)}),refresh:()=>request('/auth/refresh',{method:'POST',mutate:true}),logout:()=>request('/auth/logout',{method:'POST',mutate:true}),
   metrics:()=>request('/admin/metrics'),customers:q=>request(`/admin/customers${q?`?q=${encodeURIComponent(q)}`:''}`),newsletterSubscribers:({page=1,q='',status='',sync=''})=>{const params=new URLSearchParams({page:String(page),limit:'25'});if(q)params.set('q',q);if(status)params.set('status',status);if(sync)params.set('sync',sync);return request(`/admin/newsletter-subscribers?${params}`)},orders:()=>request('/admin/orders'),order:id=>request(`/admin/orders/${id}`),products:()=>request('/products/admin/list'),createProduct:payload=>request('/products',{method:'POST',mutate:true,body:JSON.stringify(payload)}),updateProduct:(id,payload)=>request(`/products/${id}`,{method:'PUT',mutate:true,body:JSON.stringify(payload)}),deleteProduct:id=>request(`/products/${id}`,{method:'DELETE',mutate:true}),
@@ -9,4 +9,10 @@ export const adminApi={
   shipping:({page=1,q='',status='ALL'})=>{const params=new URLSearchParams({page:String(page),limit:'25',status});if(q)params.set('q',q);return request(`/admin/shipping?${params}`)},authorizeShipment:id=>request(`/admin/shipping/${id}/authorize`,{method:'POST',mutate:true}),updateShipment:(id,payload)=>request(`/admin/shipping/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)}),
   mediaSignature:payload=>request('/media/signature',{method:'POST',mutate:true,body:JSON.stringify(payload)}),
   questions:()=>request('/questions/admin'),createQuestion:payload=>request('/questions/admin',{method:'POST',mutate:true,body:JSON.stringify(payload)}),updateQuestion:(id,payload)=>request(`/questions/admin/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,chatSummary:()=>request('/admin/chat/summary')
+  ,chatConversations:({page=1,q='',status='ALL'}={})=>{const params=new URLSearchParams({page:String(page),limit:'25',status});if(q)params.set('q',q);return request(`/admin/chat?${params}`)}
+  ,chatConversation:id=>request(`/admin/chat/${id}`)
+  ,sendChatReply:(id,payload)=>request(`/admin/chat/${id}/messages`,{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,markAdminChatRead:id=>request(`/admin/chat/${id}/read`,{method:'POST',mutate:true})
+  ,updateChatStatus:(id,status)=>request(`/admin/chat/${id}/status`,{method:'PATCH',mutate:true,body:JSON.stringify({status})})
 };

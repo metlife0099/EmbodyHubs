@@ -16,7 +16,7 @@ const staticPages={
   '/policies/shipping':{title:'Shipping Policy | EMBODY Pharmacy',description:'Learn about EMBODY order verification, fulfillment gates, carrier estimates, and shipping limitations.',label:'Shipping policy'},
   '/policies/prescription':{title:'Prescription Policy | EMBODY Pharmacy',description:'Understand the licensing, prescription, pharmacist, and destination checks required before prescription fulfillment.',label:'Prescription policy'}
 };
-const privatePrefixes=['/account','/orders','/cart','/checkout','/login','/register','/forgot-password','/reset-password','/search','/tracking'];
+const privatePrefixes=['/account','/orders','/cart','/checkout','/login','/register','/forgot-password','/reset-password','/search','/tracking','/support/chat'];
 
 export default function SeoManager(){
   const{pathname}=useLocation();
