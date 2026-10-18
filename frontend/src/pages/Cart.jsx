@@ -16,7 +16,7 @@ export default function Cart(){
     if(shouldReview&&pendingItem&&!prompted.current){prompted.current=true;requestAdd(pendingItem,{existing:true})}
   },[location.search,pendingItem,requestAdd]);
 
-  if(!cart.length)return <div className="empty-page empty-cart"><div className="empty-cart-card"><span className="eyebrow">Your cart</span><h1>A little room for essentials.</h1><p>Your cart is empty. Explore everyday OTC and wellness products selected for clear, label-first shopping.</p><Link className="btn btn-primary" to="/shop">Explore the collection <ArrowRight/></Link></div></div>;
+  if(!cart.length)return <div className="empty-page empty-cart"><div className="empty-cart-card"><span className="eyebrow">Your cart</span><h1>A little room for essentials.</h1><p>Your cart is empty. Explore everyday OTC and wellness products selected for clear, label-first shopping.</p><Link className="btn btn-primary" to="/online-care">Explore the collection <ArrowRight/></Link></div></div>;
   return <div className="page-shell cart-page">
     <header className="simple-header cart-hero"><div><span className="eyebrow">Secure cart</span><h1>Your selections.</h1><p>Only signed-in customers can add products. Required product questions are completed before an item enters this cart.</p></div><div className="cart-hero-trust"><ShieldCheck/><span><b>Protected checkout</b><small>Secure account and server-verified answers</small></span></div></header>
     <div className="cart-grid">

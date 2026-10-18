@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, Search, ShoppingBag, UserRound, X, ArrowRight, Camera, BriefcaseBusiness } from 'lucide-react';
+import { Menu, Search, ShoppingBag, UserRound, X, ArrowRight, Camera, BriefcaseBusiness, ChevronDown } from 'lucide-react';
 import Brand from './Brand';
 import SeoManager from './SeoManager';
 import { useApp } from '../context/AppContext';
@@ -8,15 +8,17 @@ import CartQuestionnaire from './CartQuestionnaire';
 import LoginRequiredModal from './LoginRequiredModal';
 import NewsletterSignup from './NewsletterSignup';
 import SupportChatWidget from './SupportChatWidget';
+import { categories } from '../data/catalog';
 
-const nav = [['Shop', '/shop'], ['How it works', '/how-it-works'], ['Learn', '/learn'], ['About', '/about']];
+const nav = [['How it works', '/how-it-works'], ['Learn', '/learn'], ['About', '/about']];
 
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(false);
-  const { count, notice } = useApp();
+  const [careOpen, setCareOpen] = useState(false);
+  const { count, notice, catalogProducts } = useApp();
   const location = useLocation();
-  useEffect(() => { setOpen(false); setSearch(false); window.scrollTo({ top: 0, behavior: 'instant' }); }, [location.pathname]);
+  useEffect(() => { setOpen(false); setSearch(false); setCareOpen(false); window.scrollTo({ top: 0, behavior: 'instant' }); }, [location.pathname, location.search]);
   return <>
     <SeoManager/>
     <a className="skip-link" href="#main">Skip to content</a>
@@ -26,8 +28,15 @@ export default function Layout({ children }) {
         <button className="icon-btn mobile-only" onClick={() => setOpen(!open)} aria-label="Toggle menu" aria-expanded={open}>{open ? <X/> : <Menu/>}</button>
         <Brand/>
         <nav className={`main-nav ${open ? 'is-open' : ''}`} aria-label="Main navigation">
+          <div className={`care-nav ${careOpen ? 'is-open' : ''}`}>
+            <button className="care-nav-trigger" onClick={() => setCareOpen(value => !value)} aria-expanded={careOpen} aria-controls="care-mega-menu">Online care <ChevronDown/></button>
+            <div className="care-mega" id="care-mega-menu">
+              <div className="care-mega-intro"><span className="eyebrow">Online care</span><h2>Find care by need.</h2><p>Browse every available option with clear product, direction, and safety information.</p><Link className="text-link" to="/online-care">See all products <ArrowRight/></Link></div>
+              {categories.map(category => <div className="care-mega-group" key={category.slug}><Link className="care-mega-heading" to={`/online-care?category=${category.slug}`}><span>{category.name}</span><ArrowRight/></Link>{catalogProducts.filter(product => product.category === category.slug).map(product => <Link key={product.id} to={`/products/${product.slug}`}><b>{product.name}</b><small>{[product.ingredient, product.dosage].filter(Boolean).join(' · ')}</small></Link>)}</div>)}
+            </div>
+          </div>
           {nav.map(([label, path]) => <NavLink key={path} to={path}>{label}</NavLink>)}
-          <Link className="mobile-nav-cta" to="/shop">Start exploring <ArrowRight size={16}/></Link>
+          <Link className="mobile-nav-cta" to="/online-care">Explore all care <ArrowRight size={16}/></Link>
         </nav>
         <div className="header-actions">
           <button className="icon-btn" onClick={() => setSearch(true)} aria-label="Search"><Search/></button>
@@ -42,7 +51,7 @@ export default function Layout({ children }) {
     <NewsletterSignup/>
     <footer className="site-footer">
       <div className="footer-top"><div><Brand light/><p>Everyday pharmacy shopping designed around privacy, safety, and informed decisions.</p><div className="socials"><a href="#social" aria-label="Social updates"><Camera/></a><a href="#company" aria-label="Company updates"><BriefcaseBusiness/></a></div></div>
-        <div><h3>Pharmacy</h3><Link to="/shop">Shop OTC</Link><Link to="/how-it-works">How it works</Link><Link to="/tracking">Track an order</Link><Link to="/support/chat">Customer chat</Link></div>
+        <div><h3>Pharmacy</h3><Link to="/online-care">Online care</Link><Link to="/how-it-works">How it works</Link><Link to="/tracking">Track an order</Link><Link to="/support/chat">Customer chat</Link></div>
         <div><h3>Company</h3><Link to="/about">About</Link><Link to="/learn">Learn</Link><Link to="/contact">Contact</Link><Link to="/account">My account</Link></div>
         <div><h3>Important</h3><Link to="/policies/privacy">Privacy</Link><Link to="/policies/terms">Terms</Link><Link to="/policies/shipping">Shipping</Link><Link to="/policies/prescription">Prescription policy</Link></div>
       </div>

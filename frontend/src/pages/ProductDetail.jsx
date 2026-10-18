@@ -1,10 +1,78 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { AlertTriangle, ArrowLeft, Check, ChevronDown, LockKeyhole, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, ChevronDown, CircleHelp, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import ProductCard from '../components/ProductCard';
+import { categories } from '../data/catalog';
+import { getCareContent } from '../data/careContent';
 
 export default function ProductDetail() {
-  const { slug } = useParams(); const { requestAdd,catalogProducts:products } = useApp(); const product = products.find(p=>p.slug===slug); const [tab,setTab]=useState('about');
-  if (!product) return <div className="empty-page"><h1>Product not found</h1><Link className="btn btn-primary" to="/shop">Back to shop</Link></div>;
-  return <div className="page-shell product-page"><Link className="back-link" to="/shop"><ArrowLeft/> Back to shop</Link><div className="pdp-grid"><div className={`pdp-visual product-visual--${product.tone}`}><span className="rx-pill">{product.stock<=0?'Out':product.prescriptionRequired?'Rx':'OTC'}</span>{product.imageUrl?<img className="pdp-photo" src={product.imageUrl} alt={product.imageAlt}/>:<div className="product-pack product-pack--large"><small>EMBODY</small><b>{product.name}</b><span>{product.dosage} · {product.form}</span><i>{product.pack}</i></div>}</div><div className="pdp-copy"><span className="product-badge">{product.prescriptionRequired && <LockKeyhole/>}{product.badge}</span><h1>{product.name}</h1><p className="ingredient">{product.ingredient} · {product.dosage} · {product.form}</p><p className="pdp-description">{product.description}</p><div className="price-row"><strong>${product.price}</strong><span>{product.pack}</span></div><button disabled={product.stock<=0} className="btn btn-primary btn-wide" onClick={()=>requestAdd(product)}>{product.stock<=0?'Currently out of stock':product.prescriptionRequired?'Start eligibility review':'Add to cart'}</button>{product.prescriptionRequired && <p className="under-button"><ShieldCheck/> No medicine is recommended or dispensed without the required review and authorization.</p>}<div className="fulfillment-points"><span><Truck/> Discreet shipping</span><span><PackageCheck/> Live inventory validation</span><span><ShieldCheck/> Secure checkout</span></div></div></div><div className="pdp-information"><div className="info-tabs">{['about','directions','safety'].map(t=><button key={t} className={tab===t?'active':''} onClick={()=>setTab(t)}>{t[0].toUpperCase()+t.slice(1)}<ChevronDown/></button>)}</div><div>{tab==='about'&&<><h2>About this option</h2><p>{product.description}</p><p>Product information shown here must match authorized labeling and approved pharmacy content before launch.</p></>}{tab==='directions'&&<><h2>Directions</h2><p>{product.directions||'Use only as directed on the approved label and by your pharmacist.'}</p></>}{tab==='safety'&&<><h2>Important safety information</h2>{product.warnings.map(w=><p className="warning-line" key={w}><AlertTriangle/> {w}</p>)}<p>Tell a licensed professional about all medicines, supplements, allergies, and health conditions.</p></>}</div></div></div>;
+  const { slug } = useParams();
+  const { requestAdd, catalogProducts: products } = useApp();
+  const [openFaq, setOpenFaq] = useState(0);
+  const product = products.find(item => item.slug === slug);
+
+  if (!product) return <div className="empty-page"><span className="eyebrow">Online care</span><h1>Product not found</h1><p>This product may have moved or is no longer available.</p><Link className="btn btn-primary" to="/online-care">Explore online care <ArrowRight/></Link></div>;
+
+  const content = getCareContent(product);
+  const category = categories.find(item => item.slug === product.category) || { name: 'Everyday care', slug: product.category };
+  const warnings = product.warnings?.length ? product.warnings : ['Read the complete product label before use.', 'Ask a healthcare professional if you have questions about medicines, allergies, or health conditions.'];
+  const related = products.filter(item => item.id !== product.id && item.category === product.category).concat(products.filter(item => item.id !== product.id && item.category !== product.category)).slice(0, 3);
+
+  return <article className="product-detail-page">
+    <nav className="pdp-breadcrumbs" aria-label="Breadcrumb">
+      <Link to="/">Home</Link><span>/</span><Link to="/online-care">Online care</Link><span>/</span><Link to={`/online-care?category=${category.slug}`}>{category.name}</Link><span>/</span><span aria-current="page">{product.name}</span>
+    </nav>
+
+    <section className="pdp-hero-modern">
+      <div className={`pdp-gallery product-visual--${product.tone}`}>
+        <div className="pdp-gallery-top"><span className="pdp-care-label">{content.careName}</span><span className="rx-pill">{product.stock <= 0 ? 'Out' : product.prescriptionRequired ? 'Rx' : 'OTC'}</span></div>
+        {product.imageUrl ? <img className="pdp-photo" src={product.imageUrl} alt={product.imageAlt || product.name}/> : <div className="pdp-pack-stage"><div className="product-pack product-pack--large"><small>EMBODY</small><b>{product.name}</b><span>{product.dosage} · {product.form}</span><i>{product.pack}</i></div><div className="pdp-shape pdp-shape--one"/><div className="pdp-shape pdp-shape--two"/></div>}
+        <p>Actual packaging and appearance may vary. Always read the package label.</p>
+      </div>
+
+      <div className="pdp-purchase">
+        <Link className="pdp-back" to="/online-care"><ArrowLeft/> All online care</Link>
+        <span className="product-badge">{product.badge}</span>
+        <h1>{product.name}</h1>
+        <p className="pdp-headline">{content.headline}</p>
+        <p className="ingredient">{[product.ingredient, product.dosage, product.form].filter(Boolean).join(' · ')}</p>
+        <ul className="pdp-benefit-list">{content.summaryPoints.map(point => <li key={point}><Check/>{point}</li>)}</ul>
+        <div className="pdp-price-panel"><div><small>One-time purchase</small><strong>${Number(product.price).toFixed(2)}</strong></div><span>{product.pack}</span></div>
+        <button disabled={product.stock <= 0} className="btn btn-primary btn-wide pdp-add-button" onClick={() => requestAdd(product)}>{product.stock <= 0 ? 'Currently out of stock' : 'Add to cart'}{product.stock > 0 && <ArrowRight/>}</button>
+        <p className="pdp-account-note"><ShieldCheck/> Secure sign-in is required before an item can be added. Product questions appear when enabled by the pharmacy team.</p>
+        <div className="pdp-service-row"><span><Truck/> Discreet shipping</span><span><PackageCheck/> Live stock check</span><span><ShieldCheck/> Secure checkout</span></div>
+      </div>
+    </section>
+
+    <section className="pdp-fact-strip" aria-label="Product summary">
+      <div><small>Active ingredient</small><strong>{product.ingredient || 'See product label'}</strong></div>
+      <div><small>Strength</small><strong>{product.dosage || 'See product label'}</strong></div>
+      <div><small>Form</small><strong>{product.form || 'See product label'}</strong></div>
+      <div><small>Package</small><strong>{product.pack || 'See product label'}</strong></div>
+    </section>
+
+    <section className="pdp-story">
+      <aside><span className="eyebrow">Product guide</span><h2>The details, without the guesswork.</h2><p>Use this overview with the complete package label. If the two differ, follow the label.</p></aside>
+      <div className="pdp-story-sections">
+        <section><span>01</span><div><h3>What it is</h3><p>{product.description}</p></div></section>
+        <section><span>02</span><div><h3>How it works</h3><p>{content.howItWorks}</p></div></section>
+        <section><span>03</span><div><h3>How to use it</h3><p>{product.directions || 'Use only as directed on the complete product label. Do not take or apply more than directed.'}</p></div></section>
+      </div>
+    </section>
+
+    <section className="pdp-safety">
+      <div className="pdp-safety-title"><AlertTriangle/><span className="eyebrow">Important safety information</span><h2>Know the warnings before use.</h2><p>This summary is not the complete Drug Facts or product label.</p></div>
+      <div className="pdp-warning-list">{warnings.map((warning, index) => <div key={warning}><span>0{index + 1}</span><p>{warning}</p></div>)}<div className="pdp-pharmacist-note"><ShieldCheck/><p><b>When to ask a pharmacist</b>{content.pharmacistNote}</p></div></div>
+    </section>
+
+    <section className="pdp-faq">
+      <header><span className="eyebrow"><CircleHelp/> Common questions</span><h2>Good to know.</h2><p>Clear answers for a more informed purchase.</p></header>
+      <div className="pdp-faq-list">{content.faqs.map(([question, answer], index) => <div className={openFaq === index ? 'is-open' : ''} key={question}><button onClick={() => setOpenFaq(openFaq === index ? -1 : index)} aria-expanded={openFaq === index}><span>{question}</span><ChevronDown/></button>{openFaq === index && <p>{answer}</p>}</div>)}</div>
+    </section>
+
+    {related.length > 0 && <section className="pdp-related"><div className="section-heading compact"><div><span className="eyebrow">More online care</span><h2>Explore other options.</h2></div><Link className="text-link" to="/online-care">View all products <ArrowRight/></Link></div><div className="product-grid">{related.map((item, index) => <ProductCard key={item.id} product={item} index={index}/>)}</div></section>}
+
+    <section className="pdp-disclaimer"><ShieldCheck/><p><b>Use products safely.</b> Information on this page is educational and does not replace the complete label or professional medical advice. Stop use and get medical help as directed by the label. For emergencies, call 911.</p></section>
+  </article>;
 }
