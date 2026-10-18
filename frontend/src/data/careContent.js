@@ -50,7 +50,7 @@ export const careContent = {
 };
 
 export function getCareContent(product) {
-  return careContent[product?.slug] || {
+  const fallback = careContent[product?.slug] || {
     careName: 'Everyday care',
     headline: product?.description || 'Clear product information for an informed choice.',
     summaryPoints: [product?.dosage || 'Label-first information', product?.form || 'Everyday care format', product?.pack || 'Package details shown before checkout'],
@@ -61,5 +61,13 @@ export function getCareContent(product) {
       ['Can I use it with my other medicines?', 'A pharmacist can help you check ingredients and possible interactions. Keep an up-to-date list of your medicines and supplements.'],
       ['When should I get medical help?', 'Follow the label’s stop-use directions. For a medical emergency, call 911.']
     ]
+  };
+  return {
+    careName: product?.careName || fallback.careName,
+    headline: product?.headline || fallback.headline,
+    summaryPoints: product?.summaryPoints?.length ? product.summaryPoints : fallback.summaryPoints,
+    howItWorks: product?.howItWorks || fallback.howItWorks,
+    pharmacistNote: product?.pharmacistNote || fallback.pharmacistNote,
+    faqs: product?.faqs?.length ? product.faqs.map(item => [item.question, item.answer]) : fallback.faqs
   };
 }

@@ -3,12 +3,11 @@ import { Link, useParams } from 'react-router-dom';
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, ChevronDown, CircleHelp, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
-import { categories } from '../data/catalog';
 import { getCareContent } from '../data/careContent';
 
 export default function ProductDetail() {
   const { slug } = useParams();
-  const { requestAdd, catalogProducts: products } = useApp();
+  const { requestAdd, catalogProducts: products, catalogCategories: categories } = useApp();
   const [openFaq, setOpenFaq] = useState(0);
   const product = products.find(item => item.slug === slug);
 

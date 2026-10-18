@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { articles, categories } from '../data/catalog';
+import { articles } from '../data/catalog';
 import { useApp } from '../context/AppContext';
 import { getCareContent } from '../data/careContent';
 
@@ -22,30 +22,30 @@ const privatePrefixes=['/account','/orders','/cart','/checkout','/login','/regis
 
 export default function SeoManager(){
   const{pathname}=useLocation();
-  const{catalogProducts:products}=useApp();
+  const{catalogProducts:products,catalogCategories:categories}=useApp();
   useEffect(()=>{
     const product=pathname.startsWith('/products/')?products.find(item=>`/products/${item.slug}`===pathname):null;
     const article=pathname.startsWith('/learn/')?articles.find(item=>`/learn/${item.slug}`===pathname):null;
     const categorySlug=pathname.startsWith('/categories/')?pathname.split('/').pop():null;
     const category=categories.find(item=>item.slug===categorySlug);
-    const page=product?{title:`${product.name} ${product.dosage} – Uses, Safety & Price | EMBODY`,description:`Explore ${product.name}: ${product.description} Review directions, warnings, package details, and current price before adding to cart.`,label:product.name}:article?{title:`${article.title} | EMBODY Pharmacy`,description:article.summary,label:article.title}:category?{title:`${category.name} Online Care | EMBODY Pharmacy`,description:`Explore ${category.name.toLowerCase()} products with clear ingredients, directions, warnings, and secure checkout.`,label:category.name}:staticPages[pathname]||{title:'Page Not Found | EMBODY Pharmacy',description:'The requested EMBODY page could not be found.',label:'Not found'};
+    const page=product?{title:product.seo?.title||`${product.name} ${product.dosage} – Uses, Safety & Price | EMBODY`,description:product.seo?.description||`Explore ${product.name}: ${product.description} Review directions, warnings, package details, and current price before adding to cart.`,label:product.name}:article?{title:`${article.title} | EMBODY Pharmacy`,description:article.summary,label:article.title}:category?{title:`${category.name} Online Care | EMBODY Pharmacy`,description:`Explore ${category.name.toLowerCase()} products with clear ingredients, directions, warnings, and secure checkout.`,label:category.name}:staticPages[pathname]||{title:'Page Not Found | EMBODY Pharmacy',description:'The requested EMBODY page could not be found.',label:'Not found'};
     const canonical=`${siteUrl}${pathname==='/'?'':pathname}`;
-    const noIndex=privatePrefixes.some(prefix=>pathname.startsWith(prefix))||pathname.startsWith('/policies/')||Boolean(article?.reviewed?.toLowerCase().includes('required'))||page.label==='Not found';
+    const noIndex=privatePrefixes.some(prefix=>pathname.startsWith(prefix))||pathname.startsWith('/policies/')||Boolean(product?.seo?.noIndex)||Boolean(article?.reviewed?.toLowerCase().includes('required'))||page.label==='Not found';
     document.title=page.title;
     setMeta('description',page.description);setMeta('robots',noIndex?'noindex,nofollow':'index,follow,max-image-preview:large');setMeta('author','EMBODY Pharmacy');
     setProperty('og:title',page.title);setProperty('og:description',page.description);setProperty('og:type',product?'product':article?'article':'website');setProperty('og:url',canonical);setProperty('og:site_name','EMBODY Pharmacy');setProperty('og:locale','en_US');setProperty('og:image',shareImage);setProperty('og:image:alt','EMBODY everyday pharmacy and wellness storefront');
     setMeta('twitter:card','summary_large_image');setMeta('twitter:title',page.title);setMeta('twitter:description',page.description);setMeta('twitter:image',shareImage);
     let link=document.querySelector('link[rel="canonical"]');if(!link){link=document.createElement('link');link.rel='canonical';document.head.appendChild(link)}link.href=canonical;
     const old=document.querySelector('script[data-embody-jsonld]');old?.remove();
-    if(!noIndex){const script=document.createElement('script');script.type='application/ld+json';script.dataset.embodyJsonld='true';script.textContent=JSON.stringify(schemaGraph({product,article,category,page,canonical,pathname}));document.head.appendChild(script)}
+    if(!noIndex){const script=document.createElement('script');script.type='application/ld+json';script.dataset.embodyJsonld='true';script.textContent=JSON.stringify(schemaGraph({product,article,category,categories,page,canonical,pathname}));document.head.appendChild(script)}
     return()=>document.querySelector('script[data-embody-jsonld]')?.remove();
-  },[pathname,products]);
+  },[pathname,products,categories]);
   return null;
 }
 
 function setMeta(name,content){let node=document.querySelector(`meta[name="${name}"]`);if(!node){node=document.createElement('meta');node.name=name;document.head.appendChild(node)}node.content=content}
 function setProperty(property,content){let node=document.querySelector(`meta[property="${property}"]`);if(!node){node=document.createElement('meta');node.setAttribute('property',property);document.head.appendChild(node)}node.content=content}
-function schemaGraph({product,article,category,page,canonical,pathname}){
+function schemaGraph({product,article,category,categories,page,canonical,pathname}){
   const storeId=`${siteUrl}/#store`;const websiteId=`${siteUrl}/#website`;
   const graph=[{'@type':'OnlineStore','@id':storeId,name:'EMBODY Pharmacy',url:siteUrl,description:'Online OTC and wellness storefront with privacy and pharmacy-readiness safeguards.',image:`${siteUrl}/images/embody-hero.png`},{'@type':'WebSite','@id':websiteId,url:siteUrl,name:'EMBODY Pharmacy',publisher:{'@id':storeId},inLanguage:'en-US'}];
   if(pathname!=='/'){const crumbs=[{'@type':'ListItem',position:1,name:'Home',item:siteUrl}];if(product){const productCategory=categories.find(item=>item.slug===product.category);crumbs.push({'@type':'ListItem',position:2,name:'Online care',item:`${siteUrl}/online-care`});if(productCategory)crumbs.push({'@type':'ListItem',position:3,name:productCategory.name,item:`${siteUrl}/categories/${productCategory.slug}`});crumbs.push({'@type':'ListItem',position:crumbs.length+1,name:product.name,item:canonical})}else crumbs.push({'@type':'ListItem',position:2,name:page.label,item:canonical});graph.push({'@type':'BreadcrumbList','@id':`${canonical}#breadcrumb`,itemListElement:crumbs})}

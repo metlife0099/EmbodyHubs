@@ -27,6 +27,7 @@ export const api = {
   refresh: () => request('/auth/refresh', { method: 'POST', headers: csrfHeaders() }),
   logout: () => request('/auth/logout', { method: 'POST', headers: csrfHeaders() }),
   products: (query = '') => request(`/products${query}`),
+  productCategories: () => request('/products/categories'),
   cartQuestions: (productSlug) => request(`/questions/cart?productSlug=${encodeURIComponent(productSlug)}`),
   submitCartAnswers: (payload) => request('/questions/cart/responses', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   checkout: (payload,idempotencyKey) => request('/checkout', { method: 'POST', headers: { ...csrfHeaders(),'Idempotency-Key': idempotencyKey }, body: JSON.stringify(payload) }),

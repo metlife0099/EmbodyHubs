@@ -1,6 +1,6 @@
 import { createContext,useContext,useEffect,useMemo,useState } from 'react';
 import { api } from '../services/api';
-import { products as fallbackProducts } from '../data/catalog';
+import { categories as fallbackCategories,products as fallbackProducts } from '../data/catalog';
 
 const AppContext=createContext(null);
 function readLocalJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch{localStorage.removeItem(key);return fallback}}
@@ -12,11 +12,13 @@ export function AppProvider({children}){
   const[questionnaire,setQuestionnaire]=useState(null);
   const[loginPrompt,setLoginPrompt]=useState(null);
   const[catalogProducts,setCatalogProducts]=useState(fallbackProducts);
+  const[catalogCategories,setCatalogCategories]=useState(fallbackCategories);
 
   useEffect(()=>localStorage.setItem('embody-cart',JSON.stringify(cart)),[cart]);
   useEffect(()=>user?localStorage.setItem('embody-user',JSON.stringify(user)):localStorage.removeItem('embody-user'),[user]);
   useEffect(()=>{if(!notice)return;const id=setTimeout(()=>setNotice(null),4200);return()=>clearTimeout(id)},[notice]);
   useEffect(()=>{api.products('?limit=48&sort=newest').then(result=>{if(result.data?.length)setCatalogProducts(result.data.map(normalizeProduct))}).catch(()=>{})},[]);
+  useEffect(()=>{api.productCategories().then(result=>{if(result.data?.length)setCatalogCategories(result.data.map(normalizeCategory))}).catch(()=>{})},[]);
   useEffect(()=>{const expire=()=>{setStoredUser(null);setCart([]);localStorage.removeItem('embody-user');setNotice({type:'error',message:'Your session expired. Sign in again to continue.'})};window.addEventListener('embody:auth-expired',expire);return()=>window.removeEventListener('embody:auth-expired',expire)},[]);
   const setUser=nextUser=>{setStoredUser(nextUser);if(!nextUser)setCart([])};
 
@@ -63,10 +65,12 @@ export function AppProvider({children}){
   const clearCart=()=>setCart([]);
   const count=cart.reduce((sum,item)=>sum+item.quantity,0);
   const subtotal=cart.reduce((sum,item)=>sum+item.price*item.quantity,0);
-  const value=useMemo(()=>({cart,user,setUser,notice,setNotice,questionnaire,setQuestionnaire,loginPrompt,setLoginPrompt,catalogProducts,requestAdd,submitQuestionnaire,updateQuantity,removeItem,clearCart,count,subtotal}),[cart,user,notice,questionnaire,loginPrompt,catalogProducts,count,subtotal]);
+  const resolvedCategories=useMemo(()=>{const known=new Set(catalogCategories.map(item=>item.slug));const missing=[...new Set(catalogProducts.map(item=>item.category).filter(Boolean))].filter(slug=>!known.has(slug)).map(slug=>fallbackCategories.find(item=>item.slug===slug)||{id:slug,slug,name:'Other care',eyebrow:'Online care',description:'Additional care products with clear label and safety information.',sortOrder:999,active:true});return[...catalogCategories,...missing].sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0)||a.name.localeCompare(b.name))},[catalogCategories,catalogProducts]);
+  const value=useMemo(()=>({cart,user,setUser,notice,setNotice,questionnaire,setQuestionnaire,loginPrompt,setLoginPrompt,catalogProducts,catalogCategories:resolvedCategories,requestAdd,submitQuestionnaire,updateQuantity,removeItem,clearCart,count,subtotal}),[cart,user,notice,questionnaire,loginPrompt,catalogProducts,resolvedCategories,count,subtotal]);
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export const useApp=()=>useContext(AppContext);
 
-function normalizeProduct(product){const variant=product.variants?.find(item=>item.active!==false)||product.variants?.[0]||{};return{id:product._id||product.id,slug:product.slug,category:product.category?.slug||product.category||'daily-wellness',name:product.name,ingredient:product.activeIngredient||'',dosage:variant.dosage||'',form:variant.form||'',pack:variant.packSize||'',price:(variant.priceCents||0)/100,productType:product.productType,prescriptionRequired:Boolean(product.prescriptionRequired),cartQuestionnaireEnabled:Boolean(product.cartQuestionnaireEnabled),stock:variant.stock||0,badge:product.productType==='WELLNESS'?'Wellness':product.prescriptionRequired?'Prescription':'Over-the-counter',tone:'teal',imageUrl:product.images?.[0]?.url||'',imageAlt:product.images?.[0]?.alt||product.name,description:product.description||'',directions:product.directions||'',warnings:product.warnings||[]}}
+function normalizeProduct(product){const variant=product.variants?.find(item=>item.active!==false)||product.variants?.[0]||{};return{id:product._id||product.id,slug:product.slug,category:product.category?.slug||product.category||'daily-wellness',categoryName:product.category?.name||'',name:product.name,ingredient:product.activeIngredient||'',dosage:variant.dosage||'',form:variant.form||'',pack:variant.packSize||'',price:(variant.priceCents||0)/100,productType:product.productType,prescriptionRequired:Boolean(product.prescriptionRequired),cartQuestionnaireEnabled:Boolean(product.cartQuestionnaireEnabled),stock:variant.stock||0,badge:product.productType==='WELLNESS'?'Wellness':product.prescriptionRequired?'Prescription':'Over-the-counter',tone:'teal',imageUrl:product.images?.[0]?.url||'',imageAlt:product.images?.[0]?.alt||product.name,description:product.description||'',directions:product.directions||'',warnings:product.warnings||[],careName:product.careName||'',headline:product.headline||'',summaryPoints:product.summaryPoints||[],howItWorks:product.howItWorks||'',pharmacistNote:product.pharmacistNote||'',faqs:product.faqs||[],seo:product.seo||{}}}
+function normalizeCategory(category){return{id:category._id||category.id,slug:category.slug,name:category.name,eyebrow:'Online care',description:category.description||'Explore clear product information for this care area.',sortOrder:category.sortOrder||0,active:category.active!==false}}

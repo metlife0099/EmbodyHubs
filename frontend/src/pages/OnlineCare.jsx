@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { ArrowDown, ArrowRight, Check, HeartPulse, PackageCheck, ShieldCheck, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { categories } from '../data/catalog';
 import { useApp } from '../context/AppContext';
 
 export default function OnlineCare() {
@@ -10,7 +9,7 @@ export default function OnlineCare() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [sort, setSort] = useState('featured');
-  const { catalogProducts: products } = useApp();
+  const { catalogProducts: products, catalogCategories: categories } = useApp();
   const requestedCategory = routeCategory || params.get('category') || 'all';
   const category = categories.some(item => item.slug === requestedCategory) ? requestedCategory : 'all';
   const shown = useMemo(() => {
