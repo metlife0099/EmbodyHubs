@@ -67,9 +67,9 @@ npm run build
 
 ## Brevo
 
-Set `BREVO_API_KEY`, verify `EMAIL_FROM`, and optionally configure `BREVO_OTP_TEMPLATE_ID` and `BREVO_INVOICE_TEMPLATE_ID`. OTP and invoice mail uses Brevo transactional email with idempotency headers and disabled recipient tracking. PDF invoices are generated with PDFKit and attached without writing customer documents to disk.
+Set `BREVO_API_KEY`, verify `EMAIL_FROM`, and configure `BREVO_NEWSLETTER_LIST_ID` for newsletter contact synchronization and campaigns. The campaign worker creates an isolated Brevo list for every one-time send in the same Brevo folder as that newsletter list, imports only the active consent snapshot, then creates and sends a marketing campaign. Draft creation remains available when Brevo is not configured, but delivery fails closed. Optionally configure `BREVO_OTP_TEMPLATE_ID` and `BREVO_INVOICE_TEMPLATE_ID`. OTP and invoice mail uses Brevo transactional email with idempotency headers and disabled recipient tracking. PDF invoices are generated with PDFKit and attached without writing customer documents to disk.
 
-Configure the Brevo transactional webhook to `POST /api/v1/webhooks/brevo` with `X-Brevo-Webhook-Secret` matching `BREVO_WEBHOOK_SECRET`. Only hashed recipient identifiers and delivery metadata are retained.
+Configure Brevo transactional and marketing webhooks to `POST /api/v1/webhooks/brevo` with `X-Brevo-Webhook-Secret` matching `BREVO_WEBHOOK_SECRET`. Only hashed recipient identifiers and delivery metadata are retained. Unsubscribe and complaint events suppress the matching local subscriber, while delivery, open, click, bounce, unsubscribe, and complaint events update campaign reporting.
 
 When `NODE_ENV=development` and Brevo is not configured, a newly issued OTP is stored temporarily as `developmentCode` on the active document in `embody_health.otpchallenges`. This field is excluded from application queries, removed after successful use, and deleted with the challenge by its TTL index. Production never stores a recoverable OTP.
 

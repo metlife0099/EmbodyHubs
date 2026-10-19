@@ -10,7 +10,7 @@ import ProductForm from'./ProductForm';
 import QuestionManager from'./QuestionManager';
 import Orders from'./Orders';
 import Customers from'./Customers';
-import Newsletter from'./Newsletter';
+import CampaignCenter from'./CampaignCenter';
 import Inventory from'./Inventory';
 import Shipping from'./Shipping';
 import ChatInbox from'./ChatInbox';
@@ -27,7 +27,7 @@ function Overview(){
   return <><section className="metric-grid">{metrics.map(([label,value])=><article key={label}><span>{label}</span><strong>{value}</strong><small>Live API data</small></article>)}</section><div className="dash-grid"><section className="panel action-panel"><header><span>Commerce controls</span><h2>Manage the experience</h2></header><NavLink to="/products"><span>Products and add-to-cart questions</span><b>→</b></NavLink><NavLink to="/orders"><span>Paid orders and customer answers</span><b>→</b></NavLink><NavLink to="/customers"><span>Customer profiles and signup answers</span><b>→</b></NavLink><NavLink to="/questions"><span>Reusable global questions</span><b>→</b></NavLink></section><section className="panel action-panel"><header><span>Security posture</span><h2>Protected operations</h2></header>{['Fixed 24-hour admin sessions','Server-side role checks','CSRF-protected changes','Login lockout enforcement'].map(label=><div className="security-row" key={label}><ShieldCheck/>{label}</div>)}</section></div></>;
 }
 
-function Placeholder({title}){if(title==='Newsletter')return <Newsletter/>;return <section className="panel section-page"><header><div><span>Operations</span><h2>{title}</h2><p>This module remains permission-gated and ready for its approved provider integration.</p></div></header><div className="empty"><ShieldCheck/><h3>Secure module boundary</h3><p>No unverified production data or provider behavior is simulated here.</p></div></section>}
+function Placeholder({title}){if(title==='Newsletter')return <CampaignCenter/>;return <section className="panel section-page"><header><div><span>Operations</span><h2>{title}</h2><p>This module remains permission-gated and ready for its approved provider integration.</p></div></header><div className="empty"><ShieldCheck/><h3>Secure module boundary</h3><p>No unverified production data or provider behavior is simulated here.</p></div></section>}
 
 function Dashboard(){
   const[side,setSide]=useState(()=>window.innerWidth>900);const[unread,setUnread]=useState(0);const{user,logout}=useAdminAuth();const location=useLocation();const title=location.pathname.startsWith('/products')?'Products & questionnaires':items.find(([,path])=>path===location.pathname)?.[0]||'Operations';
