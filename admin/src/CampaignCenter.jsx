@@ -58,7 +58,7 @@ function CampaignList({groups}){
 export default function CampaignCenter(){
   const[tab,setTab]=useState('campaigns');const[groups,setGroups]=useState([]);const[groupError,setGroupError]=useState('');
   const loadGroups=()=>adminApi.newsletterGroups().then(result=>{setGroups(result.data);setGroupError('')}).catch(error=>setGroupError(error.message));
-  useEffect(loadGroups,[]);
+  useEffect(()=>{loadGroups()},[]);
   const tabs=useMemo(()=>[['campaigns','Campaigns',Send],['audience','Subscribers',LayoutList],['groups','Groups',UsersRound]],[]);
   return <div className="campaign-center"><nav className="campaign-tabs" aria-label="Newsletter workspace">{tabs.map(([value,label,Icon])=><button key={value} className={tab===value?'active':''} onClick={()=>setTab(value)}><Icon/>{label}{value==='groups'&&<span>{groups.length}</span>}</button>)}</nav>{groupError&&<p className="campaign-error"><AlertCircle/>{groupError}</p>}{tab==='campaigns'&&<CampaignList groups={groups}/>} {tab==='audience'&&<Newsletter/>} {tab==='groups'&&<GroupManager groups={groups} onReload={loadGroups}/>}</div>;
 }
