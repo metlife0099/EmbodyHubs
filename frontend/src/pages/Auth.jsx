@@ -29,6 +29,12 @@ export default function Auth({mode='login'}){
     const form=Object.fromEntries(new FormData(event.currentTarget));
     try{
       const result=forgot?await api.forgotPassword({email:form.email}):register?await api.register(form):await api.login(form);
+      if(!forgot&&!register){
+        setUser(result.data.user);
+        setNotice({type:'success',message:'Signed in successfully.'});
+        navigate(returnTo);
+        return;
+      }
       setChallenge(result.data);
       setStep('otp');
     }catch(err){setError(err.message)}finally{setBusy(false)}
@@ -75,14 +81,14 @@ export default function Auth({mode='login'}){
     <div className="auth-aside">
       <span className="eyebrow light">Protected at every step</span>
       <h1>{forgot?'Recover securely.':register?'Your account, verified.':'Welcome back.'}</h1>
-      <p>{step==='otp'?'Enter the one-time code sent to your email. Codes expire after 10 minutes and can be used only once.':register?'Answer a few essential questions, then verify your email before account access.':'Password verification is followed by a one-time email code.'}</p>
-      <div><span><LockKeyhole/> Argon2id password hashing</span><span><KeyRound/> One-time verification codes</span><span><ShieldCheck/> Privacy-minimized onboarding</span></div>
+      <p>{step==='otp'?'Enter the one-time code sent to your email. Codes expire after 10 minutes and can be used only once.':register?'Answer a few essential questions, then verify your email before account access.':forgot?'We will send a one-time password-reset code to your verified email.':'Sign in directly with the password for your verified account.'}</p>
+      <div><span><LockKeyhole/> Argon2id password hashing</span><span><KeyRound/> OTP verification during signup</span><span><ShieldCheck/> Privacy-minimized onboarding</span></div>
     </div>
     <div className="auth-card">
       {step==='form'&&<>
         <span className="eyebrow">{forgot?'Account recovery':register?'Create account':'Secure sign in'}</span>
         <h2>{forgot?'Forgot your password?':register?'Let’s get started.':'Good to see you.'}</h2>
-        <p>{forgot?'Enter your verified email. The response stays the same whether or not an account exists.':register?'These answers help confirm eligibility and route you to the right pharmacy support.':'Enter your password, then verify the one-time code sent by email.'}</p>
+        <p>{forgot?'Enter your verified email. The response stays the same whether or not an account exists.':register?'These answers help confirm eligibility and route you to the right pharmacy support.':'Enter your email and password to access your account.'}</p>
         <form onSubmit={submitCredentials}>
           {register&&<>
             <div className="privacy-minimum"><Info/><span><b>Only the essentials.</b> We do not ask for symptoms, diagnoses, medication lists, or treatment history during account registration.</span></div>
@@ -106,7 +112,7 @@ export default function Auth({mode='login'}){
           </div>}
           {register&&<p className="registration-disclaimer">These answers do not diagnose a condition, recommend a medicine, or establish prescription eligibility.</p>}
           {error&&<p className="form-error" role="alert">{error}</p>}
-          <button disabled={busy||ageRange==='UNDER_18'} className="btn btn-primary btn-wide">{busy?'Please wait…':forgot?'Send reset code':register?'Create and verify account':'Continue securely'}</button>
+          <button disabled={busy||ageRange==='UNDER_18'} className="btn btn-primary btn-wide">{busy?'Please wait…':forgot?'Send reset code':register?'Create and verify account':'Sign in'}</button>
         </form>
         {!forgot&&<p className="auth-switch">{register?'Already have an account?':'New to EMBODY?'} <Link to={`${register?'/login':'/register'}${returnTo!=='/account'?`?returnTo=${encodeURIComponent(returnTo)}`:''}`}>{register?'Sign in':'Create an account'}</Link></p>}
         {!register&&!forgot&&<Link className="forgot-link" to="/forgot-password">Forgot password?</Link>}

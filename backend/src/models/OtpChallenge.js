@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const schema=new mongoose.Schema({
   user:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true,index:true},
-  purpose:{type:String,enum:['EMAIL_VERIFY','LOGIN','PASSWORD_RESET'],required:true,index:true},
+  purpose:{type:String,enum:['EMAIL_VERIFY','PASSWORD_RESET'],required:true,index:true},
   codeDigest:{type:String,required:true,select:false},
   developmentCode:{type:String,select:false,match:/^\d{6}$/},
   expiresAt:{type:Date,required:true},resendAfter:{type:Date,required:true},
