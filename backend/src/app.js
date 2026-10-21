@@ -4,7 +4,7 @@ import { env } from './config/env.js';import { logger } from './utils/logger.js'
 
 export const app=express();app.disable('x-powered-by');app.set('trust proxy',1);
 app.use((req,res,next)=>{req.id=req.headers['x-request-id']||crypto.randomUUID();res.setHeader('X-Request-ID',req.id);next()});
-app.use(pinoHttp({logger,genReqId:req=>req.id,redact:['req.headers.cookie','req.headers.authorization','req.body.password','req.body.answers']}));
+app.use(pinoHttp({logger,genReqId:req=>req.id,redact:['req.headers.cookie','req.headers.authorization','req.body.password','req.body.currentPassword','req.body.newPassword','req.body.answers']}));
 app.use(helmet({contentSecurityPolicy:env.NODE_ENV==='production'?undefined:false,crossOriginResourcePolicy:{policy:'cross-origin'}}));
 app.use(cors({origin:[env.FRONTEND_URL,env.ADMIN_URL],credentials:true,methods:['GET','POST','PUT','PATCH','DELETE']}));
 app.use(compression());app.use(express.json({limit:'250kb'}));app.use(express.urlencoded({extended:false,limit:'100kb'}));app.use(cookieParser(env.COOKIE_SECRET));app.use(rejectMongoOperators);
