@@ -7,11 +7,14 @@ import { authenticate,authorize } from '../middleware/auth.js';
 import { requireCsrf } from '../middleware/csrf.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { adminChatSummary,getAdminChat,listAdminChats,markAdminChatRead,sendAdminMessage,updateAdminChatStatus } from '../controllers/chatController.js';
+import { listProfessionalApplications,reviewProfessionalApplication } from '../controllers/healthcareProfessionalController.js';
 
 export const adminRoutes=Router();
 adminRoutes.use(authenticate);
 adminRoutes.get('/metrics',authorize('orders:read','audit:read'),asyncHandler(metrics));
 adminRoutes.get('/customers',authorize('customers:read'),asyncHandler(listCustomers));
+adminRoutes.get('/healthcare-professionals',authorize('hcp:read'),asyncHandler(listProfessionalApplications));
+adminRoutes.patch('/healthcare-professionals/:id',requireCsrf,authorize('hcp:write'),asyncHandler(reviewProfessionalApplication));
 adminRoutes.get('/newsletter-subscribers',authorize('newsletter:read'),asyncHandler(listSubscribers));
 adminRoutes.get('/newsletter-groups',authorize('newsletter:read'),asyncHandler(listSubscriberGroups));
 adminRoutes.post('/newsletter-groups',requireCsrf,authorize('newsletter:write'),asyncHandler(createSubscriberGroup));

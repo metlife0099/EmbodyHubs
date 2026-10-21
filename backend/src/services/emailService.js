@@ -20,4 +20,33 @@ export async function sendChatNotificationEmail({customerName,customerEmail,mess
     htmlContent:`<div style="font-family:Arial,sans-serif;max-width:580px;margin:auto;color:#0b1f2a"><h1 style="font-size:24px">New support message</h1><p><strong>${escapeHtml(customerName)}</strong> (${escapeHtml(customerEmail)}) sent a message at ${escapeHtml(received)} UTC.</p><p>Sign in to the secure EMBODY admin panel to read and reply.</p><p style="color:#68777c;font-size:13px">For privacy, the message content is not included in this email.</p></div>`
   });
 }
+export async function sendHcpApplicationNotificationEmail({applicationId}){
+  const email=env.SUPPORT_NOTIFICATION_EMAIL||env.ADMIN_SEED_EMAIL;
+  if(!email)return{messageId:'hcp-notification-unconfigured',skipped:true};
+  return send({
+    to:[{email,name:'EMBODY Credentialing',contactPixelTrackingConsent:false}],
+    subject:'Healthcare professional application requires review',
+    tags:['transactional','hcp-credentialing'],
+    headers:{'Idempotency-Key':`hcp-application-${applicationId}`},
+    textContent:`A healthcare professional application (${applicationId}) is ready for credential review. Sign in to the EMBODY admin panel. Sensitive credential details are intentionally excluded from this email.`,
+    htmlContent:`<div style="font-family:Arial,sans-serif;max-width:580px;margin:auto;color:#0b1f2a"><h1 style="font-size:24px">Professional application ready</h1><p>Application <strong>${escapeHtml(applicationId)}</strong> requires credential review.</p><p>Sign in to the secure EMBODY admin panel to inspect the NPI registry result and state license information.</p><p style="color:#68777c;font-size:13px">Sensitive credential details are intentionally excluded from email.</p></div>`
+  });
+}
+export async function sendHcpReviewEmail({email,name,status,applicationId}){
+  const messages={
+    APPROVED:{subject:'Your EMBODY professional account is approved',heading:'Credential review complete',body:'Your healthcare professional account has been approved.'},
+    NEEDS_INFORMATION:{subject:'More information is needed for your EMBODY application',heading:'Application update requested',body:'The credentialing team needs additional information before it can complete your review.'},
+    REJECTED:{subject:'Update on your EMBODY professional application',heading:'Credential review update',body:'Your professional application could not be approved at this time.'},
+    SUSPENDED:{subject:'Your EMBODY professional access has been suspended',heading:'Professional access update',body:'Your professional access has been suspended pending review.'}
+  };
+  const message=messages[status]||messages.NEEDS_INFORMATION;
+  return send({
+    to:[{email,name,contactPixelTrackingConsent:false}],
+    subject:message.subject,
+    tags:['transactional','hcp-credentialing'],
+    headers:{'Idempotency-Key':`hcp-review-${applicationId}-${status}`},
+    textContent:`Hello ${name}, ${message.body} Sign in to your EMBODY account to securely view the current status and any reviewer note. Do not reply with patient or credential information.`,
+    htmlContent:`<div style="font-family:Arial,sans-serif;max-width:580px;margin:auto;color:#0b1f2a"><h1 style="font-size:24px">${escapeHtml(message.heading)}</h1><p>Hello ${escapeHtml(name)},</p><p>${escapeHtml(message.body)}</p><p>Sign in to your EMBODY account to securely view the current status and any reviewer note.</p><p style="color:#68777c;font-size:13px">Do not send patient or credential information by reply email.</p></div>`
+  });
+}
 function escapeHtml(value=''){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}

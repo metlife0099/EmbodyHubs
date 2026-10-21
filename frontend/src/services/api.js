@@ -37,5 +37,7 @@ export const api = {
   chat: () => request('/chat'),
   sendChatMessage: (payload) => request('/chat/messages', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   markChatRead: () => request('/chat/read', { method: 'POST', headers: csrfHeaders() })
+  ,professionalApplication: () => request('/professionals/me')
+  ,submitProfessionalApplication: (payload) => request('/professionals/applications', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) })
 };
 function csrfHeaders(){const cookies=document.cookie.split('; ');const token=(cookies.find(v=>v.startsWith('storeCsrfToken='))||cookies.find(v=>v.startsWith('csrfToken=')))?.split('=')[1];return token?{'X-CSRF-Token':decodeURIComponent(token)}:{}}

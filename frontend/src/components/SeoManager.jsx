@@ -13,12 +13,14 @@ const staticPages={
   '/learn':{title:'Medication Safety & Pharmacy Education | EMBODY',description:'Read practical, pharmacist-review-ready guides about Drug Facts labels, medication lists, and safer OTC use.',label:'Learn'},
   '/how-it-works':{title:'How Online Pharmacy Service Works | EMBODY',description:'Understand account verification, checkout validation, pharmacy licensing gates, pharmacist access, and fulfillment.',label:'How it works'},
   '/contact':{title:'Contact EMBODY Pharmacy Support',description:'Contact EMBODY support without sending medical information through ordinary email.',label:'Contact'},
+  '/professionals':{title:'Healthcare Professional Program | EMBODY Pharmacy',description:'Apply for credential-reviewed EMBODY professional access with NPI-supported verification, privacy-minimized onboarding, and medication education resources.',label:'Healthcare professionals'},
+  '/professionals/apply':{title:'Professional Credential Application | EMBODY Pharmacy',description:'Securely submit a healthcare professional application for credential review.',label:'Professional application'},
   '/policies/privacy':{title:'Privacy Notice | EMBODY Pharmacy',description:'Review how EMBODY limits, protects, and handles account and storefront information.',label:'Privacy notice'},
   '/policies/terms':{title:'Terms of Service | EMBODY Pharmacy',description:'Review the terms and important limitations that apply when using the EMBODY storefront.',label:'Terms of service'},
   '/policies/shipping':{title:'Shipping Policy | EMBODY Pharmacy',description:'Learn about EMBODY order verification, fulfillment gates, carrier estimates, and shipping limitations.',label:'Shipping policy'},
   '/policies/prescription':{title:'Prescription Policy | EMBODY Pharmacy',description:'Understand the licensing, prescription, pharmacist, and destination checks required before prescription fulfillment.',label:'Prescription policy'}
 };
-const privatePrefixes=['/account','/orders','/cart','/checkout','/login','/register','/forgot-password','/reset-password','/search','/tracking','/support/chat'];
+const privatePrefixes=['/account','/orders','/cart','/checkout','/login','/register','/forgot-password','/reset-password','/search','/tracking','/support/chat','/professionals/apply'];
 
 export default function SeoManager(){
   const{pathname}=useLocation();

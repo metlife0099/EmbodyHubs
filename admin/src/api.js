@@ -15,4 +15,6 @@ export const adminApi={
   ,sendChatReply:(id,payload)=>request(`/admin/chat/${id}/messages`,{method:'POST',mutate:true,body:JSON.stringify(payload)})
   ,markAdminChatRead:id=>request(`/admin/chat/${id}/read`,{method:'POST',mutate:true})
   ,updateChatStatus:(id,status)=>request(`/admin/chat/${id}/status`,{method:'PATCH',mutate:true,body:JSON.stringify({status})})
+  ,healthcareProfessionals:({page=1,q='',status='ALL'}={})=>{const params=new URLSearchParams({page:String(page),limit:'25',status});if(q)params.set('q',q);return request(`/admin/healthcare-professionals?${params}`)}
+  ,reviewHealthcareProfessional:(id,payload)=>request(`/admin/healthcare-professionals/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
 };

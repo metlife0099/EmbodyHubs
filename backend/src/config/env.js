@@ -27,6 +27,7 @@ const schema = z.object({
   EMAIL_FROM: z.string().email().default('care@example.com'), EMAIL_FROM_NAME: z.string().default('EMBODY Pharmacy'), SUPPORT_NOTIFICATION_EMAIL: optional(z.string().email()),
   CLOUDINARY_CLOUD_NAME: optional(z.string()), CLOUDINARY_API_KEY: optional(z.string()), CLOUDINARY_API_SECRET: optional(z.string()), CLOUDINARY_UPLOAD_FOLDER: z.string().regex(/^[a-zA-Z0-9/_-]+$/).default('embody-pharmacy'), CLOUDINARY_UPLOAD_PRESET: optional(z.string().regex(/^[a-zA-Z0-9_-]+$/)),
   PHARMACY_LEGAL_NAME: optional(z.string()), PHARMACY_US_ADDRESS: optional(z.string()), PHARMACY_US_PHONE: optional(z.string()), PHARMACIST_CONTACT_EMAIL: optional(z.string().email()), PHARMACY_LICENSES_JSON: z.string().default('{}'), PHARMACY_LICENSED_STATES: z.string().default(''),
+  NPPES_API_URL: z.string().url().default('https://npiregistry.cms.hhs.gov/api/'), NPPES_LOOKUP_ENABLED: z.stringbool().default(true),
   PRESCRIPTION_DISPENSING_ENABLED: z.stringbool().default(false), CONTROLLED_SUBSTANCES_ENABLED: z.stringbool().default(false),
   ADMIN_SEED_EMAIL:optional(z.string().email()),ADMIN_SEED_PASSWORD:optional(z.string().min(12).max(128))
 }).superRefine((data,ctx)=>{
