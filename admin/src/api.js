@@ -9,6 +9,10 @@ export const adminApi={
   shipping:({page=1,q='',status='ALL'})=>{const params=new URLSearchParams({page:String(page),limit:'25',status});if(q)params.set('q',q);return request(`/admin/shipping?${params}`)},authorizeShipment:id=>request(`/admin/shipping/${id}/authorize`,{method:'POST',mutate:true}),updateShipment:(id,payload)=>request(`/admin/shipping/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)}),
   mediaSignature:payload=>request('/media/signature',{method:'POST',mutate:true,body:JSON.stringify(payload)}),
   questions:()=>request('/questions/admin'),createQuestion:payload=>request('/questions/admin',{method:'POST',mutate:true,body:JSON.stringify(payload)}),updateQuestion:(id,payload)=>request(`/questions/admin/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,comparisonOptions:()=>request('/comparisons/admin')
+  ,createComparisonOption:payload=>request('/comparisons/admin',{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,updateComparisonOption:(id,payload)=>request(`/comparisons/admin/${id}`,{method:'PUT',mutate:true,body:JSON.stringify(payload)})
+  ,deleteComparisonOption:id=>request(`/comparisons/admin/${id}`,{method:'DELETE',mutate:true})
   ,chatSummary:()=>request('/admin/chat/summary')
   ,chatConversations:({page=1,q='',status='ALL'}={})=>{const params=new URLSearchParams({page:String(page),limit:'25',status});if(q)params.set('q',q);return request(`/admin/chat?${params}`)}
   ,chatConversation:id=>request(`/admin/chat/${id}`)

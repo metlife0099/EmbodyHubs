@@ -34,6 +34,7 @@ export const api = {
   revokeOtherSessions: () => request('/account/sessions/revoke-others', { method: 'POST', headers: csrfHeaders() }),
   products: (query = '') => request(`/products${query}`),
   productCategories: () => request('/products/categories'),
+  comparisons: () => request('/comparisons'),
   cartQuestions: (productSlug) => request(`/questions/cart?productSlug=${encodeURIComponent(productSlug)}`),
   submitCartAnswers: (payload) => request('/questions/cart/responses', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   checkout: (payload,idempotencyKey) => request('/checkout', { method: 'POST', headers: { ...csrfHeaders(),'Idempotency-Key': idempotencyKey }, body: JSON.stringify(payload) }),

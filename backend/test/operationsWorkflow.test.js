@@ -4,6 +4,7 @@ import { inventoryStatus } from '../src/controllers/inventoryController.js';
 import { canTransitionShipment } from '../src/controllers/shippingController.js';
 import { productRemovalMode } from '../src/controllers/productController.js';
 import { selectCheckoutVariant,variantDisplayName } from '../src/controllers/checkoutController.js';
+import { comparisonInputSchema } from '../src/controllers/comparisonController.js';
 
 test('inventory status uses available stock after reservations',()=>{
   assert.equal(inventoryStatus(20,5,10),'IN_STOCK');
@@ -39,4 +40,11 @@ test('checkout selects the exact requested product variant',()=>{
 test('legacy single-option carts remain compatible',()=>{
   const product={variants:[{_id:'68ed1234567890abcdef1234',sku:'STANDARD',priceCents:900,stock:4,active:true}]};
   assert.equal(selectCheckoutVariant(product,{quantity:1}).variant.sku,'STANDARD');
+});
+
+test('comparison content requires qualified claims and a secure source',()=>{
+  const valid={name:'Tadalafil',genericName:'Generic Cialis',slug:'tadalafil',tagline:'A longer-duration prescription option.',typicalOnset:'Timing varies by person.',typicalDuration:'Effectiveness demonstrated up to 36 hours.',frequency:'As needed or once daily when prescribed.',prescription:'Prescription required.',importantConsiderations:'Must not be combined with nitrate medicines.',priceLabel:'Varies by pharmacy and quantity.',highlights:['Longer-duration characteristics','Once-daily approach exists for some patients'],source:{label:'DailyMed prescribing information',url:'https://dailymed.nlm.nih.gov/example'},publicationStatus:'PUBLISHED',sortOrder:10};
+  assert.equal(comparisonInputSchema.parse(valid).slug,'tadalafil');
+  assert.throws(()=>comparisonInputSchema.parse({...valid,source:{...valid.source,url:'http://example.com'}}));
+  assert.throws(()=>comparisonInputSchema.parse({...valid,highlights:['Only one point']}));
 });
