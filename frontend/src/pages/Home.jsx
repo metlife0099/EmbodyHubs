@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ArrowRight, CheckCircle2, ClipboardCheck, HeartHandshake, PackageCheck, ShieldCheck, Stethoscope } from 'lucide-react';
-import { categories, articles } from '../data/catalog';
+import { categories } from '../data/catalog';
+import { learnArticles } from '../data/learnContent';
 import ProductCard from '../components/ProductCard';
 import { useApp } from '../context/AppContext';
 
@@ -44,7 +45,7 @@ export default function Home() {
 
     <section className="section safety-section"><motion.div className="safety-panel" {...reveal}><div><span className="eyebrow">Safety is the service</span><h2>A legitimate pharmacy is more than a storefront.</h2><p>Prescription sales remain disabled until the operating pharmacy’s state licenses, US address and phone, licensed-pharmacist contact, valid-prescription workflow, and destination eligibility are configured and verified.</p><Link className="text-link" to="/policies/prescription">Read our prescription policy <ArrowRight/></Link></div><div className="safety-list">{['Valid prescriptions required for prescription products','US physical address and phone required before launch','State license checks for the pharmacy and customer location','No controlled substances unless separately authorized'].map(x => <span key={x}><ShieldCheck/> {x}</span>)}</div></motion.div></section>
 
-    <section className="section journal-section"><div className="section-heading compact"><div><span className="eyebrow">The journal</span><h2>Clear answers. No shame.</h2></div><Link className="text-link" to="/learn">Visit the journal <ArrowRight/></Link></div><div className="article-grid">{articles.map((a,i) => <Link to={`/learn/${a.slug}`} className="article-card" key={a.slug}><div className={`article-art article-art--${i+1}`}><HeartHandshake/></div><span>{a.category} · {a.read}</span><h3>{a.title}</h3><p>{a.summary}</p><b>Read article <ArrowRight/></b></Link>)}</div></section>
+    <section className="section journal-section"><div className="section-heading compact"><div><span className="eyebrow">Learn</span><h2>Better information. Better conversations.</h2></div><Link className="text-link" to="/learn">Explore Learn <ArrowRight/></Link></div><div className="article-grid">{learnArticles.filter(article=>article.featured).slice(0,3).map((a,i) => <Link to={`/learn/${a.slug}`} className="article-card" key={a.slug}><div className={`article-art article-art--${i+1}`}><HeartHandshake/></div><span>{a.category} · {a.read}</span><h3>{a.title}</h3><p>{a.summary}</p><b>Read guide <ArrowRight/></b></Link>)}</div></section>
 
     <section className="cta-section"><span className="eyebrow light">A better next step</span><h2>Ready to explore your options?</h2><p>Start privately, move at your pace, and get appropriate review where required.</p><Link className="btn btn-ivory" to="/online-care">Explore care <ArrowRight/></Link></section>
   </>;
