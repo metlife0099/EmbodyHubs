@@ -23,7 +23,7 @@ export default function Layout({ children }) {
   return <>
     <SeoManager/>
     <a className="skip-link" href="#main">Skip to content</a>
-    <div className="professional-switch"><Link to="/professionals"><Stethoscope/><span>Are you a healthcare professional?</span><b>Switch to EMBODY for professionals</b><ArrowRight/></Link></div>
+    <div className="professional-switch"><Link to="/professionals"><Stethoscope/><span>Are you a healthcare professional?</span><b>Join EMBODY Now</b><ArrowRight/></Link></div>
     <div className="announcement">Free shipping on orders over $50 <span>•</span> <Link to="/how-it-works">See how pharmacy service works <ArrowRight size={14}/></Link></div>
     <header className="site-header">
       <div className="header-inner">

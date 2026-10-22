@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { inventoryStatus } from '../src/controllers/inventoryController.js';
 import { canTransitionShipment } from '../src/controllers/shippingController.js';
 import { productRemovalMode } from '../src/controllers/productController.js';
+import { selectCheckoutVariant,variantDisplayName } from '../src/controllers/checkoutController.js';
 
 test('inventory status uses available stock after reservations',()=>{
   assert.equal(inventoryStatus(20,5,10),'IN_STOCK');
@@ -23,4 +24,19 @@ test('product removal preserves regulated commerce history',()=>{
   assert.equal(productRemovalMode({orders:true,inventory:false,responses:false}),'ARCHIVED');
   assert.equal(productRemovalMode({orders:false,inventory:true,responses:false}),'ARCHIVED');
   assert.equal(productRemovalMode({orders:false,inventory:false,responses:true}),'ARCHIVED');
+});
+
+test('checkout selects the exact requested product variant',()=>{
+  const product={variants:[{_id:'68ed1234567890abcdef1234',sku:'CET-10-30',dosage:'10 mg',form:'Tablet',packSize:'30 tablets',priceCents:1200,stock:8,active:true},{_id:'68ed1234567890abcdef1235',sku:'CET-10-90',label:'90-count value pack',priceCents:2800,stock:2,active:true}]};
+  const selected=selectCheckoutVariant(product,{variantId:'68ed1234567890abcdef1235',quantity:2});
+  assert.equal(selected.variant.sku,'CET-10-90');
+  assert.equal(variantDisplayName(selected.variant),'90-count value pack');
+  assert.equal(selectCheckoutVariant(product,{quantity:1}).error,'VARIANT_SELECTION_REQUIRED');
+  assert.equal(selectCheckoutVariant(product,{variantId:'68ed1234567890abcdef1235',quantity:3}).error,'INSUFFICIENT_STOCK');
+  assert.equal(selectCheckoutVariant(product,{variantId:'68ed1234567890abcdef9999',quantity:1}).error,'VARIANT_UNAVAILABLE');
+});
+
+test('legacy single-option carts remain compatible',()=>{
+  const product={variants:[{_id:'68ed1234567890abcdef1234',sku:'STANDARD',priceCents:900,stock:4,active:true}]};
+  assert.equal(selectCheckoutVariant(product,{quantity:1}).variant.sku,'STANDARD');
 });

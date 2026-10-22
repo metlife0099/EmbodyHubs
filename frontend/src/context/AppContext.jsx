@@ -4,10 +4,11 @@ import { categories as fallbackCategories,products as fallbackProducts } from '.
 
 const AppContext=createContext(null);
 function readLocalJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch{localStorage.removeItem(key);return fallback}}
+function cartKey(product){return product.cartKey||`${product.id}:${product.variantId||'default'}`}
 
 export function AppProvider({children}){
   const[user,setStoredUser]=useState(()=>readLocalJson('embody-user',null));
-  const[cart,setCart]=useState(()=>readLocalJson('embody-user',null)?readLocalJson('embody-cart',[]):[]);
+  const[cart,setCart]=useState(()=>readLocalJson('embody-user',null)?readLocalJson('embody-cart',[]).map(item=>({...item,cartKey:cartKey(item)})):[]);
   const[notice,setNotice]=useState(null);
   const[questionnaire,setQuestionnaire]=useState(null);
   const[loginPrompt,setLoginPrompt]=useState(null);
@@ -24,17 +25,17 @@ export function AppProvider({children}){
 
   const addItem=(product,questionnaireCompleted=false,questionnaireResponseId=null)=>{
     setCart(items=>{
-      const existing=items.find(item=>item.id===product.id);
+      const key=cartKey(product);const existing=items.find(item=>cartKey(item)===key);
       return existing
-        ?items.map(item=>item.id===product.id?{...item,quantity:Math.min(item.quantity+1,product.stock),questionnaireCompleted:item.questionnaireCompleted||questionnaireCompleted,questionnaireCompletedBy:questionnaireCompleted?user?.id:item.questionnaireCompletedBy,questionnaireResponseId:questionnaireResponseId||item.questionnaireResponseId}:item)
-        :[...items,{...product,quantity:1,questionnaireCompleted,questionnaireCompletedBy:questionnaireCompleted?user?.id:undefined,questionnaireResponseId}];
+        ?items.map(item=>cartKey(item)===key?{...item,quantity:Math.min(item.quantity+1,product.stock),questionnaireCompleted:item.questionnaireCompleted||questionnaireCompleted,questionnaireCompletedBy:questionnaireCompleted?user?.id:item.questionnaireCompletedBy,questionnaireResponseId:questionnaireResponseId||item.questionnaireResponseId}:item)
+        :[...items,{...product,cartKey:key,quantity:1,questionnaireCompleted,questionnaireCompletedBy:questionnaireCompleted?user?.id:undefined,questionnaireResponseId}];
     });
     setNotice({type:'success',message:`${product.name} added to your cart.`});
   };
 
   const completeQuestionedAction=(product,existing,questionnaireResponseId=null)=>{
     if(existing){
-      setCart(items=>items.map(item=>item.id===product.id?{...item,questionnaireCompleted:true,questionnaireCompletedBy:user.id,questionnaireResponseId}:item));
+      const key=cartKey(product);setCart(items=>items.map(item=>cartKey(item)===key?{...item,questionnaireCompleted:true,questionnaireCompletedBy:user.id,questionnaireResponseId}:item));
       setNotice({type:'success',message:`Questions completed for ${product.name}.`});
     }else addItem(product,true,questionnaireResponseId);
   };
@@ -60,8 +61,8 @@ export function AppProvider({children}){
     }catch(error){setQuestionnaire(current=>({...current,saving:false,error:error.message}))}
   };
 
-  const updateQuantity=(id,quantity)=>setCart(items=>items.map(item=>item.id===id?{...item,quantity:Math.max(1,Math.min(Number(quantity),item.stock))}:item));
-  const removeItem=id=>setCart(items=>items.filter(item=>item.id!==id));
+  const updateQuantity=(key,quantity)=>setCart(items=>items.map(item=>cartKey(item)===key?{...item,quantity:Math.max(1,Math.min(Number(quantity),item.stock))}:item));
+  const removeItem=key=>setCart(items=>items.filter(item=>cartKey(item)!==key));
   const clearCart=()=>setCart([]);
   const count=cart.reduce((sum,item)=>sum+item.quantity,0);
   const subtotal=cart.reduce((sum,item)=>sum+item.price*item.quantity,0);
@@ -72,5 +73,10 @@ export function AppProvider({children}){
 
 export const useApp=()=>useContext(AppContext);
 
-function normalizeProduct(product){const variant=product.variants?.find(item=>item.active!==false)||product.variants?.[0]||{};return{id:product._id||product.id,slug:product.slug,category:product.category?.slug||product.category||'daily-wellness',categoryName:product.category?.name||'',name:product.name,ingredient:product.activeIngredient||'',dosage:variant.dosage||'',form:variant.form||'',pack:variant.packSize||'',price:(variant.priceCents||0)/100,productType:product.productType,prescriptionRequired:Boolean(product.prescriptionRequired),cartQuestionnaireEnabled:Boolean(product.cartQuestionnaireEnabled),stock:variant.stock||0,badge:product.productType==='WELLNESS'?'Wellness':product.prescriptionRequired?'Prescription':'Over-the-counter',tone:'teal',imageUrl:product.images?.[0]?.url||'',imageAlt:product.images?.[0]?.alt||product.name,description:product.description||'',directions:product.directions||'',warnings:product.warnings||[],careName:product.careName||'',headline:product.headline||'',summaryPoints:product.summaryPoints||[],howItWorks:product.howItWorks||'',pharmacistNote:product.pharmacistNote||'',faqs:product.faqs||[],seo:product.seo||{}}}
+function normalizeProduct(product){
+  const productId=String(product._id||product.id);const supplied=product.variants?.length?product.variants:[{_id:product.variantId||'',sku:product.sku||'',dosage:product.dosage,form:product.form,packSize:product.pack,priceCents:Math.round(Number(product.price||0)*100),stock:product.stock,active:true}];
+  const variants=supplied.filter(item=>item.active!==false).map(item=>{const id=String(item._id||item.id||'');const label=item.label||[item.dosage,item.form,item.packSize].filter(Boolean).join(' · ')||item.sku||'Standard option';return{id,label,sku:item.sku||'',dosage:item.dosage||'',form:item.form||'',pack:item.packSize||'',price:Number(item.priceCents||0)/100,stock:Number(item.stock||0),active:item.active!==false}});
+  const variant=variants.find(item=>item.stock>0)||variants[0]||{id:'',label:'Unavailable',sku:'',dosage:'',form:'',pack:'',price:0,stock:0};const prices=variants.map(item=>item.price);const minPrice=prices.length?Math.min(...prices):0;
+  return{id:productId,slug:product.slug,category:product.category?.slug||product.category||'daily-wellness',categoryName:product.category?.name||'',name:product.name,ingredient:product.activeIngredient||product.ingredient||'',variantId:variant.id,variantLabel:variant.label,sku:variant.sku,dosage:variant.dosage,form:variant.form,pack:variant.pack,price:variant.price,minPrice,hasVariants:variants.length>1,variants,productType:product.productType,prescriptionRequired:Boolean(product.prescriptionRequired),cartQuestionnaireEnabled:Boolean(product.cartQuestionnaireEnabled),stock:variant.stock,badge:product.productType==='WELLNESS'?'Wellness':product.prescriptionRequired?'Prescription':'Over-the-counter',tone:product.tone||'teal',imageUrl:product.images?.[0]?.url||product.imageUrl||'',imageAlt:product.images?.[0]?.alt||product.imageAlt||product.name,description:product.description||'',directions:product.directions||'',warnings:product.warnings||[],careName:product.careName||'',headline:product.headline||'',summaryPoints:product.summaryPoints||[],howItWorks:product.howItWorks||'',pharmacistNote:product.pharmacistNote||'',faqs:product.faqs||[],seo:product.seo||{}}
+}
 function normalizeCategory(category){return{id:category._id||category.id,slug:category.slug,name:category.name,eyebrow:'Online care',description:category.description||'Explore clear product information for this care area.',sortOrder:category.sortOrder||0,active:category.active!==false}}

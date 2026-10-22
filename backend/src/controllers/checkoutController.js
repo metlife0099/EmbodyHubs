@@ -10,7 +10,17 @@ import { AuditLog } from '../models/AuditLog.js';
 import { AppError } from '../utils/AppError.js';
 import { verifyCompletedPayment } from '../services/paymentService.js';
 
-const checkoutSchema=z.object({items:z.array(z.object({productSlug:z.string().regex(/^[a-z0-9-]{2,100}$/),quantity:z.number().int().min(1).max(10),questionnaireResponseId:z.string().regex(/^[a-f\d]{24}$/i).nullable().optional()})).min(1).max(40),shippingAddress:z.object({name:z.string().trim().min(2).max(120),line1:z.string().trim().min(3).max(160),line2:z.string().trim().max(160).optional().default(''),city:z.string().trim().min(2).max(100),state:z.string().regex(/^[A-Z]{2}$/),postalCode:z.string().regex(/^\d{5}(-\d{4})?$/),country:z.literal('US').default('US')}),paymentConfirmationId:z.string().min(3).max(200)}).superRefine((data,ctx)=>{const slugs=data.items.map(item=>item.productSlug);if(new Set(slugs).size!==slugs.length)ctx.addIssue({code:'custom',path:['items'],message:'Each product may appear only once per checkout.'})});
+const checkoutSchema=z.object({items:z.array(z.object({productSlug:z.string().regex(/^[a-z0-9-]{2,100}$/),variantId:z.string().regex(/^[a-f\d]{24}$/i).optional(),quantity:z.number().int().min(1).max(10),questionnaireResponseId:z.string().regex(/^[a-f\d]{24}$/i).nullable().optional()})).min(1).max(40),shippingAddress:z.object({name:z.string().trim().min(2).max(120),line1:z.string().trim().min(3).max(160),line2:z.string().trim().max(160).optional().default(''),city:z.string().trim().min(2).max(100),state:z.string().regex(/^[A-Z]{2}$/),postalCode:z.string().regex(/^\d{5}(-\d{4})?$/),country:z.literal('US').default('US')}),paymentConfirmationId:z.string().min(3).max(200)}).superRefine((data,ctx)=>{const keys=data.items.map(item=>`${item.productSlug}:${item.variantId||''}`);if(new Set(keys).size!==keys.length)ctx.addIssue({code:'custom',path:['items'],message:'Each product option may appear only once per checkout.'})});
+
+export function selectCheckoutVariant(product,{variantId,quantity}){
+  const active=(product.variants||[]).filter(variant=>variant.active!==false);
+  const variant=variantId?active.find(item=>String(item._id)===String(variantId)):active.length===1?active[0]:null;
+  if(!variant)return{error:variantId?'VARIANT_UNAVAILABLE':'VARIANT_SELECTION_REQUIRED'};
+  if(variant.stock<quantity)return{error:'INSUFFICIENT_STOCK',variant};
+  return{variant};
+}
+
+export function variantDisplayName(variant){return variant.label||[variant.dosage,variant.form,variant.packSize].filter(Boolean).join(' · ')||variant.sku}
 
 export async function createCheckoutOrder(req,res){
   const idempotencyKey=String(req.get('idempotency-key')||'');
@@ -21,8 +31,10 @@ export async function createCheckoutOrder(req,res){
   if(products.length!==slugs.length)throw new AppError('One or more products are unavailable.',409,'PRODUCT_UNAVAILABLE');
   const orderItems=[];
   for(const requested of data.items){
-    const product=products.find(item=>item.slug===requested.productSlug);const variant=product.variants.find(item=>item.active!==false&&item.stock>=requested.quantity);
-    if(!variant)throw new AppError(`${product.name} does not have enough available stock.`,409,'INSUFFICIENT_STOCK');
+    const product=products.find(item=>item.slug===requested.productSlug);const selection=selectCheckoutVariant(product,requested);const variant=selection.variant;
+    if(selection.error==='VARIANT_SELECTION_REQUIRED')throw new AppError(`Choose an option for ${product.name} before checkout.`,409,'VARIANT_SELECTION_REQUIRED');
+    if(selection.error==='VARIANT_UNAVAILABLE')throw new AppError(`The selected ${product.name} option is no longer available.`,409,'VARIANT_UNAVAILABLE');
+    if(selection.error==='INSUFFICIENT_STOCK')throw new AppError(`${product.name} (${variantDisplayName(variant)}) does not have enough available stock.`,409,'INSUFFICIENT_STOCK');
     if(product.prescriptionRequired)throw new AppError('Prescription checkout remains disabled.',409,'PRESCRIPTION_CHECKOUT_DISABLED');
     let questionnaire;
     if(product.cartQuestionnaireEnabled){
@@ -33,7 +45,7 @@ export async function createCheckoutOrder(req,res){
       if(current.some(question=>!response.answers.some(answer=>String(answer.question)===String(question._id)&&answer.questionRevision===question.revision)))throw new AppError(`The questions for ${product.name} changed. Please answer them again.`,409,'QUESTIONNAIRE_CHANGED');
       questionnaire={response:response._id,completedAt:response.completedAt,answers:response.answers.map(answer=>({questionRevision:answer.questionRevision,prompt:answer.prompt,selectedLabels:answer.selectedLabels}))};
     }
-    orderItems.push({product:product._id,productSlug:product.slug,variantId:variant._id,name:product.name,sku:variant.sku,quantity:requested.quantity,unitPriceCents:variant.priceCents,prescriptionRequired:false,questionnaire});
+    orderItems.push({product:product._id,productSlug:product.slug,variantId:variant._id,name:product.name,sku:variant.sku,variantLabel:variantDisplayName(variant),dosage:variant.dosage||'',form:variant.form||'',packSize:variant.packSize||'',quantity:requested.quantity,unitPriceCents:variant.priceCents,prescriptionRequired:false,questionnaire});
   }
   const subtotalCents=orderItems.reduce((sum,item)=>sum+item.unitPriceCents*item.quantity,0);const shippingCents=subtotalCents>=5000?0:600;const taxCents=0;const totalCents=subtotalCents+shippingCents;
   const payment=await verifyCompletedPayment({confirmationId:data.paymentConfirmationId,amountCents:totalCents});
