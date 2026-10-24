@@ -1,54 +1,49 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, ChevronDown, ExternalLink, Info, RefreshCw, Scale, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, ExternalLink, Info, Scale, ShieldCheck, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
-import { comparisonRows, fallbackComparisonOptions } from '../data/comparisonOptions';
+import { comparisonRows, fallbackComparisons } from '../data/comparisonOptions';
 import './Compare.css';
 
 export default function Compare(){
-  const[options,setOptions]=useState(fallbackComparisonOptions);const[leftSlug,setLeftSlug]=useState('tadalafil');const[rightSlug,setRightSlug]=useState('sildenafil');const[loading,setLoading]=useState(true);
-  useEffect(()=>{let active=true;api.comparisons().then(result=>{if(active&&result.data?.length>=2){const sorted=[...result.data].sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0)||a.name.localeCompare(b.name));setOptions(sorted);setLeftSlug(current=>sorted.some(item=>item.slug===current)?current:sorted[0].slug);setRightSlug(current=>sorted.some(item=>item.slug===current)&&current!==sorted[0].slug?current:sorted[1].slug)}}).catch(()=>{}).finally(()=>active&&setLoading(false));return()=>{active=false}},[]);
-  const left=useMemo(()=>options.find(item=>item.slug===leftSlug)||options[0],[options,leftSlug]);
-  const right=useMemo(()=>options.find(item=>item.slug===rightSlug)||options.find(item=>item.slug!==left?.slug)||options[0],[options,rightSlug,left]);
-  const choose=(side,value)=>{if(side==='left'){setLeftSlug(value);if(value===rightSlug)setRightSlug(leftSlug)}else{setRightSlug(value);if(value===leftSlug)setLeftSlug(rightSlug)}};
-  const swap=()=>{setLeftSlug(right.slug);setRightSlug(left.slug)};
-  if(!left||!right)return <main className="compare-empty"><Scale/><h1>Comparison information is being prepared.</h1><p>Published options will appear here after source and clinical review.</p><Link className="btn btn-primary" to="/learn">Visit Learn</Link></main>;
+  const[comparisons,setComparisons]=useState(fallbackComparisons);
+  const[loading,setLoading]=useState(true);
+  useEffect(()=>{let active=true;api.comparisons().then(result=>{const published=(result.data||[]).filter(item=>item.items?.length>=2);if(active&&published.length)setComparisons(published)}).catch(()=>{}).finally(()=>active&&setLoading(false));return()=>{active=false}},[]);
   return <main className="compare-page">
     <section className="compare-hero">
-      <div className="compare-hero__copy"><span className="eyebrow light">Compare treatment information</span><h1>See the differences.<br/><em>Choose with confidence.</em></h1><p>There isn’t one option that’s right for everyone. Compare the things that matter to you, then discuss your health history and goals with a licensed professional.</p><div className="compare-hero__trust"><span><ShieldCheck/> Prescription required</span><span><Scale/> Side-by-side, not ranked</span><span><Sparkles/> Source-backed information</span></div></div>
+      <div className="compare-hero__copy"><span className="eyebrow light">Compare your options</span><h1>See the differences.<br/><em>Choose with confidence.</em></h1><p>There is no single option that is right for everyone. Review the details that matter to you, then discuss your needs with a licensed professional.</p><div className="compare-hero__trust"><span><ShieldCheck/> Clear information</span><span><Scale/> Side by side, not ranked</span><span><Sparkles/> Easy to understand</span></div></div>
       <div className="compare-hero__art" aria-hidden="true"><div className="compare-orbit compare-orbit--one"/><div className="compare-orbit compare-orbit--two"/><span className="compare-capsule compare-capsule--one"/><span className="compare-capsule compare-capsule--two"/><div className="compare-hero__mark"><Scale/><strong>Compare</strong><small>Understand the differences</small></div></div>
     </section>
 
-    <section className="compare-picker" aria-labelledby="compare-picker-title">
-      <div><span className="eyebrow">Build your comparison</span><h2 id="compare-picker-title">Choose two options.</h2><p>Select any two published entries. Changing a selection updates every section below.</p></div>
-      <div className="compare-picker__controls">
-        <label><span>First option</span><div><select value={left.slug} onChange={event=>choose('left',event.target.value)}>{options.filter(item=>item.slug!==right.slug||item.slug===left.slug).map(item=><option value={item.slug} key={item.slug}>{item.name}</option>)}</select><ChevronDown/></div></label>
-        <button onClick={swap} aria-label="Swap comparison options"><RefreshCw/></button>
-        <label><span>Second option</span><div><select value={right.slug} onChange={event=>choose('right',event.target.value)}>{options.filter(item=>item.slug!==left.slug||item.slug===right.slug).map(item=><option value={item.slug} key={item.slug}>{item.name}</option>)}</select><ChevronDown/></div></label>
-      </div>
-      {loading&&<small className="compare-loading">Checking for the latest published comparison content…</small>}
-    </section>
+    <nav className="compare-index" aria-label="Available comparisons">
+      <div><span>Explore comparisons</span>{comparisons.map((comparison,index)=><a href={`#compare-${comparison.slug}`} key={comparison.id||comparison.slug}><b>{String(index+1).padStart(2,'0')}</b>{comparison.purpose}</a>)}</div>
+      {loading&&<small>Checking for the latest published content…</small>}
+    </nav>
 
-    <section className="compare-glance">
-      <header><span className="eyebrow">At a glance</span><h2>The details, without the fine-print feeling.</h2><p>Timing and response vary. These are general characteristics, not a prediction of what you will experience.</p></header>
-      <div className="compare-matrix">
-        <div className="compare-matrix__head"><div/><OptionHeading option={left} number="01"/><OptionHeading option={right} number="02"/></div>
-        {comparisonRows.map(([key,label])=><div className={`compare-matrix__row compare-matrix__row--${key}`} key={key}><div className="compare-matrix__label">{label}</div><div data-label={left.name}>{left[key]||'Ask a licensed professional'}</div><div data-label={right.name}>{right[key]||'Ask a licensed professional'}</div></div>)}
-      </div>
-    </section>
+    {comparisons.map((comparison,index)=><ComparisonSection comparison={comparison} index={index} key={comparison.id||comparison.slug}/>)}
 
-    <section className="compare-consider">
-      <header><span className="eyebrow">Questions worth discussing</span><h2>What may make someone consider each option?</h2><p>These points explain practical differences. They are not reasons to choose a medicine without an individual evaluation.</p></header>
-      <div className="compare-consider__grid"><ConsiderCard option={left} number="01"/><ConsiderCard option={right} number="02"/></div>
-    </section>
-
-    <section className="compare-safety"><Info/><div><span className="eyebrow">Important safety boundary</span><h2>Similar category does not mean interchangeable.</h2><p>Both options require a prescription and professional review. PDE5 inhibitors must not be combined with nitrate medicines. Your complete medicine list, cardiovascular health, blood pressure, kidney or liver health, and other factors may change what is appropriate.</p></div><Link to="/learn/important-precautions-interactions">Read precautions <ArrowRight/></Link></section>
-
-    <section className="compare-sources"><div><span className="eyebrow">Verified references</span><h2>Go to the source.</h2><p>Comparison copy links to current U.S. prescribing information. Product-specific instructions from your prescriber and dispensing pharmacy take priority.</p></div><div>{[left,right].map(option=><a href={option.source.url} target="_blank" rel="noreferrer" key={option.slug}><span>{option.name}</span><strong>{option.source.label}</strong><ExternalLink/></a>)}</div></section>
-
+    <section className="compare-safety"><Info/><div><span className="eyebrow">A useful starting point</span><h2>Comparison information is not personal medical advice.</h2><p>Product characteristics do not determine what is appropriate for you. Review warnings, interactions, your health history, and your complete medicine list with a licensed professional.</p></div><Link to="/learn/safety-side-effects">Read safety guides <ArrowRight/></Link></section>
     <section className="compare-cta"><span className="eyebrow light">Still unsure?</span><h2>Start with what matters to you.</h2><p>Explore the care journey, prepare your questions, and let a licensed professional determine whether treatment is appropriate.</p><Link className="btn btn-ivory" to="/online-care">Start My Path <ArrowRight/></Link></section>
   </main>
 }
 
-function OptionHeading({option,number}){return <div className="compare-option-heading"><span>{number}</span><div><strong>{option.name}</strong><small>{option.genericName}</small></div></div>}
-function ConsiderCard({option,number}){return <article><div className="compare-consider__top"><span>{number}</span><Scale/></div><small>{option.genericName}</small><h3>{option.name}</h3><p>{option.tagline}</p><ul>{option.highlights.map(item=><li key={item}><Check/>{item}</li>)}</ul><a href={option.source.url} target="_blank" rel="noreferrer">Review official source <ExternalLink/></a></article>}
+function ComparisonSection({comparison,index}){
+  const sources=comparison.items.filter(item=>item.source?.url);
+  return <section className="comparison-set" id={`compare-${comparison.slug}`}>
+    <header className="comparison-set__header"><div><span className="eyebrow">Comparison {String(index+1).padStart(2,'0')}</span><h2>{comparison.purpose}</h2></div><p>{comparison.intro||'See each option side by side. More details can be added by the pharmacy team.'}</p></header>
+    <div className="compare-matrix-scroll" tabIndex="0" aria-label={`${comparison.purpose} comparison table`}>
+      <div className="compare-matrix" style={{'--compare-columns':comparison.items.length,'--compare-min':`${210+(comparison.items.length*220)}px`,'--compare-min-mobile':`${120+(comparison.items.length*185)}px`}}>
+        <div className="compare-matrix__head"><div className="compare-matrix__corner">At a glance</div>{comparison.items.map((item,itemIndex)=><OptionHeading item={item} number={itemIndex+1} key={item.id||`${item.name}-${itemIndex}`}/>)}</div>
+        {comparisonRows.map(([key,label])=><div className={`compare-matrix__row compare-matrix__row--${key}`} key={key}><div className="compare-matrix__label">{label}</div>{comparison.items.map((item,itemIndex)=><div data-label={item.name} key={item.id||`${key}-${itemIndex}`}>{item[key]||'—'}</div>)}</div>)}
+      </div>
+    </div>
+    <div className="compare-consider">
+      <header><span className="eyebrow">Helpful details</span><h2>What stands out?</h2><p>These summaries help you prepare questions. They do not rank the options or replace an individual evaluation.</p></header>
+      <div className="compare-consider__grid">{comparison.items.map((item,itemIndex)=><ConsiderCard item={item} number={itemIndex+1} key={item.id||`${item.name}-${itemIndex}`}/>)}</div>
+    </div>
+    {sources.length>0&&<div className="compare-sources"><div><span className="eyebrow">References</span><h2>Review the source.</h2><p>When the pharmacy team provides a source, you can open it directly here.</p></div><div>{sources.map((item,itemIndex)=><a href={item.source.url} target="_blank" rel="noreferrer" key={item.id||`${item.name}-${itemIndex}`}><span>{item.name}</span><strong>{item.source.label}</strong><ExternalLink/></a>)}</div></div>}
+  </section>
+}
+
+function OptionHeading({item,number}){return <div className="compare-option-heading"><span>{String(number).padStart(2,'0')}</span><div><strong>{item.name}</strong>{item.genericName&&<small>{item.genericName}</small>}</div></div>}
+function ConsiderCard({item,number}){return <article><div className="compare-consider__top"><span>{String(number).padStart(2,'0')}</span><Scale/></div>{item.genericName&&<small>{item.genericName}</small>}<h3>{item.name}</h3><p>{item.tagline||'More information will be added by the pharmacy team.'}</p>{item.highlights?.length>0&&<ul>{item.highlights.map((point,index)=><li key={`${point}-${index}`}><Check/>{point}</li>)}</ul>}{item.source?.url&&<a href={item.source.url} target="_blank" rel="noreferrer">Review source <ExternalLink/></a>}</article>}

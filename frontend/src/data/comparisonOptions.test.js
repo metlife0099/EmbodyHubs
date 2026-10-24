@@ -1,5 +1,5 @@
 import { describe,expect,it } from 'vitest';
-import { comparisonRows,fallbackComparisonOptions } from './comparisonOptions';
+import { comparisonRows,fallbackComparisonOptions,fallbackComparisons } from './comparisonOptions';
 
 describe('comparison defaults',()=>{
   it('provides two distinct source-backed options',()=>{
@@ -10,5 +10,10 @@ describe('comparison defaults',()=>{
   it('provides every public at-a-glance row',()=>{
     expect(comparisonRows.map(([key])=>key)).toEqual(['typicalOnset','typicalDuration','frequency','prescription','importantConsiderations','priceLabel']);
     expect(fallbackComparisonOptions.every(item=>comparisonRows.every(([key])=>Boolean(item[key])))).toBe(true);
+  });
+  it('groups options into a publishable comparison',()=>{
+    expect(fallbackComparisons).toHaveLength(1);
+    expect(fallbackComparisons[0].purpose).toBe('Tadalafil vs Sildenafil');
+    expect(fallbackComparisons[0].items).toHaveLength(2);
   });
 });

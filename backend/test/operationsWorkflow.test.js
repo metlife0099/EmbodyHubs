@@ -42,9 +42,10 @@ test('legacy single-option carts remain compatible',()=>{
   assert.equal(selectCheckoutVariant(product,{quantity:1}).variant.sku,'STANDARD');
 });
 
-test('comparison content requires qualified claims and a secure source',()=>{
-  const valid={name:'Tadalafil',genericName:'Generic Cialis',slug:'tadalafil',tagline:'A longer-duration prescription option.',typicalOnset:'Timing varies by person.',typicalDuration:'Effectiveness demonstrated up to 36 hours.',frequency:'As needed or once daily when prescribed.',prescription:'Prescription required.',importantConsiderations:'Must not be combined with nitrate medicines.',priceLabel:'Varies by pharmacy and quantity.',highlights:['Longer-duration characteristics','Once-daily approach exists for some patients'],source:{label:'DailyMed prescribing information',url:'https://dailymed.nlm.nih.gov/example'},publicationStatus:'PUBLISHED',sortOrder:10};
-  assert.equal(comparisonInputSchema.parse(valid).slug,'tadalafil');
-  assert.throws(()=>comparisonInputSchema.parse({...valid,source:{...valid.source,url:'http://example.com'}}));
-  assert.throws(()=>comparisonInputSchema.parse({...valid,highlights:['Only one point']}));
+test('comparison content supports simple columns and validates optional sources',()=>{
+  const valid={purpose:'Tadalafil vs Sildenafil',items:[{name:'Tadalafil'},{name:'Sildenafil'}],publicationStatus:'PUBLISHED',sortOrder:10};
+  assert.equal(comparisonInputSchema.parse(valid).items.length,2);
+  assert.throws(()=>comparisonInputSchema.parse({...valid,items:[{name:'Only one'}]}));
+  assert.throws(()=>comparisonInputSchema.parse({...valid,items:[{name:'Tadalafil',source:{label:'Source',url:'http://example.com'}},{name:'Sildenafil'}]}));
+  assert.throws(()=>comparisonInputSchema.parse({...valid,items:[{name:'Tadalafil',source:{label:'Source',url:''}},{name:'Sildenafil'}]}));
 });

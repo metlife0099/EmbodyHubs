@@ -11,6 +11,15 @@ export const fallbackComparisonOptions = [
   }
 ];
 
+export const fallbackComparisons = [{
+  id:'tadalafil-vs-sildenafil-default',
+  purpose:'Tadalafil vs Sildenafil',
+  slug:'tadalafil-vs-sildenafil',
+  intro:'Compare common characteristics side by side, then discuss your health history and goals with a licensed professional.',
+  items:fallbackComparisonOptions,
+  sortOrder:10
+}];
+
 export const comparisonRows = [
   ['typicalOnset','Typical onset'],
   ['typicalDuration','Typical duration'],
