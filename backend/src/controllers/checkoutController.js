@@ -37,7 +37,7 @@ export async function createCheckoutOrder(req,res){
     if(selection.error==='VARIANT_UNAVAILABLE')throw new AppError(`The selected ${product.name} option is no longer available.`,409,'VARIANT_UNAVAILABLE');
     if(selection.error==='INSUFFICIENT_STOCK')throw new AppError(`${product.name} (${variantDisplayName(variant)}) does not have enough available stock.`,409,'INSUFFICIENT_STOCK');
     if(product.prescriptionRequired)throw new AppError('Prescription checkout remains disabled.',409,'PRESCRIPTION_CHECKOUT_DISABLED');
-    const planSelection=validatePlanSelection(requested,product,products);
+    const planSelection=validatePlanSelection(requested,product,products,variant);
     let questionnaire;
     if(product.cartQuestionnaireEnabled){
       if(!requested.questionnaireResponseId)throw new AppError(`Complete the questions for ${product.name} before checkout.`,409,'QUESTIONNAIRE_REQUIRED');
@@ -47,9 +47,10 @@ export async function createCheckoutOrder(req,res){
       if(current.some(question=>!response.answers.some(answer=>String(answer.question)===String(question._id)&&answer.questionRevision===question.revision)))throw new AppError(`The questions for ${product.name} changed. Please answer them again.`,409,'QUESTIONNAIRE_CHANGED');
       questionnaire={response:response._id,completedAt:response.completedAt,answers:response.answers.map(answer=>({questionRevision:answer.questionRevision,prompt:answer.prompt,selectedLabels:answer.selectedLabels}))};
     }
-    orderItems.push({product:product._id,productSlug:product.slug,variantId:variant._id,name:product.name,sku:variant.sku,variantLabel:variantDisplayName(variant),dosage:variant.dosage||'',form:variant.form||'',packSize:variant.packSize||'',quantity:requested.quantity,unitPriceCents:variant.priceCents,prescriptionRequired:false,questionnaire,planSelection});
+    const lineTotalCents=planSelection?.totalPriceCents??variant.priceCents*requested.quantity;
+    orderItems.push({product:product._id,productSlug:product.slug,variantId:variant._id,name:product.name,sku:variant.sku,variantLabel:variantDisplayName(variant),dosage:variant.dosage||'',form:variant.form||'',packSize:variant.packSize||'',quantity:requested.quantity,unitPriceCents:variant.priceCents,lineTotalCents,prescriptionRequired:false,questionnaire,planSelection});
   }
-  const subtotalCents=orderItems.reduce((sum,item)=>sum+item.unitPriceCents*item.quantity,0);const shippingCents=subtotalCents>=5000?0:600;const taxCents=0;const totalCents=subtotalCents+shippingCents;
+  const subtotalCents=orderItems.reduce((sum,item)=>sum+item.lineTotalCents,0);const shippingCents=subtotalCents>=5000?0:600;const taxCents=0;const totalCents=subtotalCents+shippingCents;
   const payment=await verifyCompletedPayment({confirmationId:data.paymentConfirmationId,amountCents:totalCents});
   const session=await mongoose.startSession();let order;
   try{
@@ -71,12 +72,14 @@ export async function createCheckoutOrder(req,res){
 
 function publicOrder(order){return{id:String(order._id),number:order.number,status:order.status,paymentStatus:order.paymentStatus,totalCents:order.totalCents,createdAt:order.createdAt}}
 
-export function validatePlanSelection(requested,product,products){
+export function validatePlanSelection(requested,product,products,selectedVariant){
   if(!requested.planSelection)return undefined;
   const plan=requested.planSelection;const source=products.find(item=>item.slug===plan.sourceProductSlug);const config=source?.pricingConfigurator;
   if(!source||!config?.enabled||String(source.category)!==String(product.category))throw new AppError('This purchase plan is no longer available.',409,'PLAN_UNAVAILABLE');
   const dose=config.doseOptions?.find(item=>item.label===plan.doseLabel&&item.quantity===requested.quantity);
   const shipping=config.shippingOptions?.find(item=>item.label===plan.shippingFrequency&&item.months===plan.shippingMonths);
   if(!config.frequencyOptions?.includes(plan.dosingFrequency)||!dose||!shipping)throw new AppError('The selected purchase plan changed. Please choose your options again.',409,'PLAN_CHANGED');
-  return{sourceProductSlug:source.slug,dosingFrequency:plan.dosingFrequency,doseLabel:dose.label,shippingFrequency:shipping.label,shippingMonths:shipping.months};
+  const variant=selectedVariant||product.variants?.find(item=>String(item._id)===String(requested.variantId));const priceRules=config.priceRules||[];const priceRule=priceRules.find(rule=>rule.frequency===plan.dosingFrequency&&rule.productSlug===product.slug&&rule.variantSku===String(variant?.sku||'').toUpperCase()&&rule.doseLabel===dose.label&&rule.shippingLabel===shipping.label);
+  if(priceRules.length&&!priceRule)throw new AppError('Pricing for this combination is unavailable. Please choose another option.',409,'PLAN_PRICE_UNAVAILABLE');
+  return{sourceProductSlug:source.slug,dosingFrequency:plan.dosingFrequency,doseLabel:dose.label,shippingFrequency:shipping.label,shippingMonths:shipping.months,totalPriceCents:priceRule?.totalPriceCents};
 }

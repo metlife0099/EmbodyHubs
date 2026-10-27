@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { inventoryStatus } from '../src/controllers/inventoryController.js';
 import { canTransitionShipment } from '../src/controllers/shippingController.js';
-import { productRemovalMode } from '../src/controllers/productController.js';
+import { pricingMatrixStatus,productRemovalMode } from '../src/controllers/productController.js';
 import { selectCheckoutVariant,validatePlanSelection,variantDisplayName } from '../src/controllers/checkoutController.js';
 import { comparisonInputSchema } from '../src/controllers/comparisonController.js';
 import { pricingConfiguratorSchema } from '../src/controllers/productController.js';
@@ -58,6 +58,16 @@ test('product pricing configurator validates quantities, intervals, and unique l
   assert.equal(pricingConfiguratorSchema.parse(valid).shippingOptions[1].months,3);
   assert.throws(()=>pricingConfiguratorSchema.parse({...valid,doseOptions:[{label:'Too many',quantity:101}]}));
   assert.throws(()=>pricingConfiguratorSchema.parse({...valid,frequencyOptions:['Daily','daily']}));
+});
+
+test('exact plan pricing requires and returns the server configured combination price',()=>{
+  const category='68ed1234567890abcdef1000';const variant={_id:'68ed1234567890abcdef1234',sku:'MED-10',active:true};
+  const config={enabled:true,frequencyOptions:['Taken daily'],doseOptions:[{label:'6 doses',quantity:6}],shippingOptions:[{label:'Every month',months:1}],priceRules:[{frequency:'Taken daily',productSlug:'product-a',variantSku:'MED-10',doseLabel:'6 doses',shippingLabel:'Every month',totalPriceCents:7700}]};
+  assert.deepEqual(pricingMatrixStatus(config,[{slug:'product-a',variants:[variant]}]),{complete:true,expected:1});
+  assert.equal(pricingMatrixStatus({...config,priceRules:[]},[{slug:'product-a',variants:[variant]}]).complete,false);
+  const source={slug:'plan-page',category,pricingConfigurator:config};const product={slug:'product-a',category,variants:[variant]};const requested={variantId:variant._id,quantity:6,planSelection:{sourceProductSlug:'plan-page',dosingFrequency:'Taken daily',doseLabel:'6 doses',shippingFrequency:'Every month',shippingMonths:1}};
+  assert.equal(validatePlanSelection(requested,product,[source],variant).totalPriceCents,7700);
+  assert.throws(()=>validatePlanSelection({...requested,planSelection:{...requested.planSelection,dosingFrequency:'Taken as needed'}},product,[source],variant));
 });
 
 test('comparison content supports simple columns and validates optional sources',()=>{
