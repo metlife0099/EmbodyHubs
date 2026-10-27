@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, ChevronDown, CircleHelp, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
+import ProductPlanBuilder from '../components/ProductPlanBuilder';
 import { getCareContent } from '../data/careContent';
 import './ProductVariants.css';
 
@@ -22,7 +23,8 @@ export default function ProductDetail() {
   const content = getCareContent(product);
   const category = categories.find(item => item.slug === product.category) || { name: 'Everyday care', slug: product.category };
   const warnings = product.warnings?.length ? product.warnings : ['Read the complete product label before use.', 'Ask a healthcare professional if you have questions about medicines, allergies, or health conditions.'];
-  const related = products.filter(item => item.id !== product.id && item.category === product.category).concat(products.filter(item => item.id !== product.id && item.category !== product.category)).slice(0, 3);
+  const categoryProducts = products.filter(item => item.category === product.category);
+  const related = categoryProducts.filter(item => item.id !== product.id).slice(0, 3);
 
   return <article className="product-detail-page">
     <nav className="pdp-breadcrumbs" aria-label="Breadcrumb">
@@ -58,6 +60,8 @@ export default function ProductDetail() {
       <div><small>Package</small><strong>{selectedProduct.pack || 'See product label'}</strong></div>
     </section>
 
+    {product.pricingConfigurator?.enabled&&<ProductPlanBuilder product={product} categoryProducts={categoryProducts} requestAdd={requestAdd}/>}
+
     <section className="pdp-story">
       <aside><span className="eyebrow">Product guide</span><h2>The details, without the guesswork.</h2><p>Use this overview with the complete package label. If the two differ, follow the label.</p></aside>
       <div className="pdp-story-sections">
@@ -77,7 +81,7 @@ export default function ProductDetail() {
       <div className="pdp-faq-list">{content.faqs.map(([question, answer], index) => <div className={openFaq === index ? 'is-open' : ''} key={question}><button onClick={() => setOpenFaq(openFaq === index ? -1 : index)} aria-expanded={openFaq === index}><span>{question}</span><ChevronDown/></button>{openFaq === index && <p>{answer}</p>}</div>)}</div>
     </section>
 
-    {related.length > 0 && <section className="pdp-related"><div className="section-heading compact"><div><span className="eyebrow">More online care</span><h2>Explore other options.</h2></div><Link className="text-link" to="/online-care">View all products <ArrowRight/></Link></div><div className="product-grid">{related.map((item, index) => <ProductCard key={item.id} product={item} index={index}/>)}</div></section>}
+    {related.length > 0 && <section className="pdp-related"><div className="section-heading compact"><div><span className="eyebrow">Related {category.name}</span><h2>More in this category.</h2></div><Link className="text-link" to={`/online-care?category=${category.slug}`}>View category <ArrowRight/></Link></div><div className="product-grid">{related.map((item, index) => <ProductCard key={item.id} product={item} index={index}/>)}</div></section>}
 
     <section className="pdp-disclaimer"><ShieldCheck/><p><b>Use products safely.</b> Information on this page is educational and does not replace the complete label or professional medical advice. Stop use and get medical help as directed by the label. For emergencies, call 911.</p></section>
   </article>;
