@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, ChevronDown, CircleHelp, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, Check, ChevronDown, CircleHelp, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
 import ProductPlanBuilder from '../components/ProductPlanBuilder';
@@ -25,6 +25,8 @@ export default function ProductDetail() {
   const warnings = product.warnings?.length ? product.warnings : ['Read the complete product label before use.', 'Ask a healthcare professional if you have questions about medicines, allergies, or health conditions.'];
   const categoryProducts = products.filter(item => item.category === product.category);
   const related = categoryProducts.filter(item => item.id !== product.id).slice(0, 3);
+  const hasPlanBuilder = Boolean(product.pricingConfigurator?.enabled);
+  const hasAvailableStock = variants.some(variant => variant.stock > 0);
 
   return <article className="product-detail-page">
     <nav className="pdp-breadcrumbs" aria-label="Breadcrumb">
@@ -33,7 +35,7 @@ export default function ProductDetail() {
 
     <section className="pdp-hero-modern">
       <div className={`pdp-gallery product-visual--${product.tone}`}>
-        <div className="pdp-gallery-top"><span className="pdp-care-label">{content.careName}</span><span className="rx-pill">{selectedProduct.stock <= 0 ? 'Out' : product.prescriptionRequired ? 'Rx' : 'OTC'}</span></div>
+        <div className="pdp-gallery-top"><span className="pdp-care-label">{content.careName}</span><span className="rx-pill">{(hasPlanBuilder?!hasAvailableStock:selectedProduct.stock<=0) ? 'Out' : product.prescriptionRequired ? 'Rx' : 'OTC'}</span></div>
         {product.imageUrl ? <img className="pdp-photo" src={product.imageUrl} alt={product.imageAlt || product.name}/> : <div className="pdp-pack-stage"><div className="product-pack product-pack--large"><small>EMBODY</small><b>{product.name}</b><span>{selectedProduct.dosage} · {selectedProduct.form}</span><i>{selectedProduct.pack}</i></div><div className="pdp-shape pdp-shape--one"/><div className="pdp-shape pdp-shape--two"/></div>}
         <p>Actual packaging and appearance may vary. Always read the package label.</p>
       </div>
@@ -45,20 +47,12 @@ export default function ProductDetail() {
         <p className="pdp-headline">{content.headline}</p>
         <p className="ingredient">{[product.ingredient, selectedProduct.dosage, selectedProduct.form].filter(Boolean).join(' · ')}</p>
         <ul className="pdp-benefit-list">{content.summaryPoints.map(point => <li key={point}><Check/>{point}</li>)}</ul>
-        {product.hasVariants&&<fieldset className="pdp-variant-picker"><legend>Choose an option <span>{variants.length} available configurations</span></legend><div>{variants.map(variant=><label className={`${variant.id===selectedProduct.variantId?'is-selected':''} ${variant.stock<=0?'is-unavailable':''}`} key={variant.id}><input type="radio" name="product-variant" value={variant.id} checked={variant.id===selectedProduct.variantId} disabled={variant.stock<=0} onChange={()=>setSelectedVariantId(variant.id)}/><span><b>{variant.label}</b><small>{variant.stock>0?`${variant.stock} in stock · ${variant.sku}`:'Out of stock'}</small></span><strong>${variant.price.toFixed(2)}</strong></label>)}</div></fieldset>}
-        <div className="pdp-price-panel"><div><small>{product.hasVariants?'Selected option':'One-time purchase'}</small><strong>${Number(selectedProduct.price).toFixed(2)}</strong></div><span>{selectedProduct.pack}{selectedProduct.sku&&<small>SKU {selectedProduct.sku}</small>}</span></div>
-        <button disabled={selectedProduct.stock <= 0} className="btn btn-primary btn-wide pdp-add-button" onClick={() => requestAdd(selectedProduct)}>{selectedProduct.stock <= 0 ? 'Currently out of stock' : 'Add selected option to cart'}{selectedProduct.stock > 0 && <ArrowRight/>}</button>
-        <p className="pdp-account-note"><ShieldCheck/> Secure sign-in is required before an item can be added. Product questions appear when enabled by the pharmacy team.</p>
+        {hasPlanBuilder?<section className="pdp-plan-intro" aria-labelledby="pdp-plan-intro-title"><div className="pdp-plan-intro-heading"><span>Personalize your purchase</span><h2 id="pdp-plan-intro-title">Build a plan around your routine.</h2><p>Select each preference in the plan builder below. Your exact total updates with every choice.</p></div><ol><li><span>01</span><div><b>Choose your routine</b><small>Select the available dosing frequency.</small></div></li><li><span>02</span><div><b>Choose product and dose</b><small>Compare available options and doses per month.</small></div></li><li><span>03</span><div><b>Choose shipping timing</b><small>See the exact total and monthly estimate.</small></div></li></ol><a className="btn btn-primary btn-wide pdp-plan-jump" href="#flexible-pricing">Build my plan <ArrowDown/></a><p className="pdp-account-note"><ShieldCheck/> Selection, pricing, and live stock are verified again during secure checkout.</p></section>:<>{product.hasVariants&&<fieldset className="pdp-variant-picker"><legend>Choose an option <span>{variants.length} available configurations</span></legend><div>{variants.map(variant=><label className={`${variant.id===selectedProduct.variantId?'is-selected':''} ${variant.stock<=0?'is-unavailable':''}`} key={variant.id}><input type="radio" name="product-variant" value={variant.id} checked={variant.id===selectedProduct.variantId} disabled={variant.stock<=0} onChange={()=>setSelectedVariantId(variant.id)}/><span><b>{variant.label}</b><small>{variant.stock>0?`${variant.stock} in stock · ${variant.sku}`:'Out of stock'}</small></span><strong>${variant.price.toFixed(2)}</strong></label>)}</div></fieldset>}<div className="pdp-price-panel"><div><small>{product.hasVariants?'Selected option':'One-time purchase'}</small><strong>${Number(selectedProduct.price).toFixed(2)}</strong></div><span>{selectedProduct.pack}{selectedProduct.sku&&<small>SKU {selectedProduct.sku}</small>}</span></div><button disabled={selectedProduct.stock <= 0} className="btn btn-primary btn-wide pdp-add-button" onClick={() => requestAdd(selectedProduct)}>{selectedProduct.stock <= 0 ? 'Currently out of stock' : 'Add selected option to cart'}{selectedProduct.stock > 0 && <ArrowRight/>}</button><p className="pdp-account-note"><ShieldCheck/> Secure sign-in is required before an item can be added. Product questions appear when enabled by the pharmacy team.</p></>}
         <div className="pdp-service-row"><span><Truck/> Discreet shipping</span><span><PackageCheck/> Live stock check</span><span><ShieldCheck/> Secure checkout</span></div>
       </div>
     </section>
 
-    <section className="pdp-fact-strip" aria-label="Product summary">
-      <div><small>Active ingredient</small><strong>{product.ingredient || 'See product label'}</strong></div>
-      <div><small>Strength</small><strong>{selectedProduct.dosage || 'See product label'}</strong></div>
-      <div><small>Form</small><strong>{selectedProduct.form || 'See product label'}</strong></div>
-      <div><small>Package</small><strong>{selectedProduct.pack || 'See product label'}</strong></div>
-    </section>
+    <section className="pdp-fact-strip" aria-label="Product summary">{hasPlanBuilder?<><div><small>Care category</small><strong>{category.name}</strong></div><div><small>Preferences</small><strong>Selected below</strong></div><div><small>Availability</small><strong>Checked live</strong></div><div><small>Checkout</small><strong>Server verified</strong></div></>:<><div><small>Active ingredient</small><strong>{product.ingredient || 'See product label'}</strong></div><div><small>Strength</small><strong>{selectedProduct.dosage || 'See product label'}</strong></div><div><small>Form</small><strong>{selectedProduct.form || 'See product label'}</strong></div><div><small>Package</small><strong>{selectedProduct.pack || 'See product label'}</strong></div></>}</section>
 
     {product.pricingConfigurator?.enabled&&<ProductPlanBuilder product={product} categoryProducts={categoryProducts} requestAdd={requestAdd}/>}
 

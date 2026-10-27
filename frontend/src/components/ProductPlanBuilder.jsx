@@ -32,7 +32,7 @@ export default function ProductPlanBuilder({product,categoryProducts,requestAdd}
     requestAdd({...selectedProduct,variantId:selectedVariant.id,variantLabel:selectedVariant.label,sku:selectedVariant.sku,dosage:selectedVariant.dosage,form:selectedVariant.form,pack:selectedVariant.pack,price:total/quantity,lineTotal:total,stock:selectedVariant.stock,cartKey:`${selectedProduct.id}:${selectedVariant.id||'default'}:${selectionKey}`,initialQuantity:quantity,planSelection:{sourceProductSlug:product.slug,dosingFrequency:frequency,doseLabel:dose.label,shippingFrequency:shipping.label,shippingMonths:shipping.months}});
   };
 
-  return <section className="plan-builder" aria-labelledby="plan-builder-title">
+  return <section id="flexible-pricing" className="plan-builder" aria-labelledby="plan-builder-title">
     <header><span className="eyebrow">{config.eyebrow}</span><h2 id="plan-builder-title">{config.title}</h2><p>{config.subtitle}</p></header>
     <div className="plan-builder__panel">
       <div className="plan-builder__controls">
