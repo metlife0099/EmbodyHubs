@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { healthInfoArticleSchema,healthInfoCategorySchema } from '../src/controllers/healthInfoController.js';
+
+const article=()=>({
+  title:'Understanding high blood pressure',slug:'understanding-high-blood-pressure',category:'68ed1234567890abcdef1234',eyebrow:'Health information',summary:'A source-backed introduction to blood pressure and the value of accurate measurement.',heroImageUrl:'/images/pharmacy-still-life-v2.png',heroImageAlt:'Pharmacy wellness products',readMinutes:5,takeaways:['High blood pressure often has no symptoms.'],sections:[{heading:'What it means',paragraphs:['Blood pressure measures the force of blood against artery walls over time.'],bullets:[]}],faq:[],sources:[{label:'CDC — About High Blood Pressure',url:'https://www.cdc.gov/high-blood-pressure/about/index.html'}],authorName:'EMBODY Health Editorial Team',reviewerName:'EMBODY Editorial Source Review',reviewedAt:'2026-10-27',publishedAt:'2026-10-27',featured:true,sortOrder:10,publicationStatus:'PUBLISHED',seo:{title:'High Blood Pressure Basics | EMBODY',description:'Learn the basics of high blood pressure, accurate measurement, and care-team conversations.',keywords:['high blood pressure'],noIndex:false}
+});
+
+test('health information category accepts an approved navigation group',()=>{const result=healthInfoCategorySchema.parse({name:'Diabetes',slug:'diabetes',description:'Plain-language information about diabetes and ongoing care.',navigationGroup:'HEALTH_CONDITIONS',accent:'TEAL',sortOrder:10,active:true});assert.equal(result.slug,'diabetes')});
+test('published health article requires structured, source-backed content',()=>{const result=healthInfoArticleSchema.parse(article());assert.equal(result.publicationStatus,'PUBLISHED');assert.equal(result.sources[0].url.startsWith('https://'),true)});
+test('published health article rejects missing editorial review',()=>{const payload=article();payload.reviewerName='';payload.reviewedAt='';const result=healthInfoArticleSchema.safeParse(payload);assert.equal(result.success,false)});
+test('health article rejects insecure source URLs',()=>{const payload=article();payload.sources[0].url='http://example.com/source';const result=healthInfoArticleSchema.safeParse(payload);assert.equal(result.success,false)});
+test('drafts can be saved before reviewer and publication dates are assigned',()=>{const payload=article();payload.publicationStatus='DRAFT';payload.reviewerName='';payload.reviewedAt='';payload.publishedAt='';const result=healthInfoArticleSchema.safeParse(payload);assert.equal(result.success,true)});

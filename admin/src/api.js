@@ -29,5 +29,12 @@ export const adminApi={
   ,updatePartnershipWorkflow:(id,payload)=>request(`/admin/partnerships/${id}/workflow`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
   ,updatePartnershipAssessment:(id,payload)=>request(`/admin/partnerships/${id}/assessment`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
   ,updatePartnershipCapabilities:(id,payload)=>request(`/admin/partnerships/${id}/capabilities`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,healthInfo:()=>request('/admin/health-info')
+  ,createHealthCategory:payload=>request('/admin/health-info/categories',{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,updateHealthCategory:(id,payload)=>request(`/admin/health-info/categories/${id}`,{method:'PUT',mutate:true,body:JSON.stringify(payload)})
+  ,deleteHealthCategory:id=>request(`/admin/health-info/categories/${id}`,{method:'DELETE',mutate:true})
+  ,createHealthArticle:payload=>request('/admin/health-info/articles',{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,updateHealthArticle:(id,payload)=>request(`/admin/health-info/articles/${id}`,{method:'PUT',mutate:true,body:JSON.stringify(payload)})
+  ,archiveHealthArticle:id=>request(`/admin/health-info/articles/${id}`,{method:'DELETE',mutate:true})
   ,downloadPartnerDocument:async(id,documentId)=>{const response=await fetch(`${API}/admin/partnerships/${id}/documents/${documentId}`,{credentials:'include',headers:{'X-Client':'admin'}});if(!response.ok){const data=await response.json().catch(()=>({}));throw new ApiError(data.message||'Document download failed.',response.status,data.code)}const disposition=response.headers.get('content-disposition')||'';const name=disposition.match(/filename="([^"]+)"/)?.[1]||'secure-document';return{name,blob:await response.blob()}}
 };

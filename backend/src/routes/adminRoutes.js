@@ -9,10 +9,18 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { adminChatSummary,getAdminChat,listAdminChats,markAdminChatRead,sendAdminMessage,updateAdminChatStatus } from '../controllers/chatController.js';
 import { listProfessionalApplications,reviewProfessionalApplication } from '../controllers/healthcareProfessionalController.js';
 import { downloadPartnerDocument,getPartnershipApplication,listPartnershipApplications,revealPartnerCredentials,revealPartnerLicense,updatePartnershipAssessment,updatePartnershipCapabilities,updatePartnershipWorkflow,verifyPartnerLicense } from '../controllers/partnershipController.js';
+import { archiveHealthInfoArticle,listAdminHealthInfo,removeHealthInfoCategory,saveHealthInfoArticle,saveHealthInfoCategory } from '../controllers/healthInfoController.js';
 
 export const adminRoutes=Router();
 adminRoutes.use(authenticate);
 adminRoutes.get('/metrics',authorize('orders:read','audit:read'),asyncHandler(metrics));
+adminRoutes.get('/health-info',authorize('health:read','health:write'),asyncHandler(listAdminHealthInfo));
+adminRoutes.post('/health-info/categories',requireCsrf,authorize('health:write'),asyncHandler(saveHealthInfoCategory));
+adminRoutes.put('/health-info/categories/:id',requireCsrf,authorize('health:write'),asyncHandler(saveHealthInfoCategory));
+adminRoutes.delete('/health-info/categories/:id',requireCsrf,authorize('health:write'),asyncHandler(removeHealthInfoCategory));
+adminRoutes.post('/health-info/articles',requireCsrf,authorize('health:write'),asyncHandler(saveHealthInfoArticle));
+adminRoutes.put('/health-info/articles/:id',requireCsrf,authorize('health:write'),asyncHandler(saveHealthInfoArticle));
+adminRoutes.delete('/health-info/articles/:id',requireCsrf,authorize('health:write'),asyncHandler(archiveHealthInfoArticle));
 adminRoutes.get('/customers',authorize('customers:read'),asyncHandler(listCustomers));
 adminRoutes.get('/healthcare-professionals',authorize('hcp:read'),asyncHandler(listProfessionalApplications));
 adminRoutes.patch('/healthcare-professionals/:id',requireCsrf,authorize('hcp:write'),asyncHandler(reviewProfessionalApplication));
