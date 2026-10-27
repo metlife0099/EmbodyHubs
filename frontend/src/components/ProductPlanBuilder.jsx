@@ -1,5 +1,5 @@
 import { useEffect,useMemo,useState } from 'react';
-import { CalendarDays,Check,PackageOpen,Pill,ShoppingBag,Truck } from 'lucide-react';
+import { CalendarDays,Flame,PackageOpen,Pill,ShoppingBag,Truck } from 'lucide-react';
 import './ProductPlanBuilder.css';
 
 export default function ProductPlanBuilder({product,categoryProducts,requestAdd}){
@@ -34,8 +34,8 @@ export default function ProductPlanBuilder({product,categoryProducts,requestAdd}
         <ChoiceRow icon={<CalendarDays/>} title="Dosing frequency">{config.frequencyOptions.map(option=><ChoiceButton selected={frequency===option} onClick={()=>setFrequency(option)} key={option}>{option}</ChoiceButton>)}</ChoiceRow>
         <ChoiceRow icon={<Pill/>} title="Product choice">{products.map(item=><ChoiceButton selected={selectedProduct.slug===item.slug} onClick={()=>setSelectedSlug(item.slug)} key={item.id}>{item.name}{item.ingredient&&<small>{item.ingredient}</small>}</ChoiceButton>)}</ChoiceRow>
         {selectedProduct.variants.length>1&&<ChoiceRow icon={<PackageOpen/>} title="Product option">{selectedProduct.variants.map(variant=><ChoiceButton selected={selectedVariant?.id===variant.id} disabled={variant.stock<=0} onClick={()=>setSelectedVariantId(variant.id)} key={variant.id}>{variant.label}<small>{variant.stock>0?`$${variant.price.toFixed(2)}`:'Out of stock'}</small></ChoiceButton>)}</ChoiceRow>}
-        <ChoiceRow icon={<Check/>} title="Quantity">{config.doseOptions.map(option=><ChoiceButton selected={dose?.label===option.label} disabled={option.quantity>(selectedVariant?.stock||0)} onClick={()=>setDoseLabel(option.label)} key={option.label}>{option.label}</ChoiceButton>)}</ChoiceRow>
-        <ChoiceRow icon={<Truck/>} title="Delivery preference">{config.shippingOptions.map(option=><ChoiceButton selected={shipping?.label===option.label} onClick={()=>setShippingLabel(option.label)} key={option.label}>{option.label}</ChoiceButton>)}</ChoiceRow>
+        <ChoiceRow icon={<Flame/>} title="Doses per month">{config.doseOptions.map(option=><ChoiceButton selected={dose?.label===option.label} disabled={option.quantity>(selectedVariant?.stock||0)} onClick={()=>setDoseLabel(option.label)} key={option.label}>{option.label}</ChoiceButton>)}</ChoiceRow>
+        <ChoiceRow icon={<Truck/>} title="Shipping frequency">{config.shippingOptions.map(option=><ChoiceButton selected={shipping?.label===option.label} onClick={()=>setShippingLabel(option.label)} key={option.label}>{option.label}</ChoiceButton>)}</ChoiceRow>
       </div>
       <aside className="plan-builder__summary">
         <span>Estimated monthly cost</span><div className="plan-builder__price"><sup>$</sup><strong>{monthly.toFixed(0)}</strong></div><small>per month</small><p>Total today <b>${total.toFixed(2)}</b></p><button className="btn btn-primary" onClick={add} disabled={!selectedVariant||quantity<1||selectedProduct.prescriptionRequired}><ShoppingBag/>{selectedProduct.prescriptionRequired?'Prescription checkout unavailable':'Add to cart'}</button><em>{quantity} × {selectedProduct.name}{selectedVariant?.label?` · ${selectedVariant.label}`:''}</em>
