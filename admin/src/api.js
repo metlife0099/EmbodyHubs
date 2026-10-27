@@ -21,4 +21,12 @@ export const adminApi={
   ,updateChatStatus:(id,status)=>request(`/admin/chat/${id}/status`,{method:'PATCH',mutate:true,body:JSON.stringify({status})})
   ,healthcareProfessionals:({page=1,q='',status='ALL'}={})=>{const params=new URLSearchParams({page:String(page),limit:'25',status});if(q)params.set('q',q);return request(`/admin/healthcare-professionals?${params}`)}
   ,reviewHealthcareProfessional:(id,payload)=>request(`/admin/healthcare-professionals/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,partnerships:({page=1,status='ALL'}={})=>request(`/admin/partnerships?page=${page}&limit=25&status=${encodeURIComponent(status)}`)
+  ,partnership:id=>request(`/admin/partnerships/${id}`)
+  ,revealPartnerLicense:(id,licenseId)=>request(`/admin/partnerships/${id}/licenses/${licenseId}/reveal`,{method:'POST',mutate:true})
+  ,verifyPartnerLicense:(id,licenseId,payload)=>request(`/admin/partnerships/${id}/licenses/${licenseId}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,updatePartnershipWorkflow:(id,payload)=>request(`/admin/partnerships/${id}/workflow`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,updatePartnershipAssessment:(id,payload)=>request(`/admin/partnerships/${id}/assessment`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,updatePartnershipCapabilities:(id,payload)=>request(`/admin/partnerships/${id}/capabilities`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,downloadPartnerDocument:async(id,documentId)=>{const response=await fetch(`${API}/admin/partnerships/${id}/documents/${documentId}`,{credentials:'include',headers:{'X-Client':'admin'}});if(!response.ok){const data=await response.json().catch(()=>({}));throw new ApiError(data.message||'Document download failed.',response.status,data.code)}const disposition=response.headers.get('content-disposition')||'';const name=disposition.match(/filename="([^"]+)"/)?.[1]||'secure-document';return{name,blob:await response.blob()}}
 };

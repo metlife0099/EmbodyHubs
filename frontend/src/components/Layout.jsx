@@ -23,7 +23,7 @@ export default function Layout({ children }) {
   return <>
     <SeoManager/>
     <a className="skip-link" href="#main">Skip to content</a>
-    <div className="professional-switch"><Link to="/professionals"><Stethoscope/><span>Are you a healthcare professional?</span><b>Join EMBODY Now</b><ArrowRight/></Link></div>
+    <div className="professional-switch"><Link to="/partner-with-us"><Stethoscope/><span>Are you a pharmacy or healthcare professional?</span><b>Partner with EmbodyHubs</b><ArrowRight/></Link></div>
     <div className="announcement">Free shipping on orders over $50 <span>•</span> <Link to="/how-it-works">See how pharmacy service works <ArrowRight size={14}/></Link></div>
     <header className="site-header">
       <div className="header-inner">
@@ -54,7 +54,7 @@ export default function Layout({ children }) {
     <footer className="site-footer">
       <div className="footer-top"><div><Brand light/><p>Everyday pharmacy shopping designed around privacy, safety, and informed decisions.</p><div className="socials"><a href="#social" aria-label="Social updates"><Camera/></a><a href="#company" aria-label="Company updates"><BriefcaseBusiness/></a></div></div>
         <div><h3>Pharmacy</h3><Link to="/online-care">Online care</Link><Link to="/how-it-works">How it works</Link><Link to="/tracking">Track an order</Link><Link to="/support/chat">Customer chat</Link></div>
-        <div><h3>Company</h3><Link to="/about">About</Link><Link to="/compare">Compare</Link><Link to="/learn">Learn</Link><Link to="/contact">Contact</Link><Link to="/account">My account</Link></div>
+        <div><h3>Company</h3><Link to="/about">About</Link><Link to="/compare">Compare</Link><Link to="/learn">Learn</Link><Link to="/partner-with-us">Partner with us</Link><Link to="/contact">Contact</Link><Link to="/account">My account</Link></div>
         <div><h3>Important</h3><Link to="/policies/privacy">Privacy</Link><Link to="/policies/terms">Terms</Link><Link to="/policies/shipping">Shipping</Link><Link to="/policies/prescription">Prescription policy</Link></div>
       </div>
       <div className="footer-notice"><p><b>Important safety note:</b> EMBODY is a demonstration platform and is not a pharmacy or medical practice. Prescription products require review by an appropriately licensed professional and verification by a licensed dispensing pharmacy before fulfillment. For emergencies, call 911.</p></div>

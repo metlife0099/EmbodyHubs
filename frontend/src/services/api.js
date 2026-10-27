@@ -46,5 +46,9 @@ export const api = {
   markChatRead: () => request('/chat/read', { method: 'POST', headers: csrfHeaders() })
   ,professionalApplication: () => request('/professionals/me')
   ,submitProfessionalApplication: (payload) => request('/professionals/applications', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) })
+  ,partnershipApplication:()=>request('/partnerships/me')
+  ,submitPartnershipApplication:payload=>request('/partnerships/applications',{method:'POST',headers:csrfHeaders(),body:JSON.stringify(payload)})
+  ,verifyPartnershipEmail:token=>request(`/partnerships/verify-email?token=${encodeURIComponent(token)}`)
+  ,uploadPartnershipDocument:(id,file,documentType)=>request(`/partnerships/applications/${id}/documents`,{method:'POST',headers:{...csrfHeaders(),'Content-Type':file.type,'X-File-Name':encodeURIComponent(file.name),'X-Document-Type':documentType},body:file})
 };
 function csrfHeaders(){const cookies=document.cookie.split('; ');const token=(cookies.find(v=>v.startsWith('storeCsrfToken='))||cookies.find(v=>v.startsWith('csrfToken=')))?.split('=')[1];return token?{'X-CSRF-Token':decodeURIComponent(token)}:{}}

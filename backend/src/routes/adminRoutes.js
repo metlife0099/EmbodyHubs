@@ -8,6 +8,7 @@ import { requireCsrf } from '../middleware/csrf.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { adminChatSummary,getAdminChat,listAdminChats,markAdminChatRead,sendAdminMessage,updateAdminChatStatus } from '../controllers/chatController.js';
 import { listProfessionalApplications,reviewProfessionalApplication } from '../controllers/healthcareProfessionalController.js';
+import { downloadPartnerDocument,getPartnershipApplication,listPartnershipApplications,revealPartnerLicense,updatePartnershipAssessment,updatePartnershipCapabilities,updatePartnershipWorkflow,verifyPartnerLicense } from '../controllers/partnershipController.js';
 
 export const adminRoutes=Router();
 adminRoutes.use(authenticate);
@@ -15,6 +16,14 @@ adminRoutes.get('/metrics',authorize('orders:read','audit:read'),asyncHandler(me
 adminRoutes.get('/customers',authorize('customers:read'),asyncHandler(listCustomers));
 adminRoutes.get('/healthcare-professionals',authorize('hcp:read'),asyncHandler(listProfessionalApplications));
 adminRoutes.patch('/healthcare-professionals/:id',requireCsrf,authorize('hcp:write'),asyncHandler(reviewProfessionalApplication));
+adminRoutes.get('/partnerships',authorize('partners:read'),asyncHandler(listPartnershipApplications));
+adminRoutes.get('/partnerships/:id',authorize('partners:read'),asyncHandler(getPartnershipApplication));
+adminRoutes.post('/partnerships/:id/licenses/:licenseId/reveal',requireCsrf,authorize('partners:sensitive'),asyncHandler(revealPartnerLicense));
+adminRoutes.patch('/partnerships/:id/licenses/:licenseId',requireCsrf,authorize('partners:verify'),asyncHandler(verifyPartnerLicense));
+adminRoutes.patch('/partnerships/:id/workflow',requireCsrf,authorize('partners:write'),asyncHandler(updatePartnershipWorkflow));
+adminRoutes.patch('/partnerships/:id/assessment',requireCsrf,authorize('partners:compliance'),asyncHandler(updatePartnershipAssessment));
+adminRoutes.patch('/partnerships/:id/capabilities',requireCsrf,authorize('partners:compliance'),asyncHandler(updatePartnershipCapabilities));
+adminRoutes.get('/partnerships/:id/documents/:documentId',authorize('partners:documents'),asyncHandler(downloadPartnerDocument));
 adminRoutes.get('/newsletter-subscribers',authorize('newsletter:read'),asyncHandler(listSubscribers));
 adminRoutes.get('/newsletter-groups',authorize('newsletter:read'),asyncHandler(listSubscriberGroups));
 adminRoutes.post('/newsletter-groups',requireCsrf,authorize('newsletter:write'),asyncHandler(createSubscriberGroup));

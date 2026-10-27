@@ -18,12 +18,15 @@ const staticPages={
   '/contact':{title:'Contact EMBODY Pharmacy Support',description:'Contact EMBODY support without sending medical information through ordinary email.',label:'Contact'},
   '/professionals':{title:'Healthcare Professional Program | EMBODY Pharmacy',description:'Apply for credential-reviewed EMBODY professional access with NPI-supported verification, privacy-minimized onboarding, and medication education resources.',label:'Healthcare professionals'},
   '/professionals/apply':{title:'Professional Credential Application | EMBODY Pharmacy',description:'Securely submit a healthcare professional application for credential review.',label:'Professional application'},
+  '/partner-with-us':{title:'U.S. Pharmacy & Pharmacist Partnerships | EmbodyHubs',description:'Apply for an individually reviewed EmbodyHubs partnership as a licensed U.S. pharmacy, pharmacist, or healthcare organization.',label:'Partner with EmbodyHubs'},
+  '/partner-with-us/apply':{title:'Secure Partnership Application | EmbodyHubs',description:'Submit a secure U.S. pharmacy or pharmacist partnership application for licensing, business, and compliance review.',label:'Partnership application'},
+  '/partner-with-us/verify':{title:'Verify Partnership Application Email | EmbodyHubs',description:'Verify the professional email associated with an EmbodyHubs partnership application.',label:'Partnership email verification'},
   '/policies/privacy':{title:'Privacy Notice | EMBODY Pharmacy',description:'Review how EMBODY limits, protects, and handles account and storefront information.',label:'Privacy notice'},
   '/policies/terms':{title:'Terms of Service | EMBODY Pharmacy',description:'Review the terms and important limitations that apply when using the EMBODY storefront.',label:'Terms of service'},
   '/policies/shipping':{title:'Shipping Policy | EMBODY Pharmacy',description:'Learn about EMBODY order verification, fulfillment gates, carrier estimates, and shipping limitations.',label:'Shipping policy'},
   '/policies/prescription':{title:'Prescription Policy | EMBODY Pharmacy',description:'Understand the licensing, prescription, pharmacist, and destination checks required before prescription fulfillment.',label:'Prescription policy'}
 };
-const privatePrefixes=['/account','/orders','/cart','/checkout','/login','/register','/forgot-password','/reset-password','/search','/tracking','/support/chat','/professionals/apply'];
+const privatePrefixes=['/account','/orders','/cart','/checkout','/login','/register','/forgot-password','/reset-password','/search','/tracking','/support/chat','/professionals/apply','/partner-with-us/apply','/partner-with-us/verify'];
 
 export default function SeoManager(){
   const{pathname}=useLocation();
