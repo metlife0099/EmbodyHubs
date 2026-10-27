@@ -24,6 +24,7 @@ export const adminApi={
   ,partnerships:({page=1,status='ALL'}={})=>request(`/admin/partnerships?page=${page}&limit=25&status=${encodeURIComponent(status)}`)
   ,partnership:id=>request(`/admin/partnerships/${id}`)
   ,revealPartnerLicense:(id,licenseId)=>request(`/admin/partnerships/${id}/licenses/${licenseId}/reveal`,{method:'POST',mutate:true})
+  ,revealPartnerCredentials:id=>request(`/admin/partnerships/${id}/credentials/reveal`,{method:'POST',mutate:true})
   ,verifyPartnerLicense:(id,licenseId,payload)=>request(`/admin/partnerships/${id}/licenses/${licenseId}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
   ,updatePartnershipWorkflow:(id,payload)=>request(`/admin/partnerships/${id}/workflow`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
   ,updatePartnershipAssessment:(id,payload)=>request(`/admin/partnerships/${id}/assessment`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})

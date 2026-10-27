@@ -8,7 +8,7 @@ import { requireCsrf } from '../middleware/csrf.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { adminChatSummary,getAdminChat,listAdminChats,markAdminChatRead,sendAdminMessage,updateAdminChatStatus } from '../controllers/chatController.js';
 import { listProfessionalApplications,reviewProfessionalApplication } from '../controllers/healthcareProfessionalController.js';
-import { downloadPartnerDocument,getPartnershipApplication,listPartnershipApplications,revealPartnerLicense,updatePartnershipAssessment,updatePartnershipCapabilities,updatePartnershipWorkflow,verifyPartnerLicense } from '../controllers/partnershipController.js';
+import { downloadPartnerDocument,getPartnershipApplication,listPartnershipApplications,revealPartnerCredentials,revealPartnerLicense,updatePartnershipAssessment,updatePartnershipCapabilities,updatePartnershipWorkflow,verifyPartnerLicense } from '../controllers/partnershipController.js';
 
 export const adminRoutes=Router();
 adminRoutes.use(authenticate);
@@ -19,6 +19,7 @@ adminRoutes.patch('/healthcare-professionals/:id',requireCsrf,authorize('hcp:wri
 adminRoutes.get('/partnerships',authorize('partners:read'),asyncHandler(listPartnershipApplications));
 adminRoutes.get('/partnerships/:id',authorize('partners:read'),asyncHandler(getPartnershipApplication));
 adminRoutes.post('/partnerships/:id/licenses/:licenseId/reveal',requireCsrf,authorize('partners:sensitive'),asyncHandler(revealPartnerLicense));
+adminRoutes.post('/partnerships/:id/credentials/reveal',requireCsrf,authorize('partners:sensitive'),asyncHandler(revealPartnerCredentials));
 adminRoutes.patch('/partnerships/:id/licenses/:licenseId',requireCsrf,authorize('partners:verify'),asyncHandler(verifyPartnerLicense));
 adminRoutes.patch('/partnerships/:id/workflow',requireCsrf,authorize('partners:write'),asyncHandler(updatePartnershipWorkflow));
 adminRoutes.patch('/partnerships/:id/assessment',requireCsrf,authorize('partners:compliance'),asyncHandler(updatePartnershipAssessment));
