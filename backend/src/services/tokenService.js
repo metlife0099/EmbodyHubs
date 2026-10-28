@@ -7,7 +7,7 @@ import { ROLE_PERMISSIONS } from '../constants/workflow.js';
 
 const TEN_MINUTES_MS=10*60*1000;
 const ADMIN_SESSION_MS=24*60*60*1000;
-const CUSTOMER_SESSION_MS=7*24*60*60*1000;
+const CUSTOMER_SESSION_MS=24*60*60*1000;
 const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
 const cookieBase={httpOnly:true,secure:env.NODE_ENV==='production',sameSite:'strict'};
 const isPrivileged=user=>user.role!=='CUSTOMER';
@@ -23,7 +23,9 @@ export const signAccess=(user,sessionId,maxAgeMs)=>jwt.sign({sub:user.id,sid:ses
 export async function createSession(req,res,user,{expiresAt}={}){
   const refresh=crypto.randomBytes(48).toString('base64url');
   const csrf=crypto.randomBytes(32).toString('base64url');
-  const absoluteExpiry=expiresAt?new Date(expiresAt):new Date(Date.now()+sessionLifetimeMs(user));
+  const policyExpiry=Date.now()+sessionLifetimeMs(user);
+  const requestedExpiry=expiresAt?new Date(expiresAt).getTime():policyExpiry;
+  const absoluteExpiry=new Date(Math.min(requestedExpiry,policyExpiry));
   const remainingMs=absoluteExpiry.getTime()-Date.now();
   if(remainingMs<=0)throw new AppError('Session expired. Please sign in again.',401,'SESSION_EXPIRED');
   const accessMaxAge=Math.min(isPrivileged(user)?remainingMs:TEN_MINUTES_MS,remainingMs);

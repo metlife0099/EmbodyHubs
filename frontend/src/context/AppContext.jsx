@@ -1,13 +1,15 @@
-import { createContext,useContext,useEffect,useMemo,useState } from 'react';
+import { createContext,useCallback,useContext,useEffect,useMemo,useState } from 'react';
 import { api,authSessionBarrier } from '../services/api';
 import { categories as fallbackCategories,products as fallbackProducts } from '../data/catalog';
 
 const AppContext=createContext(null);
+const SESSION_EXPIRY_KEY='embody-session-expires-at';
 function readLocalJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch{localStorage.removeItem(key);return fallback}}
 function cartKey(product){return product.cartKey||`${product.id}:${product.variantId||'default'}`}
 
 export function AppProvider({children}){
   const[user,setStoredUser]=useState(()=>readLocalJson('embody-user',null));
+  const[sessionExpiresAt,setSessionExpiresAt]=useState(()=>localStorage.getItem(SESSION_EXPIRY_KEY)||'');
   const[cart,setCart]=useState(()=>readLocalJson('embody-user',null)?readLocalJson('embody-cart',[]).map(item=>({...item,cartKey:cartKey(item)})):[]);
   const[notice,setNotice]=useState(null);
   const[questionnaire,setQuestionnaire]=useState(null);
@@ -15,13 +17,38 @@ export function AppProvider({children}){
   const[catalogProducts,setCatalogProducts]=useState(()=>fallbackProducts.map(normalizeProduct));
   const[catalogCategories,setCatalogCategories]=useState(()=>fallbackCategories.map(normalizeCategory));
 
+  const clearLocalSession=useCallback((message='Your session expired. Sign in again to continue.',type='error')=>{
+    authSessionBarrier.invalidate();
+    setStoredUser(null);
+    setSessionExpiresAt('');
+    setCart([]);
+    localStorage.removeItem('embody-user');
+    localStorage.removeItem(SESSION_EXPIRY_KEY);
+    if(message)setNotice({type,message});
+  },[]);
+
   useEffect(()=>localStorage.setItem('embody-cart',JSON.stringify(cart)),[cart]);
   useEffect(()=>user?localStorage.setItem('embody-user',JSON.stringify(user)):localStorage.removeItem('embody-user'),[user]);
+  useEffect(()=>sessionExpiresAt?localStorage.setItem(SESSION_EXPIRY_KEY,sessionExpiresAt):localStorage.removeItem(SESSION_EXPIRY_KEY),[sessionExpiresAt]);
   useEffect(()=>{if(!notice)return;const id=setTimeout(()=>setNotice(null),4200);return()=>clearTimeout(id)},[notice]);
   useEffect(()=>{api.products('?limit=48&sort=newest').then(result=>{if(result.data?.length)setCatalogProducts(result.data.map(normalizeProduct))}).catch(()=>{})},[]);
   useEffect(()=>{api.productCategories().then(result=>{if(result.data?.length)setCatalogCategories(result.data.map(normalizeCategory))}).catch(()=>{})},[]);
-  useEffect(()=>{const expire=()=>{authSessionBarrier.invalidate();setStoredUser(null);setCart([]);localStorage.removeItem('embody-user');setNotice({type:'error',message:'Your session expired. Sign in again to continue.'})};window.addEventListener('embody:auth-expired',expire);return()=>window.removeEventListener('embody:auth-expired',expire)},[]);
-  const setUser=nextUser=>{const previousId=user?.id;if(previousId&&previousId!==nextUser?.id)authSessionBarrier.invalidate();setStoredUser(nextUser);if(!nextUser)setCart([])};
+  useEffect(()=>{const expire=()=>clearLocalSession();window.addEventListener('embody:auth-expired',expire);return()=>window.removeEventListener('embody:auth-expired',expire)},[clearLocalSession]);
+  useEffect(()=>{
+    if(!user)return;
+    const expiry=Date.parse(sessionExpiresAt);
+    if(Number.isFinite(expiry)){
+      const remaining=expiry-Date.now();
+      if(remaining<=0){clearLocalSession();return}
+      const timer=window.setTimeout(()=>clearLocalSession(),Math.min(remaining,2_147_483_647));
+      return()=>window.clearTimeout(timer);
+    }
+    let active=true;
+    api.refresh().then(result=>{if(active){setStoredUser(result.data.user);setSessionExpiresAt(result.data.sessionExpiresAt)}}).catch(()=>{if(active)clearLocalSession()});
+    return()=>{active=false};
+  },[user?.id,sessionExpiresAt,clearLocalSession]);
+  const setUser=(nextUser,nextSessionExpiresAt)=>{const previousId=user?.id;if(!nextUser){clearLocalSession('', 'success');return}if(previousId&&previousId!==nextUser.id)authSessionBarrier.invalidate();setStoredUser(nextUser);if(nextSessionExpiresAt)setSessionExpiresAt(nextSessionExpiresAt)};
+  const logout=useCallback(async()=>{try{await api.logout()}catch{}finally{clearLocalSession('You have been signed out securely.','success')}},[clearLocalSession]);
 
   const addItem=(product,questionnaireCompleted=false,questionnaireResponseId=null)=>{
     setCart(items=>{
@@ -67,7 +94,7 @@ export function AppProvider({children}){
   const count=cart.reduce((sum,item)=>sum+(item.planSelection?1:item.quantity),0);
   const subtotal=cart.reduce((sum,item)=>sum+(item.planSelection&&Number.isFinite(Number(item.lineTotal))?Number(item.lineTotal):item.price*item.quantity),0);
   const resolvedCategories=useMemo(()=>{const known=new Set(catalogCategories.map(item=>item.slug));const missing=[...new Set(catalogProducts.map(item=>item.category).filter(Boolean))].filter(slug=>!known.has(slug)).map(slug=>fallbackCategories.find(item=>item.slug===slug)||{id:slug,slug,name:'Other care',eyebrow:'Online care',description:'Additional care products with clear label and safety information.',sortOrder:999,active:true});return[...catalogCategories,...missing].sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0)||a.name.localeCompare(b.name))},[catalogCategories,catalogProducts]);
-  const value=useMemo(()=>({cart,user,setUser,notice,setNotice,questionnaire,setQuestionnaire,loginPrompt,setLoginPrompt,catalogProducts,catalogCategories:resolvedCategories,requestAdd,submitQuestionnaire,updateQuantity,removeItem,clearCart,count,subtotal}),[cart,user,notice,questionnaire,loginPrompt,catalogProducts,resolvedCategories,count,subtotal]);
+  const value=useMemo(()=>({cart,user,setUser,logout,sessionExpiresAt,notice,setNotice,questionnaire,setQuestionnaire,loginPrompt,setLoginPrompt,catalogProducts,catalogCategories:resolvedCategories,requestAdd,submitQuestionnaire,updateQuantity,removeItem,clearCart,count,subtotal}),[cart,user,logout,sessionExpiresAt,notice,questionnaire,loginPrompt,catalogProducts,resolvedCategories,count,subtotal]);
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 

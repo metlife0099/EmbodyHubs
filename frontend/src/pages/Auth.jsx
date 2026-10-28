@@ -30,7 +30,7 @@ export default function Auth({mode='login'}){
     try{
       const result=forgot?await api.forgotPassword({email:form.email}):register?await api.register(form):await api.login(form);
       if(!forgot&&!register){
-        setUser(result.data.user);
+        setUser(result.data.user,result.data.sessionExpiresAt);
         setNotice({type:'success',message:'Signed in successfully.'});
         navigate(returnTo);
         return;
@@ -50,7 +50,7 @@ export default function Auth({mode='login'}){
         setResetToken(result.data.resetToken);
         setStep('new-password');
       }else{
-        setUser(result.data.user);
+        setUser(result.data.user,result.data.sessionExpiresAt);
         setNotice({type:'success',message:'Your account is verified and secure.'});
         navigate(returnTo);
       }

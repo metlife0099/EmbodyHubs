@@ -1,6 +1,17 @@
 const API = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 let authGeneration=0;
+let refreshPromise=null;
 export const authSessionBarrier={current:()=>authGeneration,invalidate:()=>{authGeneration+=1}};
+
+async function refreshSession(){
+  if(!refreshPromise){
+    const execute=()=>fetch(`${API}/auth/refresh`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','X-Client':'storefront',...csrfHeaders()}})
+      .then(async response=>({response,data:await response.json().catch(()=>({success:false,message:'Unexpected server response.'}))}));
+    const coordinated=typeof navigator!=='undefined'&&navigator.locks?.request?navigator.locks.request('embody-storefront-session-refresh',execute):execute();
+    refreshPromise=coordinated.finally(()=>{refreshPromise=null});
+  }
+  return refreshPromise;
+}
 
 async function request(path, options = {}, mayRefresh = true) {
   const generation=authGeneration;
@@ -11,8 +22,8 @@ async function request(path, options = {}, mayRefresh = true) {
     headers: { 'Content-Type': 'application/json', 'X-Client': 'storefront', ...headers }
   });
   if(response.status===401&&mayRefresh&&!path.startsWith('/auth/')){
-    const refreshed=await fetch(`${API}/auth/refresh`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','X-Client':'storefront',...csrfHeaders()}}).catch(()=>null);
-    if(refreshed?.ok)return request(path,options,false);
+    const refreshed=await refreshSession().catch(()=>null);
+    if(refreshed?.response.ok)return request(path,options,false);
   }
   const data = await response.json().catch(() => ({ success: false, message: 'Unexpected server response.' }));
   if(generation!==authGeneration)throw new Error('This response belongs to a previous account session and was discarded.');
@@ -28,8 +39,8 @@ export const api = {
   resendOtp: (payload) => request('/auth/resend-otp', { method: 'POST', body: JSON.stringify(payload) }),
   forgotPassword: (payload) => request('/auth/forgot-password', { method: 'POST', body: JSON.stringify(payload) }),
   resetPassword: (payload) => request('/auth/reset-password', { method: 'POST', body: JSON.stringify(payload) }),
-  refresh: () => request('/auth/refresh', { method: 'POST', headers: csrfHeaders() }),
-  logout: () => request('/auth/logout', { method: 'POST', headers: csrfHeaders() }),
+  refresh: async() => {const refreshed=await refreshSession();if(!refreshed.response.ok)throw new Error(refreshed.data.message||'Session expired. Please sign in again.');return refreshed.data},
+  logout: async() => {await refreshSession().catch(()=>null);return request('/auth/logout',{method:'POST',headers:csrfHeaders()},false)},
   account: () => request('/account'),
   accountOrders: (page=1,limit=10) => request(`/account/orders?page=${page}&limit=${limit}`),
   updateProfile: (payload) => request('/account/profile', { method: 'PATCH', headers: csrfHeaders(), body: JSON.stringify(payload) }),
