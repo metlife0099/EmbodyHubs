@@ -14,11 +14,27 @@ import { activateControl,approveControl,createControlVersion,listPlatformControl
 import { assignPrescription,downloadPrescription,listAdminPrescriptions,placeOperationalHold,releaseOperationalHold } from '../controllers/prescriptionController.js';
 import { getPrivacyRequest,listPrivacyRequests,updatePrivacyRequest } from '../controllers/privacyController.js';
 import { getOperationsDashboard,listAuditEvents } from '../controllers/operationsController.js';
+import { getAdminSupportCase,listAdminSupportCases,replyToAdminSupportCase,updateAdminSupportCase } from '../controllers/supportCaseController.js';
+import { createOperationalException,getPartnerPerformance,listOperationalExceptions,retryPrescriptionHandoff,suspendPartnerRouting,updateOperationalException } from '../controllers/operationalExceptionController.js';
+import { listAdminMembershipPlans,saveAdminMembershipPlan } from '../controllers/membershipController.js';
 
 export const adminRoutes=Router();
 adminRoutes.use(authenticate);
 adminRoutes.get('/metrics',authorize('orders:read','audit:read'),asyncHandler(metrics));
 adminRoutes.get('/operations',authorize('reports:read','audit:read'),asyncHandler(getOperationsDashboard));
+adminRoutes.get('/exceptions',authorize('exceptions:read','reports:read'),asyncHandler(listOperationalExceptions));
+adminRoutes.post('/exceptions',requireCsrf,authorize('exceptions:write'),asyncHandler(createOperationalException));
+adminRoutes.patch('/exceptions/:id',requireCsrf,authorize('exceptions:write','reports:read'),asyncHandler(updateOperationalException));
+adminRoutes.post('/exceptions/:id/retry-handoff',requireCsrf,authorize('exceptions:write','prescriptions:assign'),asyncHandler(retryPrescriptionHandoff));
+adminRoutes.post('/exceptions/:id/suspend-partner',requireCsrf,authorize('exceptions:write','partners:compliance'),asyncHandler(suspendPartnerRouting));
+adminRoutes.get('/partner-performance',authorize('reports:read','partners:read'),asyncHandler(getPartnerPerformance));
+adminRoutes.get('/support-cases',authorize('support:read','support:write'),asyncHandler(listAdminSupportCases));
+adminRoutes.get('/support-cases/:id',authorize('support:read','support:write'),asyncHandler(getAdminSupportCase));
+adminRoutes.patch('/support-cases/:id',requireCsrf,authorize('support:write'),asyncHandler(updateAdminSupportCase));
+adminRoutes.post('/support-cases/:id/messages',requireCsrf,authorize('support:write'),asyncHandler(replyToAdminSupportCase));
+adminRoutes.get('/membership-plans',authorize('membership:read','membership:write'),asyncHandler(listAdminMembershipPlans));
+adminRoutes.post('/membership-plans',requireCsrf,authorize('membership:write'),asyncHandler(saveAdminMembershipPlan));
+adminRoutes.put('/membership-plans/:id',requireCsrf,authorize('membership:write'),asyncHandler(saveAdminMembershipPlan));
 adminRoutes.get('/audit-events',authorize('audit:read'),asyncHandler(listAuditEvents));
 adminRoutes.get('/controls',authorize('controls:read','controls:write'),asyncHandler(listPlatformControls));
 adminRoutes.post('/controls',requireCsrf,authorize('controls:write'),asyncHandler(createControlVersion));

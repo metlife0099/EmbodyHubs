@@ -1,0 +1,3 @@
+import mongoose from 'mongoose';
+const schema=new mongoose.Schema({customer:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true,index:true},membership:{type:mongoose.Schema.Types.ObjectId,ref:'CustomerMembership',required:true,index:true},order:{type:mongoose.Schema.Types.ObjectId,ref:'Order',required:true,unique:true},amountCents:{type:Number,required:true,min:0},fundingSource:{type:String,required:true},description:{type:String,required:true,maxLength:240},balanceAfterCents:{type:Number,required:true,min:0}},{timestamps:true});
+export const SavingsLedger=mongoose.model('SavingsLedger',schema);

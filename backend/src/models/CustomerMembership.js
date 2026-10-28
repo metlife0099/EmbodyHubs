@@ -1,0 +1,4 @@
+import mongoose from 'mongoose';
+const schema=new mongoose.Schema({customer:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true,index:true},plan:{type:mongoose.Schema.Types.ObjectId,ref:'MembershipPlan',required:true},status:{type:String,enum:['ACTIVE','CANCEL_AT_PERIOD_END','CANCELLED','EXPIRED','REFUNDED'],default:'ACTIVE',index:true},startsAt:{type:Date,required:true},renewsAt:{type:Date,required:true},endsAt:Date,actualSavingsCents:{type:Number,default:0,min:0},feePaidCents:{type:Number,required:true,min:0},payment:{provider:String,externalId:String,confirmedAt:Date},termsSnapshot:{renewal:String,cancellation:String,refund:String},cancelledAt:Date},{timestamps:true});
+schema.index({customer:1,status:1});
+export const CustomerMembership=mongoose.model('CustomerMembership',schema);

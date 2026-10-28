@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { calculateMembershipEconomics } from '../src/services/membershipEconomicsService.js';
+import { pricingFingerprint } from '../src/services/pricingFingerprintService.js';
+
+test('membership economics exposes profitable and unprofitable configurations',()=>{const good=calculateMembershipEconomics({annualFeeCents:9900,discountPercent:10,transactionSavingsCapCents:1000,annualSavingsCapCents:6000,averageTransactionValueCents:5000,averageGrossMarginCents:2000,expectedAnnualTransactions:6});assert.equal(good.profitable,true);assert.ok(good.projectedNetCents>=0);const bad=calculateMembershipEconomics({annualFeeCents:0,discountPercent:50,transactionSavingsCapCents:10000,annualSavingsCapCents:50000,averageTransactionValueCents:10000,averageGrossMarginCents:0,expectedAnnualTransactions:12});assert.equal(bad.profitable,false)});
+test('quote fingerprint binds cart and destination without questionnaire content',()=>{const base={destinationState:'NY',items:[{productSlug:'example',variantId:'68ed1234567890abcdef1234',quantity:1,planSelection:null}]};assert.equal(pricingFingerprint(base),pricingFingerprint(structuredClone(base)));assert.notEqual(pricingFingerprint(base),pricingFingerprint({...base,destinationState:'CA'}));assert.notEqual(pricingFingerprint(base),pricingFingerprint({...base,items:[{...base.items[0],quantity:2}]}))});

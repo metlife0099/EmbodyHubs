@@ -52,4 +52,17 @@ export const adminApi={
   ,updatePartnerServiceConfiguration:(id,payload)=>request(`/admin/partnerships/${id}/service-configuration`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
   ,downloadPrescription:async id=>{const response=await fetch(`${API}/admin/prescriptions/${id}/document`,{credentials:'include',headers:{'X-Client':'admin','X-Access-Purpose':'authorized-operational-review'}});if(!response.ok){const data=await response.json().catch(()=>({}));throw new ApiError(data.message||'Document download failed.',response.status,data.code)}const disposition=response.headers.get('content-disposition')||'';return{name:disposition.match(/filename="([^"]+)"/)?.[1]||'prescription-document',blob:await response.blob()}}
   ,downloadPartnerDocument:async(id,documentId)=>{const response=await fetch(`${API}/admin/partnerships/${id}/documents/${documentId}`,{credentials:'include',headers:{'X-Client':'admin'}});if(!response.ok){const data=await response.json().catch(()=>({}));throw new ApiError(data.message||'Document download failed.',response.status,data.code)}const disposition=response.headers.get('content-disposition')||'';const name=disposition.match(/filename="([^"]+)"/)?.[1]||'secure-document';return{name,blob:await response.blob()}}
+  ,operationalExceptions:({status='OPEN',type='ALL'}={})=>request(`/admin/exceptions?status=${encodeURIComponent(status)}&type=${encodeURIComponent(type)}`)
+  ,createOperationalException:payload=>request('/admin/exceptions',{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,updateOperationalException:(id,payload)=>request(`/admin/exceptions/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,retryPrescriptionHandoff:id=>request(`/admin/exceptions/${id}/retry-handoff`,{method:'POST',mutate:true})
+  ,suspendPartnerRouting:id=>request(`/admin/exceptions/${id}/suspend-partner`,{method:'POST',mutate:true})
+  ,partnerPerformance:()=>request('/admin/partner-performance')
+  ,supportCases:({status='ALL',q=''}={})=>{const params=new URLSearchParams({status,page:'1',limit:'100'});if(q)params.set('q',q);return request(`/admin/support-cases?${params}`)}
+  ,supportCase:id=>request(`/admin/support-cases/${id}`)
+  ,updateSupportCase:(id,payload)=>request(`/admin/support-cases/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,replySupportCase:(id,message)=>request(`/admin/support-cases/${id}/messages`,{method:'POST',mutate:true,body:JSON.stringify({message})})
+  ,membershipPlans:()=>request('/admin/membership-plans')
+  ,createMembershipPlan:payload=>request('/admin/membership-plans',{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,updateMembershipPlan:(id,payload)=>request(`/admin/membership-plans/${id}`,{method:'PUT',mutate:true,body:JSON.stringify(payload)})
 };

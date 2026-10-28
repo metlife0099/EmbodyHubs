@@ -1,18 +1,23 @@
 import { useEffect,useState } from 'react';
 import { Link,useLocation } from 'react-router-dom';
-import { AlertCircle,ArrowRight,Bell,Check,CheckCircle2,ChevronRight,ClipboardCheck,Eye,EyeOff,FileHeart,Headphones,Home,LockKeyhole,LogOut,Mail,MapPin,PackageCheck,Save,ShieldCheck,Sparkles,UserRound } from 'lucide-react';
+import { AlertCircle,ArrowRight,Bell,Check,CheckCircle2,ChevronRight,ClipboardCheck,CreditCard,Eye,EyeOff,FileHeart,Headphones,Home,LockKeyhole,LogOut,Mail,MapPin,PackageCheck,Save,ShieldCheck,Sparkles,UserRound,UsersRound } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { api } from '../services/api';
 import { AGE_OPTIONS,PHARMACIST_SUPPORT_OPTIONS,SERVICE_GOAL_OPTIONS,US_STATES } from '../data/registrationOptions';
 import './Account.css';
 import { PrescriptionCenter,PrivacyCenter } from './CustomerCareOperations';
+import { FamilyAccess,JourneyCenter,MembershipCenter,SupportCases } from './AccountOperations';
 
 const navItems=[
   {key:'overview',label:'Overview',path:'/account',icon:Home},
+  {key:'journey',label:'Journey center',path:'/account/journey',icon:ClipboardCheck},
   {key:'profile',label:'Personal profile',path:'/account/profile',icon:UserRound},
   {key:'orders',label:'Orders',path:'/orders',icon:PackageCheck},
   {key:'prescriptions',label:'Prescriptions',path:'/account/prescriptions',icon:FileHeart},
   {key:'privacy',label:'Privacy requests',path:'/account/privacy',icon:LockKeyhole},
+  {key:'support-cases',label:'Support cases',path:'/account/support-cases',icon:Headphones},
+  {key:'membership',label:'Membership',path:'/account/membership',icon:CreditCard},
+  {key:'family',label:'Family access',path:'/account/family',icon:UsersRound},
   {key:'security',label:'Password & security',path:'/account/security',icon:ShieldCheck},
   {key:'notifications',label:'Notifications',path:'/account/notifications',icon:Bell}
 ];
@@ -20,8 +25,8 @@ const navItems=[
 export default function Account(){
   const{user,setUser,setNotice}=useApp();const location=useLocation();
   const[account,setAccount]=useState(null);const[orders,setOrders]=useState([]);const[loading,setLoading]=useState(true);const[error,setError]=useState('');
-  const section=location.pathname.startsWith('/orders')?'orders':location.pathname.endsWith('/profile')?'profile':location.pathname.endsWith('/prescriptions')?'prescriptions':location.pathname.endsWith('/privacy')?'privacy':location.pathname.endsWith('/security')?'security':location.pathname.endsWith('/notifications')?'notifications':'overview';
-  const load=async()=>{setLoading(true);setError('');try{const [accountResult,ordersResult]=await Promise.all([api.account(),api.accountOrders(1,section==='orders'?25:4)]);setAccount(accountResult.data);setOrders(ordersResult.data||[])}catch(err){setError(err.message)}finally{setLoading(false)}};
+  const section=location.pathname.startsWith('/orders')?'orders':location.pathname.endsWith('/journey')?'journey':location.pathname.endsWith('/profile')?'profile':location.pathname.endsWith('/prescriptions')?'prescriptions':location.pathname.endsWith('/privacy')?'privacy':location.pathname.endsWith('/support-cases')?'support-cases':location.pathname.endsWith('/membership')?'membership':location.pathname.endsWith('/family')?'family':location.pathname.endsWith('/security')?'security':location.pathname.endsWith('/notifications')?'notifications':'overview';
+  const load=async()=>{setLoading(true);setError('');try{const [accountResult,ordersResult]=await Promise.all([api.account(),api.accountOrders(1,['orders','support-cases'].includes(section)?25:4)]);setAccount(accountResult.data);setOrders(ordersResult.data||[])}catch(err){setError(err.message)}finally{setLoading(false)}};
   useEffect(()=>{if(user)load()},[user?.id,section]);
   if(!user)return <div className="empty-page"><span className="eyebrow">Customer account</span><h1>Your secure pharmacy account.</h1><p>Sign in to manage your profile, saved address, orders, communication preferences, and account security.</p><Link className="btn btn-primary" to={`/login?returnTo=${encodeURIComponent(location.pathname)}`}>Sign in <ArrowRight/></Link></div>;
   if(loading)return <AccountLoading/>;
@@ -35,10 +40,14 @@ export default function Account(){
       <aside className="customer-account-sidebar" aria-label="Account navigation"><div className="sidebar-profile"><div>{initials(profile)}</div><span><b>{profile.firstName} {profile.lastName}</b><small>Member since {formatDate(profile.createdAt,{month:'short',year:'numeric'})}</small></span></div><nav>{navItems.map(item=><Link key={item.key} to={item.path} className={section===item.key?'active':''}><item.icon/><span>{item.label}</span><ChevronRight/></Link>)}</nav><Link className="account-support-link" to="/support/chat"><Headphones/><span><b>Need help?</b><small>Message customer care</small></span><ArrowRight/></Link></aside>
       <main className="customer-account-content">
         {section==='overview'&&<Overview profile={profile} security={account.security} orders={orders}/>} 
+        {section==='journey'&&<JourneyCenter/>}
         {section==='profile'&&<ProfilePanel profile={profile} onSaved={saved} syncUser={syncUser}/>} 
         {section==='orders'&&<OrdersPanel orders={orders}/>} 
         {section==='prescriptions'&&<PrescriptionCenter profile={profile}/>}
         {section==='privacy'&&<PrivacyCenter/>}
+        {section==='support-cases'&&<SupportCases orders={orders}/>}
+        {section==='membership'&&<MembershipCenter/>}
+        {section==='family'&&<FamilyAccess/>}
         {section==='security'&&<SecurityPanel security={account.security} email={profile.email} onSaved={saved}/>} 
         {section==='notifications'&&<NotificationsPanel profile={profile} onSaved={saved}/>} 
       </main>

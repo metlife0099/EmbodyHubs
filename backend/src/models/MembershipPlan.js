@@ -1,0 +1,8 @@
+import mongoose from 'mongoose';
+const schema=new mongoose.Schema({
+  code:{type:String,required:true,unique:true,uppercase:true,trim:true,match:/^[A-Z0-9_-]{2,40}$/},name:{type:String,required:true,trim:true,maxLength:100},summary:{type:String,required:true,trim:true,maxLength:500},status:{type:String,enum:['DRAFT','ACTIVE','SUSPENDED','RETIRED'],default:'DRAFT',index:true},
+  annualFeeCents:{type:Number,required:true,min:0},benefits:[{type:String,trim:true,maxLength:180}],eligibleProductSlugs:[{type:String,lowercase:true,trim:true}],eligiblePartnerIds:[{type:mongoose.Schema.Types.ObjectId,ref:'PartnerApplication'}],transactionTypes:{type:[String],default:['CASH_OTC']},fundingSource:{type:String,enum:['EMBODY','PARTNER','MANUFACTURER','SHARED'],required:true},
+  discountPercent:{type:Number,min:0,max:50,default:0},transactionSavingsCapCents:{type:Number,min:0,default:0},annualSavingsCapCents:{type:Number,min:0,required:true},renewalTerms:{type:String,required:true,maxLength:1200},cancellationTerms:{type:String,required:true,maxLength:1200},refundTerms:{type:String,required:true,maxLength:1200},
+  economics:{averageTransactionValueCents:{type:Number,min:0},averageGrossMarginCents:{type:Number,min:0,required:true},expectedAnnualTransactions:{type:Number,min:1,required:true},projectedDiscountCostCents:{type:Number,min:0},projectedNetCents:Number,breakEvenPurchases:Number,reviewedAt:Date,reviewedBy:{type:mongoose.Schema.Types.ObjectId,ref:'User'}},createdBy:{type:mongoose.Schema.Types.ObjectId,ref:'User'}
+},{timestamps:true});
+export const MembershipPlan=mongoose.model('MembershipPlan',schema);
