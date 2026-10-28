@@ -54,5 +54,18 @@ export const api = {
   ,submitPartnershipApplication:payload=>request('/partnerships/applications',{method:'POST',headers:csrfHeaders(),body:JSON.stringify(payload)})
   ,verifyPartnershipEmail:token=>request(`/partnerships/verify-email?token=${encodeURIComponent(token)}`)
   ,uploadPartnershipDocument:(id,file,documentType)=>request(`/partnerships/applications/${id}/documents`,{method:'POST',headers:{...csrfHeaders(),'Content-Type':file.type,'X-File-Name':encodeURIComponent(file.name),'X-Document-Type':documentType},body:file})
+  ,prescriptionReadiness:(state,controlled=false)=>request(`/prescriptions/readiness?state=${encodeURIComponent(state)}&controlled=${controlled}`)
+  ,prescriptions:()=>request('/prescriptions/me')
+  ,submitPrescription:({file,state,type,controlled,productSlugs=[]})=>request('/prescriptions',{method:'POST',headers:{...csrfHeaders(),'Content-Type':file.type,'X-File-Name':encodeURIComponent(file.name),'X-Customer-State':state,'X-Prescription-Type':type,'X-Controlled-Substance':String(controlled),'X-Prescription-Consent':'true','X-Product-Slugs':productSlugs.join(',')},body:file})
+  ,cancelPrescription:id=>request(`/prescriptions/${id}/cancel`,{method:'POST',headers:csrfHeaders()})
+  ,respondPrescriptionClarification:(id,clarificationId,response)=>request(`/prescriptions/${id}/clarifications/${clarificationId}/respond`,{method:'POST',headers:csrfHeaders(),body:JSON.stringify({response})})
+  ,privacyRequests:()=>request('/privacy/me')
+  ,createPrivacyRequest:payload=>request('/privacy',{method:'POST',headers:csrfHeaders(),body:JSON.stringify({...payload,confirmation:'I UNDERSTAND'})})
+  ,cancelPrivacyRequest:id=>request(`/privacy/${id}/cancel`,{method:'POST',headers:csrfHeaders()})
+  ,partnerPrescriptions:()=>request('/partnerships/portal/prescriptions')
+  ,acknowledgePartnerPrescription:id=>request(`/partnerships/portal/prescriptions/${id}/acknowledge`,{method:'POST',headers:csrfHeaders()})
+  ,startPartnerPrescriptionReview:id=>request(`/partnerships/portal/prescriptions/${id}/start-review`,{method:'POST',headers:csrfHeaders()})
+  ,recordPartnerPrescriptionDecision:(id,payload)=>request(`/partnerships/portal/prescriptions/${id}/decision`,{method:'POST',headers:csrfHeaders(),body:JSON.stringify(payload)})
+  ,downloadPartnerPrescription:async id=>{const response=await fetch(`${API}/partnerships/portal/prescriptions/${id}/document`,{credentials:'include',headers:{'X-Client':'storefront','X-Access-Purpose':'professional-review'}});if(!response.ok){const data=await response.json().catch(()=>({}));throw new Error(data.message||'Secure document download failed.')}const disposition=response.headers.get('content-disposition')||'';return{name:disposition.match(/filename="([^"]+)"/)?.[1]||'prescription-document',blob:await response.blob()}}
 };
 function csrfHeaders(){const cookies=document.cookie.split('; ');const token=(cookies.find(v=>v.startsWith('storeCsrfToken='))||cookies.find(v=>v.startsWith('csrfToken=')))?.split('=')[1];return token?{'X-CSRF-Token':decodeURIComponent(token)}:{}}

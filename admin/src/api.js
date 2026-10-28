@@ -36,5 +36,20 @@ export const adminApi={
   ,createHealthArticle:payload=>request('/admin/health-info/articles',{method:'POST',mutate:true,body:JSON.stringify(payload)})
   ,updateHealthArticle:(id,payload)=>request(`/admin/health-info/articles/${id}`,{method:'PUT',mutate:true,body:JSON.stringify(payload)})
   ,archiveHealthArticle:id=>request(`/admin/health-info/articles/${id}`,{method:'DELETE',mutate:true})
+  ,operations:()=>request('/admin/operations')
+  ,auditEvents:({page=1,action='',resourceType=''}={})=>{const params=new URLSearchParams({page:String(page),limit:'40'});if(action)params.set('action',action);if(resourceType)params.set('resourceType',resourceType);return request(`/admin/audit-events?${params}`)}
+  ,platformControls:()=>request('/admin/controls')
+  ,createPlatformControl:payload=>request('/admin/controls',{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,controlAction:(id,action,payload={})=>request(`/admin/controls/${id}/${action}`,{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,prescriptions:({page=1,status='ALL',q=''}={})=>{const params=new URLSearchParams({page:String(page),limit:'50',status});if(q)params.set('q',q);return request(`/admin/prescriptions?${params}`)}
+  ,prescriptionReadiness:(state,controlled=false)=>request(`/prescriptions/readiness?state=${encodeURIComponent(state)}&controlled=${controlled}`)
+  ,assignPrescription:(id,partnerId)=>request(`/admin/prescriptions/${id}/assign`,{method:'POST',mutate:true,body:JSON.stringify({partnerId})})
+  ,holdPrescription:(id,payload)=>request(`/admin/prescriptions/${id}/hold`,{method:'POST',mutate:true,body:JSON.stringify(payload)})
+  ,releasePrescriptionHold:id=>request(`/admin/prescriptions/${id}/release-hold`,{method:'POST',mutate:true})
+  ,privacyRequests:({page=1,status='ALL'}={})=>request(`/admin/privacy-requests?page=${page}&limit=50&status=${encodeURIComponent(status)}`)
+  ,privacyRequest:id=>request(`/admin/privacy-requests/${id}`)
+  ,updatePrivacyRequest:(id,payload)=>request(`/admin/privacy-requests/${id}`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,updatePartnerServiceConfiguration:(id,payload)=>request(`/admin/partnerships/${id}/service-configuration`,{method:'PATCH',mutate:true,body:JSON.stringify(payload)})
+  ,downloadPrescription:async id=>{const response=await fetch(`${API}/admin/prescriptions/${id}/document`,{credentials:'include',headers:{'X-Client':'admin','X-Access-Purpose':'authorized-operational-review'}});if(!response.ok){const data=await response.json().catch(()=>({}));throw new ApiError(data.message||'Document download failed.',response.status,data.code)}const disposition=response.headers.get('content-disposition')||'';return{name:disposition.match(/filename="([^"]+)"/)?.[1]||'prescription-document',blob:await response.blob()}}
   ,downloadPartnerDocument:async(id,documentId)=>{const response=await fetch(`${API}/admin/partnerships/${id}/documents/${documentId}`,{credentials:'include',headers:{'X-Client':'admin'}});if(!response.ok){const data=await response.json().catch(()=>({}));throw new ApiError(data.message||'Document download failed.',response.status,data.code)}const disposition=response.headers.get('content-disposition')||'';const name=disposition.match(/filename="([^"]+)"/)?.[1]||'secure-document';return{name,blob:await response.blob()}}
 };

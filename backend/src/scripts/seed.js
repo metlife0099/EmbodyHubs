@@ -11,6 +11,17 @@ import { defaultComparison } from '../controllers/comparisonController.js';
 import { HealthInfoCategory } from '../models/HealthInfoCategory.js';
 import { HealthInfoArticle } from '../models/HealthInfoArticle.js';
 import { healthInfoArticleSeeds,healthInfoCategorySeeds } from '../data/healthInfoSeed.js';
+import { PlatformControl } from '../models/PlatformControl.js';
+
+const controlTemplates=[
+  ['GATE_A_BUSINESS_MODEL','LEGAL_GATE','Business model and contracts','Qualified counsel has approved the operating entities, contracts, seller, merchant-of-record, fulfillment, refund, and settlement model.',{approved:false}],
+  ['GATE_B_JURISDICTION_ELIGIBILITY','LEGAL_GATE','Jurisdiction and pharmacy authorization','Every enabled activity, state, pharmacy location, license, pharmacist-in-charge, and product restriction has been reviewed.',{approved:false}],
+  ['GATE_C_PRESCRIPTION_TRANSMISSION','LEGAL_GATE','Prescription intake and transmission','Qualified reviewers have approved intake, validation, transmission, receipt, clarification, cancellation, retention, and customer communication.',{approved:false}],
+  ['GATE_D_CONTROLLED_SUBSTANCES','LEGAL_GATE','Controlled-substance release','Controlled-substance functionality has separate federal, DEA, state, pharmacy, security, and legal approval. It must remain disabled otherwise.',{approved:false}],
+  ['GATE_E_PRIVACY_SECURITY','LEGAL_GATE','Privacy, security, and vendor agreements','Risk analysis, access controls, incident response, retention, vendor agreements, and BAAs where applicable have been approved and tested.',{approved:false}],
+  ['PRESCRIPTION_INTAKE','PRESCRIPTION_WORKFLOW','Prescription intake switch','Versioned platform switch for secure prescription intake after every applicable release gate is active.',{enabled:false}],
+  ['GLOBAL_TRANSACTION_PAUSE','EMERGENCY','Global emergency pause','Emergency suspension control for regulated transactions and prescription routing.',{enabled:false}]
+];
 
 const seed=async()=>{
   await connectDatabase();
@@ -26,6 +37,9 @@ const seed=async()=>{
   for(const articleData of healthInfoArticleSeeds){const{categorySlug,...content}=articleData;await HealthInfoArticle.findOneAndUpdate({slug:content.slug},{$setOnInsert:{...content,category:healthCategories.get(categorySlug)}},{upsert:true,returnDocument:'after'})}
   if(env.ADMIN_SEED_EMAIL&&env.ADMIN_SEED_PASSWORD){const email=env.ADMIN_SEED_EMAIL.toLowerCase();const existing=await User.findOne({email});if(!existing){const now=new Date();await User.create({email,passwordHash:await User.hashPassword(env.ADMIN_SEED_PASSWORD),firstName:'Store',lastName:'Administrator',role:'SUPER_ADMIN',emailVerifiedAt:now,adultConfirmedAt:now,termsAcceptedAt:now,privacyAcknowledgedAt:now,privacyNoticeVersion:'2026-10-13',status:'ACTIVE',mfaRequired:false});logger.info({email},'Initial administrator created.')}else logger.info({email},'Administrator seed skipped because the account already exists.')}
   else logger.warn('ADMIN_SEED_EMAIL and ADMIN_SEED_PASSWORD are unset; no administrator account was created.');
+  const controlOwner=await User.findOne({role:'SUPER_ADMIN',status:'ACTIVE'}).sort({createdAt:1});
+  if(controlOwner)for(const[key,group,title,description,value]of controlTemplates)await PlatformControl.findOneAndUpdate({key,version:1},{$setOnInsert:{key,group,version:1,title,description,value,status:'DRAFT',reason:'Initial fail-closed control template from the approved platform specification.',requiresLegalReview:group==='LEGAL_GATE',legalReviewConfirmed:false,owner:group==='LEGAL_GATE'?'Legal and Compliance':'Platform Operations',rollbackAvailable:true,createdBy:controlOwner._id}},{upsert:true,new:true});
+  else logger.warn('No active super administrator exists; release-gate templates were not created.');
   logger.info({healthCategories:healthInfoCategorySeeds.length,healthArticles:healthInfoArticleSeeds.length},'Synthetic catalog and source-backed health information seeded.');
   await disconnectDatabase();
 };

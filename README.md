@@ -77,7 +77,11 @@ When `NODE_ENV=development` and Brevo is not configured, a newly issued OTP is s
 
 Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, and `CLOUDINARY_UPLOAD_PRESET`. Authorized staff request a short-lived signed upload from `POST /api/v1/media/signature`, then upload directly to Cloudinary. The production preset must restrict image formats, maximum file size (8 MB), delivery type, and the configured product-media folder. API secrets never reach the browser. Product images store secure URLs and public IDs; transforms use automatic format and quality.
 
-Cloudinary is limited to approved public product media by default. Do not upload prescriptions, IDs, patient documents, or other sensitive data without a separately approved private-delivery configuration, contract review, retention policy, and access controls.
+Public Cloudinary delivery remains limited to approved product media. The prescription and partner-document workflows use separate authenticated raw objects: bytes are malware-scanned, encrypted with application-level AES-256-GCM before upload, integrity-protected, stored without a public URL, and decrypted only after a permission check with an audit event. Production activation still requires an approved vendor agreement/BAA where applicable, retention and deletion rules, key-management review, backup/incident procedures, and validation that the chosen Cloudinary account configuration is suitable for the data involved.
+
+## Regulated platform control plane
+
+Part one of the platform specification is mapped in [`docs/regulated-platform-part-one.md`](docs/regulated-platform-part-one.md). It adds separate customer, EmbodyHubs operations, and approved-pharmacy workspaces; a fail-closed prescription state machine; versioned release gates; state/capability-constrained partner routing; privacy requests; SLA and expiry alerts; and a redacted audit register. These controls are infrastructure and do not replace pharmacy, privacy, security, tax, or legal review.
 
 ## US pharmacy launch gates
 

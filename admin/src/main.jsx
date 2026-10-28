@@ -1,7 +1,7 @@
 import React,{useEffect,useState}from'react';
 import{createRoot}from'react-dom/client';
 import{BrowserRouter,NavLink,Navigate,Route,Routes,useLocation}from'react-router-dom';
-import{Bell,BookOpen,Box,ChevronDown,CircleHelp,Handshake,Headphones,LayoutDashboard,LogOut,Mail,Menu,Package,PanelLeftClose,Scale,Search,Settings,ShieldCheck,ShoppingBag,Stethoscope,Truck,Users,X}from'lucide-react';
+import{Bell,BookOpen,Box,ChevronDown,CircleHelp,FileHeart,Handshake,Headphones,LayoutDashboard,LockKeyhole,LogOut,Mail,Menu,Package,PanelLeftClose,Route as RouteIcon,Scale,Search,Settings,ShieldCheck,ShoppingBag,SlidersHorizontal,Stethoscope,Truck,Users,X}from'lucide-react';
 import'./styles.css';
 import{AdminAuthProvider,useAdminAuth}from'./AdminAuth';
 import AdminLogin from'./AdminLogin';
@@ -18,20 +18,24 @@ import HealthcareProfessionals from'./HealthcareProfessionals';
 import CompareManager from'./CompareManager';
 import Partnerships from'./Partnerships';
 import HealthInfoManager from'./HealthInfoManager';
+import ControlCenter from'./ControlCenter';
+import PrescriptionOversight from'./PrescriptionOversight';
+import PrivacyOperations from'./PrivacyOperations';
+import PartnerRouting from'./PartnerRouting';
 import'./refinement.css';
 import{adminApi}from'./api';
 
-const items=[['Overview','/',LayoutDashboard],['Orders','/orders',ShoppingBag],['Products & questionnaires','/products',Box],['Health information','/health-info',BookOpen],['Compare content','/compare',Scale],['Global questions','/questions',CircleHelp],['Inventory','/inventory',Package],['Shipping','/shipping',Truck],['Customers','/customers',Users],['Partnerships','/partnerships',Handshake],['Healthcare professionals','/professionals',Stethoscope],['Newsletter','/newsletter',Mail],['Support','/support',Headphones],['Audit & security','/audit',ShieldCheck],['Settings','/settings',Settings]];
+const items=[['Overview','/',LayoutDashboard],['Control center','/control-center',SlidersHorizontal],['Prescription oversight','/prescriptions',FileHeart],['Partner routing','/partner-routing',RouteIcon],['Privacy requests','/privacy',LockKeyhole],['Orders','/orders',ShoppingBag],['Products & questionnaires','/products',Box],['Health information','/health-info',BookOpen],['Compare content','/compare',Scale],['Global questions','/questions',CircleHelp],['Inventory','/inventory',Package],['Shipping','/shipping',Truck],['Customers','/customers',Users],['Partnerships','/partnerships',Handshake],['Healthcare professionals','/professionals',Stethoscope],['Newsletter','/newsletter',Mail],['Support','/support',Headphones],['Settings','/settings',Settings]];
 
 function Overview(){
   const[data,setData]=useState(null);const[error,setError]=useState('');
   useEffect(()=>{adminApi.metrics().then(result=>setData(result.data)).catch(err=>setError(err.message))},[]);
   if(error)return <div className="demo-banner">{error}</div>;
-  const metrics=[['Total orders',data?.orders??'—'],['Customers',data?.customers??'—'],['Published products',data?.products??'—'],['Revenue',data?`$${(data.revenueCents/100).toLocaleString('en-US',{minimumFractionDigits:2})}`:'—']];
+  const metrics=[['Total orders',data?.orders??'—'],['Customers',data?.customers??'—'],['Published products',data?.products??'—'],['Processed order value',data?`$${(data.revenueCents/100).toLocaleString('en-US',{minimumFractionDigits:2})}`:'—']];
   return <><section className="metric-grid">{metrics.map(([label,value])=><article key={label}><span>{label}</span><strong>{value}</strong><small>Live API data</small></article>)}</section><div className="dash-grid"><section className="panel action-panel"><header><span>Commerce controls</span><h2>Manage the experience</h2></header><NavLink to="/products"><span>Products and add-to-cart questions</span><b>→</b></NavLink><NavLink to="/orders"><span>Paid orders and customer answers</span><b>→</b></NavLink><NavLink to="/customers"><span>Customer profiles and signup answers</span><b>→</b></NavLink><NavLink to="/questions"><span>Reusable global questions</span><b>→</b></NavLink></section><section className="panel action-panel"><header><span>Security posture</span><h2>Protected operations</h2></header>{['Fixed 24-hour admin sessions','Server-side role checks','CSRF-protected changes','Login lockout enforcement'].map(label=><div className="security-row" key={label}><ShieldCheck/>{label}</div>)}</section></div></>;
 }
 
-function Placeholder({title}){if(title==='Newsletter')return <CampaignCenter/>;return <section className="panel section-page"><header><div><span>Operations</span><h2>{title}</h2><p>This module remains permission-gated and ready for its approved provider integration.</p></div></header><div className="empty"><ShieldCheck/><h3>Secure module boundary</h3><p>No unverified production data or provider behavior is simulated here.</p></div></section>}
+function Placeholder({title}){if(title==='Newsletter')return <CampaignCenter/>;if(title==='Control center')return <ControlCenter/>;if(title==='Prescription oversight')return <PrescriptionOversight/>;if(title==='Partner routing')return <PartnerRouting/>;if(title==='Privacy requests')return <PrivacyOperations/>;return <section className="panel section-page"><header><div><span>Operations</span><h2>{title}</h2><p>This module remains permission-gated and ready for its approved provider integration.</p></div></header><div className="empty"><ShieldCheck/><h3>Secure module boundary</h3><p>No unverified production data or provider behavior is simulated here.</p></div></section>}
 
 function Dashboard(){
   const[side,setSide]=useState(()=>window.innerWidth>900);const[unread,setUnread]=useState(0);const{user,logout}=useAdminAuth();const location=useLocation();const title=location.pathname.startsWith('/products')?'Products & questionnaires':items.find(([,path])=>path===location.pathname)?.[0]||'Operations';

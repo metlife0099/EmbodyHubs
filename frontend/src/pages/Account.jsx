@@ -1,15 +1,18 @@
 import { useEffect,useState } from 'react';
 import { Link,useLocation } from 'react-router-dom';
-import { AlertCircle,ArrowRight,Bell,Check,CheckCircle2,ChevronRight,ClipboardCheck,Eye,EyeOff,Headphones,Home,LockKeyhole,LogOut,Mail,MapPin,PackageCheck,Save,ShieldCheck,Sparkles,UserRound } from 'lucide-react';
+import { AlertCircle,ArrowRight,Bell,Check,CheckCircle2,ChevronRight,ClipboardCheck,Eye,EyeOff,FileHeart,Headphones,Home,LockKeyhole,LogOut,Mail,MapPin,PackageCheck,Save,ShieldCheck,Sparkles,UserRound } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { api } from '../services/api';
 import { AGE_OPTIONS,PHARMACIST_SUPPORT_OPTIONS,SERVICE_GOAL_OPTIONS,US_STATES } from '../data/registrationOptions';
 import './Account.css';
+import { PrescriptionCenter,PrivacyCenter } from './CustomerCareOperations';
 
 const navItems=[
   {key:'overview',label:'Overview',path:'/account',icon:Home},
   {key:'profile',label:'Personal profile',path:'/account/profile',icon:UserRound},
   {key:'orders',label:'Orders',path:'/orders',icon:PackageCheck},
+  {key:'prescriptions',label:'Prescriptions',path:'/account/prescriptions',icon:FileHeart},
+  {key:'privacy',label:'Privacy requests',path:'/account/privacy',icon:LockKeyhole},
   {key:'security',label:'Password & security',path:'/account/security',icon:ShieldCheck},
   {key:'notifications',label:'Notifications',path:'/account/notifications',icon:Bell}
 ];
@@ -17,7 +20,7 @@ const navItems=[
 export default function Account(){
   const{user,setUser,setNotice}=useApp();const location=useLocation();
   const[account,setAccount]=useState(null);const[orders,setOrders]=useState([]);const[loading,setLoading]=useState(true);const[error,setError]=useState('');
-  const section=location.pathname.startsWith('/orders')?'orders':location.pathname.endsWith('/profile')?'profile':location.pathname.endsWith('/security')?'security':location.pathname.endsWith('/notifications')?'notifications':'overview';
+  const section=location.pathname.startsWith('/orders')?'orders':location.pathname.endsWith('/profile')?'profile':location.pathname.endsWith('/prescriptions')?'prescriptions':location.pathname.endsWith('/privacy')?'privacy':location.pathname.endsWith('/security')?'security':location.pathname.endsWith('/notifications')?'notifications':'overview';
   const load=async()=>{setLoading(true);setError('');try{const [accountResult,ordersResult]=await Promise.all([api.account(),api.accountOrders(1,section==='orders'?25:4)]);setAccount(accountResult.data);setOrders(ordersResult.data||[])}catch(err){setError(err.message)}finally{setLoading(false)}};
   useEffect(()=>{if(user)load()},[user?.id,section]);
   if(!user)return <div className="empty-page"><span className="eyebrow">Customer account</span><h1>Your secure pharmacy account.</h1><p>Sign in to manage your profile, saved address, orders, communication preferences, and account security.</p><Link className="btn btn-primary" to={`/login?returnTo=${encodeURIComponent(location.pathname)}`}>Sign in <ArrowRight/></Link></div>;
@@ -34,6 +37,8 @@ export default function Account(){
         {section==='overview'&&<Overview profile={profile} security={account.security} orders={orders}/>} 
         {section==='profile'&&<ProfilePanel profile={profile} onSaved={saved} syncUser={syncUser}/>} 
         {section==='orders'&&<OrdersPanel orders={orders}/>} 
+        {section==='prescriptions'&&<PrescriptionCenter profile={profile}/>}
+        {section==='privacy'&&<PrivacyCenter/>}
         {section==='security'&&<SecurityPanel security={account.security} email={profile.email} onSaved={saved}/>} 
         {section==='notifications'&&<NotificationsPanel profile={profile} onSaved={saved}/>} 
       </main>

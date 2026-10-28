@@ -5,6 +5,7 @@ import { requireCsrf } from '../middleware/csrf.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { env } from '../config/env.js';
 import { getMyPartnershipApplication,getPartnerPortal,submitPartnershipApplication,uploadPartnerDocument,verifyPartnershipEmail } from '../controllers/partnershipController.js';
+import { acknowledgePartnerReceipt,downloadPrescription,listPartnerPrescriptions,recordPartnerDecision,startPartnerReview } from '../controllers/prescriptionController.js';
 
 export const partnershipRoutes=Router();
 const applicationLimit=rateLimit({windowMs:60*60*1000,limit:5,standardHeaders:'draft-8',legacyHeaders:false,message:{success:false,code:'RATE_LIMITED',message:'Too many partnership application attempts. Please try again later.'}});
@@ -14,5 +15,10 @@ partnershipRoutes.get('/verify-email',verificationLimit,asyncHandler(verifyPartn
 partnershipRoutes.use(authenticate);
 partnershipRoutes.get('/me',asyncHandler(getMyPartnershipApplication));
 partnershipRoutes.get('/portal',asyncHandler(getPartnerPortal));
+partnershipRoutes.get('/portal/prescriptions',asyncHandler(listPartnerPrescriptions));
+partnershipRoutes.post('/portal/prescriptions/:id/acknowledge',requireCsrf,asyncHandler(acknowledgePartnerReceipt));
+partnershipRoutes.post('/portal/prescriptions/:id/start-review',requireCsrf,asyncHandler(startPartnerReview));
+partnershipRoutes.post('/portal/prescriptions/:id/decision',requireCsrf,asyncHandler(recordPartnerDecision));
+partnershipRoutes.get('/portal/prescriptions/:id/document',asyncHandler(downloadPrescription));
 partnershipRoutes.post('/applications',applicationLimit,requireCsrf,asyncHandler(submitPartnershipApplication));
 partnershipRoutes.post('/applications/:id/documents',uploadLimit,requireCsrf,express.raw({type:['application/pdf','image/jpeg','image/png','video/mp4'],limit:env.PARTNER_VIDEO_MAX_BYTES}),asyncHandler(uploadPartnerDocument));
