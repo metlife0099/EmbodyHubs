@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Check, ExternalLink, Info, Scale, ShieldCheck, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
 import { comparisonRows, fallbackComparisons } from '../data/comparisonOptions';
+import SaveToHubButton from '../components/SaveToHubButton';
+import StartJourneyButton from '../components/StartJourneyButton';
 import './Compare.css';
 
 export default function Compare(){
@@ -30,7 +32,7 @@ export default function Compare(){
 function ComparisonSection({comparison,index}){
   const sources=comparison.items.filter(item=>item.source?.url);
   return <section className="comparison-set" id={`compare-${comparison.slug}`}>
-    <header className="comparison-set__header"><div><span className="eyebrow">Comparison {String(index+1).padStart(2,'0')}</span><h2>{comparison.purpose}</h2></div><p>{comparison.intro||'See each option side by side. More details can be added by the pharmacy team.'}</p></header>
+    <header className="comparison-set__header"><div><span className="eyebrow">Comparison {String(index+1).padStart(2,'0')}</span><h2>{comparison.purpose}</h2><div className="hub-public-actions"><SaveToHubButton type="COMPARISON" sourceId={comparison.slug} title={comparison.purpose} url={`/compare#compare-${comparison.slug}`} summary={comparison.intro||'Side-by-side comparison.'}/><StartJourneyButton type="COMPARISON" title={comparison.purpose} sourceType="COMPARISON" sourceId={comparison.slug}/></div></div><p>{comparison.intro||'See each option side by side. More details can be added by the pharmacy team.'}</p></header>
     <div className="compare-matrix-scroll" tabIndex="0" aria-label={`${comparison.purpose} comparison table`}>
       <div className="compare-matrix" style={{'--compare-columns':comparison.items.length,'--compare-min':`${210+(comparison.items.length*220)}px`,'--compare-min-mobile':`${120+(comparison.items.length*185)}px`}}>
         <div className="compare-matrix__head"><div className="compare-matrix__corner">At a glance</div>{comparison.items.map((item,itemIndex)=><OptionHeading item={item} number={itemIndex+1} key={item.id||`${item.name}-${itemIndex}`}/>)}</div>

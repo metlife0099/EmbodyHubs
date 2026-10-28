@@ -1,6 +1,9 @@
 const API = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+let authGeneration=0;
+export const authSessionBarrier={current:()=>authGeneration,invalidate:()=>{authGeneration+=1}};
 
 async function request(path, options = {}, mayRefresh = true) {
+  const generation=authGeneration;
   const { headers = {}, ...rest } = options;
   const response = await fetch(`${API}${path}`, {
     credentials: 'include',
@@ -12,6 +15,7 @@ async function request(path, options = {}, mayRefresh = true) {
     if(refreshed?.ok)return request(path,options,false);
   }
   const data = await response.json().catch(() => ({ success: false, message: 'Unexpected server response.' }));
+  if(generation!==authGeneration)throw new Error('This response belongs to a previous account session and was discarded.');
   if(response.status===401&&!path.startsWith('/auth/'))window.dispatchEvent(new CustomEvent('embody:auth-expired'));
   if (!response.ok) { const detail=Object.values(data.errors||{}).flat().find(Boolean); throw new Error(detail||data.message||'Request failed. Please try again.'); }
   return data;
@@ -32,6 +36,22 @@ export const api = {
   updatePreferences: (payload) => request('/account/preferences', { method: 'PATCH', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   changePassword: (payload) => request('/account/password', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   revokeOtherSessions: () => request('/account/sessions/revoke-others', { method: 'POST', headers: csrfHeaders() }),
+  healthHubDashboard: () => request('/health-hub/dashboard'),
+  healthHubJourneys: () => request('/health-hub/journeys'),
+  createHealthHubJourney: payload => request('/health-hub/journeys',{method:'POST',headers:csrfHeaders(),body:JSON.stringify(payload)}),
+  updateHealthHubJourney: (journeyId,payload) => request(`/health-hub/journeys/${encodeURIComponent(journeyId)}`,{method:'PATCH',headers:csrfHeaders(),body:JSON.stringify(payload)}),
+  removeHealthHubJourney: journeyId => request(`/health-hub/journeys/${encodeURIComponent(journeyId)}`,{method:'DELETE',headers:csrfHeaders()}),
+  createGuestJourney: payload => request('/health-hub/guest/journeys',{method:'POST',body:JSON.stringify(payload)}),
+  migrateGuestJourneys: () => request('/health-hub/journeys/migrate-guest',{method:'POST',headers:csrfHeaders()}),
+  healthHubSaved: () => request('/health-hub/saved'),
+  saveToHealthHub: payload => request('/health-hub/saved',{method:'POST',headers:csrfHeaders(),body:JSON.stringify(payload)}),
+  removeHealthHubSaved: savedId => request(`/health-hub/saved/${encodeURIComponent(savedId)}`,{method:'DELETE',headers:csrfHeaders()}),
+  healthHubPreferences: () => request('/health-hub/preferences'),
+  updateHealthHubPreferences: payload => request('/health-hub/preferences',{method:'PATCH',headers:csrfHeaders(),body:JSON.stringify(payload)}),
+  healthHubLifecycle: () => request('/health-hub/data-lifecycle'),
+  askEmbody: payload => request('/health-hub/assistant',{method:'POST',headers:csrfHeaders(),body:JSON.stringify(payload)}),
+  assistantMemory: () => request('/health-hub/assistant/memory'),
+  deleteAssistantMemory: () => request('/health-hub/assistant/memory',{method:'DELETE',headers:csrfHeaders()}),
   products: (query = '') => request(`/products${query}`),
   productCategories: () => request('/products/categories'),
   comparisons: () => request('/comparisons'),

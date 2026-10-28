@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AlertTriangle, ArrowLeft, ArrowRight, BookMarked, BookOpen, ChevronRight, CircleHelp, Clock3, ExternalLink, FileText, LibraryBig, Search, ShieldCheck, Stethoscope } from 'lucide-react';
 import { getLearnArticle, glossaryTerms, learnArticles, learnCategories } from '../data/learnContent';
+import SaveToHubButton from '../components/SaveToHubButton';
+import StartJourneyButton from '../components/StartJourneyButton';
 import './Learn.css';
 
 const iconByCategory = {
@@ -113,7 +115,7 @@ export function LearnArticle() {
       <nav className="learn-breadcrumb" aria-label="Breadcrumb"><Link to="/">Home</Link><ChevronRight/><Link to="/learn">Learn</Link><ChevronRight/><span>{article.category}</span></nav>
       <header className="learn-article__header">
         <div className="learn-card__meta"><span>{article.category}</span><span><Clock3/> {article.read}</span></div>
-        <h1>{article.title}</h1><p>{article.summary}</p>
+        <h1>{article.title}</h1><p>{article.summary}</p><div className="hub-public-actions"><SaveToHubButton type="LEARNING" sourceId={article.slug} title={article.title} url={`/learn/${article.slug}`} summary={article.summary}/><StartJourneyButton type="LEARNING" title={article.title} sourceType="ARTICLE" sourceId={article.slug}/></div>
         <div className="learn-review"><ShieldCheck/><div><strong>Source checked</strong><span>Updated {new Date(`${article.updated}T12:00:00`).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} · Educational content</span></div></div>
       </header>
 

@@ -1,5 +1,5 @@
 import { createContext,useContext,useEffect,useMemo,useState } from 'react';
-import { api } from '../services/api';
+import { api,authSessionBarrier } from '../services/api';
 import { categories as fallbackCategories,products as fallbackProducts } from '../data/catalog';
 
 const AppContext=createContext(null);
@@ -20,8 +20,8 @@ export function AppProvider({children}){
   useEffect(()=>{if(!notice)return;const id=setTimeout(()=>setNotice(null),4200);return()=>clearTimeout(id)},[notice]);
   useEffect(()=>{api.products('?limit=48&sort=newest').then(result=>{if(result.data?.length)setCatalogProducts(result.data.map(normalizeProduct))}).catch(()=>{})},[]);
   useEffect(()=>{api.productCategories().then(result=>{if(result.data?.length)setCatalogCategories(result.data.map(normalizeCategory))}).catch(()=>{})},[]);
-  useEffect(()=>{const expire=()=>{setStoredUser(null);setCart([]);localStorage.removeItem('embody-user');setNotice({type:'error',message:'Your session expired. Sign in again to continue.'})};window.addEventListener('embody:auth-expired',expire);return()=>window.removeEventListener('embody:auth-expired',expire)},[]);
-  const setUser=nextUser=>{setStoredUser(nextUser);if(!nextUser)setCart([])};
+  useEffect(()=>{const expire=()=>{authSessionBarrier.invalidate();setStoredUser(null);setCart([]);localStorage.removeItem('embody-user');setNotice({type:'error',message:'Your session expired. Sign in again to continue.'})};window.addEventListener('embody:auth-expired',expire);return()=>window.removeEventListener('embody:auth-expired',expire)},[]);
+  const setUser=nextUser=>{const previousId=user?.id;if(previousId&&previousId!==nextUser?.id)authSessionBarrier.invalidate();setStoredUser(nextUser);if(!nextUser)setCart([])};
 
   const addItem=(product,questionnaireCompleted=false,questionnaireResponseId=null)=>{
     setCart(items=>{

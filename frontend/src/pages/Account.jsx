@@ -1,46 +1,51 @@
 import { useEffect,useState } from 'react';
 import { Link,useLocation } from 'react-router-dom';
-import { AlertCircle,ArrowRight,Bell,Check,CheckCircle2,ChevronRight,ClipboardCheck,CreditCard,Eye,EyeOff,FileHeart,Headphones,Home,LockKeyhole,LogOut,Mail,MapPin,PackageCheck,Save,ShieldCheck,Sparkles,UserRound,UsersRound } from 'lucide-react';
+import { AlertCircle,ArrowRight,Bell,Bookmark,Check,CheckCircle2,ChevronRight,ClipboardCheck,CreditCard,Eye,EyeOff,FileHeart,Headphones,Home,LockKeyhole,LogOut,Mail,MapPin,MessageCircleQuestion,PackageCheck,Save,ShieldCheck,Sparkles,UserRound,UsersRound } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { api } from '../services/api';
 import { AGE_OPTIONS,PHARMACIST_SUPPORT_OPTIONS,SERVICE_GOAL_OPTIONS,US_STATES } from '../data/registrationOptions';
 import './Account.css';
 import { PrescriptionCenter,PrivacyCenter } from './CustomerCareOperations';
 import { FamilyAccess,JourneyCenter,MembershipCenter,SupportCases } from './AccountOperations';
+import { AskEmbody,HealthHubJourneys,HealthHubOverview,HubPrivacySecurity,SavedCompared } from './MyHealthHub';
 
 const navItems=[
   {key:'overview',label:'Overview',path:'/account',icon:Home},
-  {key:'journey',label:'Journey center',path:'/account/journey',icon:ClipboardCheck},
-  {key:'profile',label:'Personal profile',path:'/account/profile',icon:UserRound},
-  {key:'orders',label:'Orders',path:'/orders',icon:PackageCheck},
-  {key:'prescriptions',label:'Prescriptions',path:'/account/prescriptions',icon:FileHeart},
-  {key:'privacy',label:'Privacy requests',path:'/account/privacy',icon:LockKeyhole},
-  {key:'support-cases',label:'Support cases',path:'/account/support-cases',icon:Headphones},
-  {key:'membership',label:'Membership',path:'/account/membership',icon:CreditCard},
+  {key:'journey',label:'My Journey',path:'/account/journey',icon:ClipboardCheck},
+  {key:'orders',label:'My Orders',path:'/orders',icon:PackageCheck},
+  {key:'saved',label:'Saved & Compared',path:'/account/saved',icon:Bookmark},
+  {key:'support-cases',label:'Support',path:'/account/support-cases',icon:Headphones},
+  {key:'membership',label:'Benefits',path:'/account/membership',icon:CreditCard},
   {key:'family',label:'Family access',path:'/account/family',icon:UsersRound},
-  {key:'security',label:'Password & security',path:'/account/security',icon:ShieldCheck},
-  {key:'notifications',label:'Notifications',path:'/account/notifications',icon:Bell}
+  {key:'privacy-security',label:'Privacy & Security',path:'/account/privacy-security',icon:ShieldCheck},
+  {key:'assistant',label:'Ask Embody',path:'/account/ask-embody',icon:MessageCircleQuestion}
 ];
+const legacyNavItems=[{key:'overview',label:'Overview',path:'/account',icon:Home},{key:'profile',label:'Personal profile',path:'/account/profile',icon:UserRound},{key:'orders',label:'Orders',path:'/orders',icon:PackageCheck},{key:'prescriptions',label:'Prescriptions',path:'/account/prescriptions',icon:FileHeart},{key:'privacy',label:'Privacy requests',path:'/account/privacy',icon:LockKeyhole},{key:'support-cases',label:'Support cases',path:'/account/support-cases',icon:Headphones},{key:'membership',label:'Membership',path:'/account/membership',icon:CreditCard},{key:'family',label:'Family access',path:'/account/family',icon:UsersRound},{key:'security',label:'Password & security',path:'/account/security',icon:ShieldCheck},{key:'notifications',label:'Notifications',path:'/account/notifications',icon:Bell}];
 
 export default function Account(){
   const{user,setUser,setNotice}=useApp();const location=useLocation();
   const[account,setAccount]=useState(null);const[orders,setOrders]=useState([]);const[loading,setLoading]=useState(true);const[error,setError]=useState('');
-  const section=location.pathname.startsWith('/orders')?'orders':location.pathname.endsWith('/journey')?'journey':location.pathname.endsWith('/profile')?'profile':location.pathname.endsWith('/prescriptions')?'prescriptions':location.pathname.endsWith('/privacy')?'privacy':location.pathname.endsWith('/support-cases')?'support-cases':location.pathname.endsWith('/membership')?'membership':location.pathname.endsWith('/family')?'family':location.pathname.endsWith('/security')?'security':location.pathname.endsWith('/notifications')?'notifications':'overview';
-  const load=async()=>{setLoading(true);setError('');try{const [accountResult,ordersResult]=await Promise.all([api.account(),api.accountOrders(1,['orders','support-cases'].includes(section)?25:4)]);setAccount(accountResult.data);setOrders(ordersResult.data||[])}catch(err){setError(err.message)}finally{setLoading(false)}};
+  const requestedSection=location.pathname.startsWith('/orders')?'orders':location.pathname.endsWith('/journey')?'journey':location.pathname.endsWith('/saved')?'saved':location.pathname.endsWith('/ask-embody')?'assistant':location.pathname.endsWith('/privacy-security')?'privacy-security':location.pathname.endsWith('/profile')?'profile':location.pathname.endsWith('/prescriptions')?'prescriptions':location.pathname.endsWith('/privacy')?'privacy':location.pathname.endsWith('/support-cases')?'support-cases':location.pathname.endsWith('/membership')?'membership':location.pathname.endsWith('/family')?'family':location.pathname.endsWith('/security')?'security':location.pathname.endsWith('/notifications')?'notifications':'overview';
+  const hubEnabled=account?.healthHubCapabilities?.HEALTH_HUB!==false;const section=!hubEnabled&&['journey','saved','assistant','privacy-security'].includes(requestedSection)?'overview':requestedSection;
+  const load=async()=>{setLoading(true);setError('');try{const [accountResult,ordersResult,hubResult]=await Promise.all([api.account(),api.accountOrders(1,['orders','support-cases'].includes(requestedSection)?25:4),api.healthHubDashboard().catch(()=>null)]);setAccount({...accountResult.data,healthHubCapabilities:hubResult?.data?.capabilities});setOrders(ordersResult.data||[])}catch(err){setError(err.message)}finally{setLoading(false)}};
   useEffect(()=>{if(user)load()},[user?.id,section]);
   if(!user)return <div className="empty-page"><span className="eyebrow">Customer account</span><h1>Your secure pharmacy account.</h1><p>Sign in to manage your profile, saved address, orders, communication preferences, and account security.</p><Link className="btn btn-primary" to={`/login?returnTo=${encodeURIComponent(location.pathname)}`}>Sign in <ArrowRight/></Link></div>;
   if(loading)return <AccountLoading/>;
   if(error||!account)return <div className="empty-page"><AlertCircle/><span className="eyebrow">Account unavailable</span><h1>We couldn’t load your profile.</h1><p>{error||'Please try again.'}</p><button className="btn btn-primary" onClick={load}>Try again</button></div>;
-  const profile=account.profile;const name=profile.preferredName||profile.firstName;
+  const profile=account.profile;
+  const accountNavItems=hubEnabled?navItems:legacyNavItems;
   const saved=message=>{setNotice({type:'success',message});load()};
   const syncUser=next=>{if(next)setUser({...user,...next})};
   return <div className="customer-account-page">
-    <header className="customer-account-hero"><div className="customer-account-hero-inner"><div className="customer-avatar" aria-hidden="true">{initials(profile)}</div><div><span className="account-kicker"><Sparkles/> Customer account</span><h1>Welcome back, {name}.</h1><p>Manage the details that make checkout, support, and account access simpler.</p></div><div className="account-verified"><CheckCircle2/><span><b>Verified account</b><small>{profile.email}</small></span></div></div></header>
+    <header className="customer-account-hero"><div className="customer-account-hero-inner"><div className="customer-avatar" aria-hidden="true">{initials(profile)}</div><div><span className="account-kicker"><Sparkles/> {hubEnabled?'My Health Hub':'Customer account'}</span><h1>{hubEnabled?'Everything important, organized in one place.':'Your secure account.'}</h1><p>{hubEnabled?'Continue journeys, check verified activity, manage support, and control what is remembered.':'Manage profile, orders, support, and account security.'}</p></div><div className="account-verified"><CheckCircle2/><span><b>Verified account</b><small>{profile.email}</small></span></div></div></header>
     <div className="customer-account-workspace">
-      <aside className="customer-account-sidebar" aria-label="Account navigation"><div className="sidebar-profile"><div>{initials(profile)}</div><span><b>{profile.firstName} {profile.lastName}</b><small>Member since {formatDate(profile.createdAt,{month:'short',year:'numeric'})}</small></span></div><nav>{navItems.map(item=><Link key={item.key} to={item.path} className={section===item.key?'active':''}><item.icon/><span>{item.label}</span><ChevronRight/></Link>)}</nav><Link className="account-support-link" to="/support/chat"><Headphones/><span><b>Need help?</b><small>Message customer care</small></span><ArrowRight/></Link></aside>
+      <aside className="customer-account-sidebar" aria-label="Account navigation"><div className="sidebar-profile"><div>{initials(profile)}</div><span><b>{profile.firstName} {profile.lastName}</b><small>Member since {formatDate(profile.createdAt,{month:'short',year:'numeric'})}</small></span></div><nav>{accountNavItems.map(item=><Link key={item.key} to={item.path} className={section===item.key?'active':''}><item.icon/><span>{item.label}</span><ChevronRight/></Link>)}</nav><Link className="account-support-link" to="/support/chat"><Headphones/><span><b>Need help?</b><small>Message customer care</small></span><ArrowRight/></Link></aside>
       <main className="customer-account-content">
-        {section==='overview'&&<Overview profile={profile} security={account.security} orders={orders}/>} 
-        {section==='journey'&&<JourneyCenter/>}
+        {section==='overview'&&(hubEnabled?<HealthHubOverview/>:<Overview profile={profile} security={account.security} orders={orders}/>)} 
+        {section==='journey'&&<HealthHubJourneys/>}
+        {section==='saved'&&<SavedCompared/>}
+        {section==='assistant'&&<AskEmbody/>}
+        {section==='privacy-security'&&<HubPrivacySecurity/>}
         {section==='profile'&&<ProfilePanel profile={profile} onSaved={saved} syncUser={syncUser}/>} 
         {section==='orders'&&<OrdersPanel orders={orders}/>} 
         {section==='prescriptions'&&<PrescriptionCenter profile={profile}/>}
@@ -52,6 +57,7 @@ export default function Account(){
         {section==='notifications'&&<NotificationsPanel profile={profile} onSaved={saved}/>} 
       </main>
     </div>
+    {hubEnabled&&<nav className="health-hub-mobile-nav" aria-label="Health Hub mobile navigation"><Link className={section==='overview'?'active':''} to="/account"><Home/><span>Home</span></Link><Link className={section==='journey'?'active':''} to="/account/journey"><ClipboardCheck/><span>Journey</span></Link><Link className={section==='orders'?'active':''} to="/orders"><PackageCheck/><span>Orders</span></Link><Link className={section==='support-cases'?'active':''} to="/account/support-cases"><Headphones/><span>Support</span></Link><Link className={section==='privacy-security'?'active':''} to="/account/privacy-security"><UserRound/><span>Account</span></Link></nav>}
   </div>;
 }
 
