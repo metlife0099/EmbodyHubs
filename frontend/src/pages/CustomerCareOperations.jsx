@@ -1,7 +1,8 @@
-import { useEffect,useState } from 'react';
+import { useEffect as useReactEffect,useState } from 'react';
 import { AlertTriangle,CheckCircle2,Clock3,FileHeart,FileLock2,LockKeyhole,RefreshCw,Send,ShieldCheck,UploadCloud,XCircle } from 'lucide-react';
 import { api } from '../services/api';
 import { US_STATES } from '../data/registrationOptions';
+const useEffect=(effect,deps)=>useReactEffect(()=>{void effect()},deps);
 import './CustomerCareOperations.css';
 
 const closed=['PHARMACY_REJECTED','CUSTOMER_CANCELLED','EXPIRED_OR_INVALIDATED','FULFILLED','CLOSED'];

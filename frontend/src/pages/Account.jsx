@@ -13,6 +13,7 @@ const navItems=[
   {key:'overview',label:'Overview',path:'/account',icon:Home},
   {key:'journey',label:'My Journey',path:'/account/journey',icon:ClipboardCheck},
   {key:'orders',label:'My Orders',path:'/orders',icon:PackageCheck},
+  {key:'prescriptions',label:'Upload prescription',path:'/account/prescriptions',icon:FileHeart},
   {key:'saved',label:'Saved & Compared',path:'/account/saved',icon:Bookmark},
   {key:'support-cases',label:'Support',path:'/account/support-cases',icon:Headphones},
   {key:'membership',label:'Benefits',path:'/account/membership',icon:CreditCard},

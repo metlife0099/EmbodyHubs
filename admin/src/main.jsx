@@ -36,7 +36,27 @@ function Overview(){
   return <><section className="metric-grid">{metrics.map(([label,value])=><article key={label}><span>{label}</span><strong>{value}</strong><small>Live API data</small></article>)}</section><div className="dash-grid"><section className="panel action-panel"><header><span>Commerce controls</span><h2>Manage the experience</h2></header><NavLink to="/products"><span>Products and add-to-cart questions</span><b>→</b></NavLink><NavLink to="/orders"><span>Paid orders and customer answers</span><b>→</b></NavLink><NavLink to="/customers"><span>Customer profiles and signup answers</span><b>→</b></NavLink><NavLink to="/questions"><span>Reusable global questions</span><b>→</b></NavLink></section><section className="panel action-panel"><header><span>Security posture</span><h2>Protected operations</h2></header>{['Fixed 24-hour admin sessions','Server-side role checks','CSRF-protected changes','Login lockout enforcement'].map(label=><div className="security-row" key={label}><ShieldCheck/>{label}</div>)}</section></div></>;
 }
 
-function Placeholder({title}){if(title==='Journey operations')return <JourneyOperations/>;if(title==='Newsletter')return <CampaignCenter/>;if(title==='Control center')return <ControlCenter/>;if(title==='Prescription oversight')return <PrescriptionOversight/>;if(title==='Partner routing')return <PartnerRouting/>;if(title==='Privacy requests')return <PrivacyOperations/>;return <section className="panel section-page"><header><div><span>Operations</span><h2>{title}</h2><p>This module remains permission-gated and ready for its approved provider integration.</p></div></header><div className="empty"><ShieldCheck/><h3>Secure module boundary</h3><p>No unverified production data or provider behavior is simulated here.</p></div></section>}
+class AdminModuleBoundary extends React.Component{
+  constructor(props){super(props);this.state={error:null}}
+  static getDerivedStateFromError(error){return{error}}
+  componentDidCatch(error,details){console.error('Admin module failed safely',error,details)}
+  render(){
+    if(this.state.error)return <section className="panel section-page"><div className="empty"><TriangleAlert/><h3>This module could not be opened</h3><p>{this.state.error.message||'An unexpected error occurred while loading this page.'}</p><button type="button" onClick={()=>this.setState({error:null})}>Try again</button></div></section>;
+    return this.props.children;
+  }
+}
+
+function Placeholder({title}){
+  let content;
+  if(title==='Journey operations')content=<JourneyOperations/>;
+  else if(title==='Newsletter')content=<CampaignCenter/>;
+  else if(title==='Control center')content=<ControlCenter/>;
+  else if(title==='Prescription oversight')content=<PrescriptionOversight/>;
+  else if(title==='Partner routing')content=<PartnerRouting/>;
+  else if(title==='Privacy requests')content=<PrivacyOperations/>;
+  else content=<section className="panel section-page"><header><div><span>Operations</span><h2>{title}</h2><p>This module remains permission-gated and ready for its approved provider integration.</p></div></header><div className="empty"><ShieldCheck/><h3>Secure module boundary</h3><p>No unverified production data or provider behavior is simulated here.</p></div></section>;
+  return <AdminModuleBoundary key={title}>{content}</AdminModuleBoundary>;
+}
 
 function Dashboard(){
   const[side,setSide]=useState(()=>window.innerWidth>900);const[unread,setUnread]=useState(0);const{user,logout}=useAdminAuth();const location=useLocation();const title=location.pathname.startsWith('/products')?'Products & questionnaires':items.find(([,path])=>path===location.pathname)?.[0]||'Operations';

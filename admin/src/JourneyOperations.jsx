@@ -1,7 +1,9 @@
-import { useEffect,useState } from 'react';
+import { useEffect as useReactEffect,useState } from 'react';
 import { AlertTriangle,BarChart3,CheckCircle2,Clock3,CreditCard,Headphones,RefreshCw,Route,Save,ShieldCheck,X } from 'lucide-react';
 import { adminApi } from './api';
 import './JourneyOperations.css';
+
+const useEffect=(effect,deps)=>useReactEffect(()=>{void effect()},deps);
 
 export default function JourneyOperations(){const[tab,setTab]=useState('exceptions');return <div className="journey-ops"><header className="jo-hero"><div><span>Partnership operations</span><h2>Journey control center</h2><p>Resolve operational failures without changing clinical decisions, pharmacy judgment, or legal eligibility rules.</p></div><ShieldCheck/></header><nav className="jo-tabs">{[['exceptions','Exceptions',AlertTriangle],['cases','Support cases',Headphones],['performance','Partner operations',BarChart3],['membership','Membership',CreditCard]].map(([key,label,Icon])=><button key={key} className={tab===key?'active':''} onClick={()=>setTab(key)}><Icon/>{label}</button>)}</nav>{tab==='exceptions'&&<ExceptionCenter/>}{tab==='cases'&&<CaseCenter/>}{tab==='performance'&&<PartnerPerformance/>}{tab==='membership'&&<MembershipManager/>}</div>}
 
