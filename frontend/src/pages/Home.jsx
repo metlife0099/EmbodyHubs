@@ -7,6 +7,8 @@ import ProductCard from '../components/ProductCard';
 import { useApp } from '../context/AppContext';
 
 const reveal = { initial:{opacity:0,y:24}, whileInView:{opacity:1,y:0}, viewport:{once:true,margin:'-80px'}, transition:{duration:.55} };
+const categoryImages = ['/images/medicine-still-life-v3.png', '/images/pharmacist-consultation-v3.png', '/images/pharmacy-still-life-v2.png'];
+const articleImages = ['/images/medicine-still-life-v3.png', '/images/hcp-consultation.png', '/images/pharmacy-still-life-v2.png'];
 
 export default function Home() {
   const{catalogProducts:products}=useApp();
@@ -27,7 +29,12 @@ export default function Home() {
 
     <section className="section categories-section">
       <motion.div className="section-heading" {...reveal}><div><span className="eyebrow">Explore by need</span><h2>Everyday essentials,<br/>carefully organized.</h2></div><p>Straightforward categories, readable labels, and no exaggerated health claims.</p></motion.div>
-      <div className="category-grid">{categories.map((c,i) => <motion.article key={c.slug} className={`category-card category-card--${i+1}`} {...reveal} transition={{duration:.5,delay:i*.08}}><span>0{i+1}</span><div><small>{c.eyebrow}</small><h3>{c.name}</h3><p>{c.description}</p><Link to={`/online-care?category=${c.slug}`}>Explore {c.name.toLowerCase()} <ArrowRight/></Link></div></motion.article>)}</div>
+      <div className="category-grid">{categories.map((c,i) => <motion.article key={c.slug} className={`category-card category-card--${i+1}`} style={{'--category-image':`url(${categoryImages[i%categoryImages.length]})`}} {...reveal} transition={{duration:.5,delay:i*.08}}><span>0{i+1}</span><div><small>{c.eyebrow}</small><h3>{c.name}</h3><p>{c.description}</p><Link to={`/online-care?category=${c.slug}`}>Explore {c.name.toLowerCase()} <ArrowRight/></Link></div></motion.article>)}</div>
+    </section>
+
+    <section className="home-assurance">
+      <motion.div className="home-assurance-media" {...reveal}><img className="home-assurance-photo" src="/images/pharmacist-consultation-v3.png" alt="Pharmacist discussing care with an adult customer"/><img className="home-assurance-float" src="/images/medicine-float-v3.png" alt="" aria-hidden="true"/></motion.div>
+      <motion.div className="home-assurance-copy" {...reveal}><span className="eyebrow">Why EMBODY</span><h2>Professional guidance, without the clinical coldness.</h2><p>We bring clear information, secure technology, and a human support path into one calm pharmacy experience.</p><div>{[[ShieldCheck,'Privacy built into every step','Separate secure sessions and purpose-limited access.'],[Stethoscope,'A professional path when needed','Clear boundaries between shopping, education, and licensed review.'],[PackageCheck,'From selection to delivery','Transparent pricing, inventory checks, and tracked fulfillment.']].map(([Icon,title,copy])=><article key={title}><Icon/><div><h3>{title}</h3><p>{copy}</p></div></article>)}</div><Link className="text-link" to="/about">Discover our approach <ArrowRight/></Link></motion.div>
     </section>
 
     <section className="section featured-section">
@@ -45,7 +52,7 @@ export default function Home() {
 
     <section className="section safety-section"><motion.div className="safety-panel" {...reveal}><div><span className="eyebrow">Safety is the service</span><h2>A legitimate pharmacy is more than a storefront.</h2><p>Prescription sales remain disabled until the operating pharmacy’s state licenses, US address and phone, licensed-pharmacist contact, valid-prescription workflow, and destination eligibility are configured and verified.</p><Link className="text-link" to="/policies/prescription">Read our prescription policy <ArrowRight/></Link></div><div className="safety-list">{['Valid prescriptions required for prescription products','US physical address and phone required before launch','State license checks for the pharmacy and customer location','No controlled substances unless separately authorized'].map(x => <span key={x}><ShieldCheck/> {x}</span>)}</div></motion.div></section>
 
-    <section className="section journal-section"><div className="section-heading compact"><div><span className="eyebrow">Learn</span><h2>Better information. Better conversations.</h2></div><Link className="text-link" to="/learn">Explore Learn <ArrowRight/></Link></div><div className="article-grid">{learnArticles.filter(article=>article.featured).slice(0,3).map((a,i) => <Link to={`/learn/${a.slug}`} className="article-card" key={a.slug}><div className={`article-art article-art--${i+1}`}><HeartHandshake/></div><span>{a.category} · {a.read}</span><h3>{a.title}</h3><p>{a.summary}</p><b>Read guide <ArrowRight/></b></Link>)}</div></section>
+    <section className="section journal-section"><div className="section-heading compact"><div><span className="eyebrow">Learn</span><h2>Better information. Better conversations.</h2></div><Link className="text-link" to="/learn">Explore Learn <ArrowRight/></Link></div><div className="article-grid">{learnArticles.filter(article=>article.featured).slice(0,3).map((a,i) => <Link to={`/learn/${a.slug}`} className="article-card" key={a.slug}><div className={`article-art article-art--${i+1}`}><img src={articleImages[i%articleImages.length]} alt="" loading="lazy"/><span><HeartHandshake/></span></div><span>{a.category} · {a.read}</span><h3>{a.title}</h3><p>{a.summary}</p><b>Read guide <ArrowRight/></b></Link>)}</div></section>
 
     <section className="cta-section"><span className="eyebrow light">A better next step</span><h2>Ready to explore your options?</h2><p>Start privately, move at your pace, and get appropriate review where required.</p><Link className="btn btn-ivory" to="/online-care">Explore care <ArrowRight/></Link></section>
   </>;

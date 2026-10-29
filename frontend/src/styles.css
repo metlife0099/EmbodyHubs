@@ -223,3 +223,101 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal)!important;box-s
 
 /* Event-backed customer journey ownership */
 .journey-list{display:grid;gap:12px}.journey-list>header{display:flex;justify-content:space-between;align-items:end}.journey-list>header span{font-size:9px;color:#267a72;font-weight:900;text-transform:uppercase}.journey-list>header h2{font:500 30px var(--serif);margin:5px 0}.journey-list>header button{border:1px solid #cbd8d3;background:#fff;border-radius:999px;padding:9px 12px;display:flex;gap:7px}.journey-list>article{background:#fff;border:1px solid #dce5e1;border-radius:20px;padding:20px;display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:16px}.journey-reference span,.journey-responsibility small,.journey-next small{font-size:9px;color:#267a72;font-weight:900;text-transform:uppercase}.journey-reference b,.journey-reference small{display:block;margin-top:7px}.journey-reference small,.journey-responsibility p,.journey-next p{color:#66767a}.journey-responsibility h3{font:500 25px var(--serif);margin:6px 0}.journey-events{grid-column:1/-1;border-top:1px solid #e0e8e4;padding-top:15px;display:flex;gap:18px;overflow:auto}.journey-events span{min-width:135px;display:grid;grid-template-columns:auto 1fr;column-gap:8px}.journey-events i{width:9px;height:9px;border-radius:50%;background:#267a72;margin-top:3px}.journey-events small{grid-column:2;color:#748184}@media(max-width:720px){.journey-list>article{grid-template-columns:1fr}.journey-events{grid-column:1}}
+
+/* Editorial storefront refresh: image-led surfaces, four-part mega menus and restrained motion. */
+.hero-overlay{background:rgba(7,27,37,.68)}
+.category-card{isolation:isolate;background-color:var(--navy);background-image:var(--category-image);background-position:center;background-size:cover;border-radius:22px;box-shadow:0 18px 55px rgba(10,31,40,.12)}
+.category-card:before{inset:0;width:auto;height:auto;border:0;border-radius:22px;background:rgba(7,27,37,.76);z-index:-1}
+.category-card:after{content:'';position:absolute;inset:auto 22px 22px auto;width:54px;height:1px;background:rgba(255,255,255,.68)}
+.category-card--2:before{background:rgba(20,66,65,.78)}
+.category-card--3{color:#fff}.category-card--3:before{background:rgba(29,48,43,.68)}
+.category-card>span,.category-card>div{position:relative;z-index:1}.category-card>span{opacity:.8}
+.category-card p{color:rgba(255,255,255,.8)}
+
+.home-assurance{max-width:1400px;margin:0 auto 115px;padding:0 4.5%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(420px,.9fr);gap:7%;align-items:center}
+.home-assurance-media{position:relative;min-height:610px;border-radius:30px;overflow:hidden;background:#dce7e1}
+.home-assurance-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.home-assurance-media:after{content:'PHARMACIST-READY SUPPORT';position:absolute;left:24px;top:24px;padding:10px 13px;border-radius:99px;background:#fff;color:var(--navy);font-size:8px;font-weight:900;letter-spacing:.14em;box-shadow:0 12px 30px #0b1f2a22}
+.home-assurance-float{position:absolute;z-index:2;right:-13%;bottom:-14%;width:58%;filter:drop-shadow(0 28px 30px rgba(7,29,39,.25));animation:embody-float 7s ease-in-out infinite}
+.home-assurance-copy h2{margin:16px 0 20px;font:500 clamp(45px,4.8vw,70px)/.96 var(--serif);letter-spacing:-.04em}
+.home-assurance-copy>p{max-width:610px;color:var(--muted);font-size:15px}
+.home-assurance-copy>div{margin:32px 0}
+.home-assurance-copy article{display:grid;grid-template-columns:42px 1fr;gap:15px;padding:18px 0;border-bottom:1px solid var(--line)}
+.home-assurance-copy article>svg{width:38px;height:38px;padding:9px;border-radius:50%;background:#e2eee9;color:var(--teal)}
+.home-assurance-copy h3{margin:0;font:600 19px var(--serif)}
+.home-assurance-copy article p{margin:3px 0 0;color:var(--muted);font-size:11px}
+
+.article-art{position:relative;display:block;background:#dce7e1}
+.article-art>img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+.article-art>span{position:absolute;left:18px;bottom:18px;width:48px;height:48px;display:grid;place-items:center;border-radius:50%;background:#fff;color:var(--teal);box-shadow:0 12px 30px rgba(11,31,42,.18)}
+.article-art>span svg{width:22px;height:22px}
+.article-card:hover .article-art>img{transform:scale(1.045)}
+
+.care-mega,.health-mega{left:2%;right:2%;grid-template-columns:minmax(230px,.78fr) minmax(420px,2fr) minmax(220px,.72fr);gap:24px;padding:24px;border-radius:0 0 24px 24px;background:#fdfcf8;box-shadow:0 34px 90px rgba(7,29,39,.2)}
+.care-mega-intro,.health-mega-intro{padding:0 23px 0 0;border-right:1px solid var(--line)}
+.mega-intro-image{height:118px;margin-bottom:18px;border-radius:16px;overflow:hidden;background:#e4ebe6}
+.mega-intro-image img{width:100%;height:100%;object-fit:cover}
+.care-mega-intro h2,.health-mega-intro h2{font-size:28px}
+.care-mega-intro p,.health-mega-intro p{font-size:10px}
+.care-mega-groups{grid-template-columns:repeat(2,minmax(180px,1fr));gap:18px;max-height:min(560px,72vh)}
+.care-mega-group{padding:10px;border:1px solid #dfe5e1;border-radius:16px;background:#fff;box-shadow:0 10px 28px rgba(11,31,42,.05)}
+.care-mega-thumb{height:68px;position:relative;overflow:hidden;border-radius:11px;background:#e9efeb}
+.care-mega-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
+.care-mega-thumb--1 img{object-position:66% 58%}.care-mega-thumb--2 img{object-position:82% 45%}
+.care-mega-thumb span{position:absolute;top:8px;left:8px;min-width:26px;height:26px;padding:0 6px;display:grid;place-items:center;border-radius:50%;background:#fff;color:var(--teal);font:700 9px var(--sans)}
+.care-mega-group:hover .care-mega-thumb img{transform:scale(1.05)}
+.care-mega-heading{margin:8px 2px 2px;padding:7px 0 10px}
+.care-mega-group>a:not(.care-mega-heading){padding:6px 2px}
+.care-mega-group b{font-size:14px}.care-mega-group small{font-size:8px}
+
+.mega-why{min-width:0;padding:10px;border-radius:18px;background:#e8efe9;color:var(--navy)}
+.mega-why-image{height:112px;margin-bottom:15px;border-radius:12px;overflow:hidden}
+.mega-why-image img{width:100%;height:100%;object-fit:cover;object-position:58% center}
+.mega-why>span{display:block;color:var(--teal);font-size:8px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+.mega-why h2{margin:7px 0 13px;font:600 23px/.98 var(--serif)}
+.mega-why-list{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.mega-why-list p{margin:0;padding:8px;border-radius:10px;background:rgba(255,255,255,.72);font-size:8px}
+.mega-why-list svg{display:block;width:15px;height:15px;margin-bottom:4px;color:var(--teal)}
+.mega-why>a{display:flex;align-items:center;gap:7px;width:max-content;margin-top:13px;padding-bottom:3px;border-bottom:1px solid;font-size:9px;font-weight:800}
+.mega-why>a svg{width:13px}
+
+.health-mega-groups{grid-template-columns:repeat(2,minmax(180px,1fr));gap:12px;max-height:min(560px,72vh)}
+.health-mega-groups>section{padding:10px;border:1px solid #dfe5e1;border-radius:14px;background:#fff}
+.health-mega-art{height:52px;margin-bottom:9px;border-radius:9px;background-image:url('/images/medicine-still-life-v3.png');background-size:cover;background-position:50% 48%}
+.health-mega-art--1{background-image:url('/images/hcp-consultation.png');background-position:50% 35%}
+.health-mega-art--2{background-image:url('/images/pharmacy-still-life-v2.png')}
+.health-mega-art--3{background-image:url('/images/pharmacist-consultation-v3.png');background-position:54% 30%}
+.health-mega-groups h3{margin-bottom:9px;padding-bottom:8px;font-size:15px}
+.health-mega-category{padding-bottom:8px}.health-mega-article{display:none}
+.mega-why--compact .mega-why-image{height:92px}
+
+.care-hero{background:#0a2832}
+.care-hero-art{background:#e8eee9}
+.care-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:57% center}
+.care-hero-art:after{content:'';position:absolute;inset:0;background:rgba(246,243,234,.14)}
+.care-hero-float{position:absolute;z-index:2;left:-18%;bottom:-14%;width:70%;filter:drop-shadow(0 25px 32px rgba(7,29,39,.25));animation:embody-float 6.5s ease-in-out infinite}
+.care-roundel,.care-note{z-index:3}
+@keyframes embody-float{0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}50%{transform:translate3d(0,-14px,0) rotate(1deg)}}
+
+@media(max-width:1180px) and (min-width:741px){
+  .care-mega,.health-mega{grid-template-columns:200px minmax(360px,1fr) 200px;gap:16px;padding:18px}
+  .care-mega-groups,.health-mega-groups{grid-template-columns:repeat(2,minmax(155px,1fr));gap:10px}
+  .mega-why h2{font-size:20px}.mega-why-list{grid-template-columns:1fr}
+  .mega-why-list p:nth-child(n+3){display:none}
+}
+@media(max-width:900px){.home-assurance{grid-template-columns:1fr;gap:50px}.home-assurance-media{min-height:560px}.home-assurance-copy{max-width:720px}}
+@media(max-width:740px){
+  .hero-overlay{background:rgba(7,27,37,.62)}
+  .hero-image{background-position:74% center}
+  .home-assurance{margin-bottom:75px;padding:0 20px;grid-template-columns:1fr;gap:38px}
+  .home-assurance-media{min-height:430px;border-radius:22px}.home-assurance-float{width:64%}
+  .home-assurance-copy h2{font-size:47px}
+  .care-nav.is-open .care-mega,.health-nav.is-open .health-mega{display:block;padding:8px 0 20px;border-radius:0;background:transparent}
+  .mega-intro-image{height:105px}.care-mega-intro,.health-mega-intro{padding-right:0}
+  .care-mega-groups,.health-mega-groups{display:block}
+  .care-mega-group,.health-mega-groups>section{margin-top:12px;padding:10px}
+  .care-mega-thumb,.health-mega-art{height:58px}
+  .mega-why{display:none}
+  .care-hero-float{left:-22%;bottom:-8%;width:76%}
+}
+@media(prefers-reduced-motion:reduce){.home-assurance-float,.care-hero-float{animation:none!important}.article-art>img,.care-mega-thumb img{transition:none!important}}

@@ -29,9 +29,8 @@ export default function OnlineCare() {
         <div className="care-hero-trust"><span><ShieldCheck/> Label-first information</span><span><PackageCheck/> Live inventory</span><span><HeartPulse/> Pharmacist-ready support</span></div>
       </div>
       <div className="care-hero-art" aria-hidden="true">
-        <div className="care-orbit care-orbit--one"/>
-        <div className="care-orbit care-orbit--two"/>
-        <div className="care-pack care-pack--main"><small>EMBODY</small><b>Everyday<br/>care</b><span>Clear labels · Secure checkout</span></div>
+        <img className="care-hero-photo" src="/images/medicine-still-life-v3.png" alt=""/>
+        <img className="care-hero-float" src="/images/medicine-float-v3.png" alt=""/>
         <div className="care-roundel"><b>{products.length}</b><span>care options</span></div>
         <div className="care-note"><Check/> Shop by care need</div>
       </div>
