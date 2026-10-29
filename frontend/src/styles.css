@@ -321,3 +321,55 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal)!important;box-s
   .care-hero-float{left:-22%;bottom:-8%;width:76%}
 }
 @media(prefers-reduced-motion:reduce){.home-assurance-float,.care-hero-float{animation:none!important}.article-art>img,.care-mega-thumb img{transition:none!important}}
+
+/* Health information mega menu and secure general-enquiry flow. */
+.health-mega{grid-template-columns:minmax(250px,.88fr) repeat(4,minmax(185px,1fr));gap:0;padding:28px;max-height:calc(100vh - 128px);overflow:auto}
+.health-mega-intro{padding:8px 28px 8px 4px;border-right:0}
+.health-mega-intro h2{margin:14px 0 18px;font:500 clamp(31px,2.55vw,42px)/1.02 var(--serif);letter-spacing:-.035em}
+.health-mega-intro>p{font-size:12px;line-height:1.55;color:var(--muted)}
+.health-mega-intro>.btn{margin-top:18px;min-height:45px;border-radius:999px;padding:0 19px}
+.health-mega-intro>aside{display:grid;grid-template-columns:26px 1fr;gap:10px;margin-top:24px;padding:15px;border-radius:14px;background:#eaf4f1;color:#42595d}
+.health-mega-intro>aside svg{width:21px;color:var(--teal)}
+.health-mega-intro>aside p{margin:0;font-size:9px;line-height:1.55}.health-mega-intro>aside b{display:block;color:var(--navy);font-size:10px}
+.health-mega-groups{display:contents;max-height:none}
+.health-mega-groups>section{min-width:0;padding:3px 16px 5px;border:0;border-left:1px solid var(--line);border-radius:0;background:transparent}
+.health-group-heading{display:grid;grid-template-columns:42px 1fr;gap:10px;min-height:76px;margin-bottom:13px}
+.health-group-heading>span{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:#dff2f6;color:#087c82}
+.health-mega-groups>section:nth-child(2) .health-group-heading>span{background:#ddf1e8;color:#19775e}
+.health-mega-groups>section:nth-child(3) .health-group-heading>span{background:#f9e8d5;color:#c46b24}
+.health-mega-groups>section:nth-child(4) .health-group-heading>span{background:#e9e5fb;color:#6951c8}
+.health-group-heading svg{width:21px}.health-group-heading h3{margin:0 0 3px;padding:0;border:0;font:600 19px/1.05 var(--serif)}
+.health-group-heading p{margin:0;color:var(--muted);font-size:9px;line-height:1.4}
+.health-mega-category{padding:0 0 13px;margin:0 0 12px;border-bottom:1px solid rgba(11,31,42,.08)}
+.health-mega-category:last-child{border-bottom:0;margin-bottom:0}
+.health-category-title{display:block;font-size:12px;font-weight:800;line-height:1.2}
+.health-mega-category>p{margin:3px 0 7px;color:var(--muted);font-size:9px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.health-category-pills{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
+.health-category-pills span{display:block;max-width:100%;padding:4px 7px;border-radius:999px;background:#eff1ef;color:#435256;font-size:7px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.health-enquiry-button{display:inline-flex;align-items:center;gap:5px;border:0;border-radius:999px;padding:7px 10px;background:#d7f1e7;color:#0d6559;font-size:8px;font-weight:800}
+.health-enquiry-button:hover{background:#bfe6d9}.health-enquiry-button svg{width:12px;height:12px}
+
+.health-enquiry-backdrop{position:fixed;inset:0;z-index:220;display:grid;place-items:center;padding:24px;background:rgba(6,24,33,.72);backdrop-filter:blur(12px)}
+.health-enquiry-dialog{position:relative;width:min(720px,100%);max-height:calc(100vh - 48px);overflow:auto;padding:38px;border-radius:25px;background:#fbfaf6;box-shadow:0 30px 100px rgba(4,19,26,.4)}
+.health-enquiry-close{position:absolute;z-index:2;top:18px;right:18px;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--navy)}
+.health-enquiry-close svg{width:18px}.health-enquiry-dialog>header{max-width:610px;padding-right:40px}
+.health-enquiry-dialog>header>span{display:flex;align-items:center;gap:8px;color:var(--teal);font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.health-enquiry-dialog>header>span svg{width:16px}.health-enquiry-dialog h2{margin:12px 0 10px;font:500 39px/1 var(--serif);letter-spacing:-.03em}
+.health-enquiry-dialog>header>p{margin:0;color:var(--muted);font-size:12px}
+.health-enquiry-context{margin:24px 0;padding:16px 18px;border-left:3px solid var(--teal);background:#eaf2ee}
+.health-enquiry-context small{display:block;color:var(--teal);font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.health-enquiry-context strong{display:block;margin:3px 0;font:600 19px var(--serif)}
+.health-enquiry-context p{margin:4px 0 0;color:var(--muted);font-size:9px}
+.health-enquiry-dialog form{display:grid;gap:16px}.health-enquiry-dialog .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.health-enquiry-dialog form>label,.health-enquiry-dialog .field-row label{position:relative;display:grid;gap:6px;color:var(--navy);font-size:10px;font-weight:800}
+.health-enquiry-dialog input,.health-enquiry-dialog textarea{width:100%;border:1px solid #cdd9d4;border-radius:11px;background:#fff;padding:13px;color:var(--navy);font-size:12px;resize:vertical}
+.health-enquiry-dialog textarea+small{position:absolute;right:9px;bottom:8px;color:var(--muted);font-size:8px;font-weight:500}
+.health-enquiry-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+.health-enquiry-consent{display:grid!important;grid-template-columns:18px 1fr!important;align-items:start;padding:13px;border-radius:12px;background:#eef3f0;font-weight:500!important;line-height:1.45}
+.health-enquiry-consent input{width:16px;height:16px;margin-top:2px;padding:0}.health-enquiry-consent span{display:grid;grid-template-columns:19px 1fr;gap:7px}.health-enquiry-consent svg{width:17px;color:var(--teal)}
+.health-enquiry-error{margin:0;padding:10px 12px;border-radius:9px;background:#fae6e2;color:#933e31;font-size:10px}.health-enquiry-dialog button:disabled{opacity:.65;cursor:wait}
+.health-enquiry-success{text-align:center;padding:36px 12px}.health-enquiry-success>svg{width:58px;height:58px;color:var(--teal)}.health-enquiry-success>span{display:block;margin-top:15px;color:var(--teal);font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+.health-enquiry-success h2{max-width:510px;margin:12px auto}.health-enquiry-success p{max-width:520px;margin:0 auto 25px;color:var(--muted);font-size:13px}
+
+@media(max-width:1180px) and (min-width:981px){.health-mega{grid-template-columns:210px repeat(4,minmax(150px,1fr));padding:20px}.health-mega-intro{padding-right:18px}.health-mega-groups>section{padding-left:11px;padding-right:11px}.health-group-heading{grid-template-columns:34px 1fr;gap:7px}.health-group-heading>span{width:32px;height:32px}.health-group-heading svg{width:17px}.health-group-heading h3{font-size:16px}}
+@media(max-width:980px) and (min-width:741px){.health-mega{grid-template-columns:210px minmax(0,1fr);padding:19px}.health-mega-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:68vh;overflow:auto}.health-mega-groups>section{border-left:1px solid var(--line);padding-bottom:18px}.health-mega-intro h2{font-size:30px}}
+@media(max-width:740px){.health-nav.is-open .health-mega{display:block;max-height:calc(100vh - 180px);overflow:auto;padding:12px 0 24px}.health-mega-intro{padding:8px 0 22px}.health-mega-intro>.btn{width:100%}.health-mega-groups{display:block;max-height:none;overflow:visible}.health-mega-groups>section{margin:0;padding:18px 0;border:0;border-top:1px solid var(--line);background:transparent}.health-group-heading{min-height:auto}.health-mega-category{padding-bottom:14px}.health-enquiry-backdrop{padding:0}.health-enquiry-dialog{max-height:100vh;height:100%;padding:62px 20px 30px;border-radius:0}.health-enquiry-dialog h2{font-size:35px}.health-enquiry-dialog .field-row{grid-template-columns:1fr}.health-enquiry-success{padding-top:70px}}

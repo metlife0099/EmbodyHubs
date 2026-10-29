@@ -1,17 +1,38 @@
+import crypto from 'node:crypto';
 import { z } from 'zod';
 import { HealthInfoArticle } from '../models/HealthInfoArticle.js';
 import { HEALTH_INFO_GROUPS,HealthInfoCategory } from '../models/HealthInfoCategory.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { AppError } from '../utils/AppError.js';
+import { env } from '../config/env.js';
+import { sendHealthInfoEnquiryEmail } from '../services/emailService.js';
 
 const idSchema=z.string().regex(/^[a-f\d]{24}$/i);
 const slug=z.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).max(100);
 const cleanText=(min,max)=>z.string().trim().min(min).max(max);
 const optionalText=max=>z.string().trim().max(max).optional().default('');
+const medicineExamplesBySlug={
+  diabetes:['Metformin','Januvia','Ozempic'],
+  'heart-blood-pressure':['Amlodipine','Lisinopril','Metoprolol'],
+  allergies:['Cetirizine','Montelukast','Fluticasone'],
+  'autoimmune-health':['Prednisone','Methotrexate','Hydroxychloroquine'],
+  'medication-basics':['Acetaminophen','Ibuprofen','Naproxen'],
+  'pain-relief-medicines':['Tapentadol 100','Tapentadol 200','Tramadol'],
+  'anxiety-mental-health':['Xanax','Alprazolam','Clonazepam'],
+  'glp-1-medicines':['Semaglutide (Ozempic)','Wegovy','Mounjaro'],
+  'other-common-medicines':['Zolpidem','Modafinil','Tadalafil','Sildenafil'],
+  'insurance-medicare':['Eliquis','Xarelto','Jardiance'],
+  'generic-brand-name':['Lipitor (Atorvastatin)','Prozac (Fluoxetine)'],
+  telehealth:['Commonly prescribed medicines'],
+  sleep:['Zolpidem','Eszopiclone','Trazodone'],
+  nutrition:['Vitamin D','Omega-3','Multivitamins'],
+  'healthy-weight':['Wegovy','Saxenda','Phentermine']
+};
 const sourceSchema=z.object({label:cleanText(2,180),url:z.string().trim().url().max(800).refine(value=>value.startsWith('https://'),'Sources must use HTTPS.')});
 const sectionSchema=z.object({heading:cleanText(2,180),paragraphs:z.array(cleanText(10,2400)).min(1).max(8),bullets:z.array(cleanText(2,500)).max(12).default([])});
 const faqSchema=z.object({question:cleanText(5,240),answer:cleanText(10,1400)});
-export const healthInfoCategorySchema=z.object({name:cleanText(2,100),slug,description:cleanText(10,400),navigationGroup:z.enum(HEALTH_INFO_GROUPS),accent:z.enum(['TEAL','SAGE','SAND','CLAY','NAVY']).default('TEAL'),sortOrder:z.coerce.number().int().min(0).max(10000).default(0),active:z.boolean().default(true)});
+export const healthInfoCategorySchema=z.object({name:cleanText(2,100),slug,description:cleanText(10,400),medicineExamples:z.array(cleanText(2,80)).max(8).default([]),navigationGroup:z.enum(HEALTH_INFO_GROUPS),accent:z.enum(['TEAL','SAGE','SAND','CLAY','NAVY']).default('TEAL'),sortOrder:z.coerce.number().int().min(0).max(10000).default(0),active:z.boolean().default(true)});
+export const healthInfoEnquirySchema=z.object({name:cleanText(2,100).refine(value=>!/[\r\n]/.test(value),'Name cannot contain line breaks.'),email:z.string().trim().toLowerCase().email().max(254),categorySlug:slug,message:cleanText(10,1000),companyWebsite:optionalText(120),acknowledgedNoSensitiveInfo:z.literal(true)});
 export const healthInfoArticleSchema=z.object({
   title:cleanText(5,180),slug,category:idSchema,eyebrow:optionalText(80),summary:cleanText(20,420),
   heroImageUrl:z.string().trim().max(1000).refine(value=>!value||value.startsWith('/')||/^https:\/\//.test(value),'Use an HTTPS or local image URL.').default(''),
@@ -35,6 +56,17 @@ export async function healthInfoNavigation(_req,res){
   res.set('Cache-Control','public, max-age=300, stale-while-revalidate=900').json({success:true,data:categories.map(category=>({...publicCategory(category),articles:articles.filter(article=>String(article.category)===String(category._id)).slice(0,4).map(article=>({title:article.title,slug:article.slug}))}))});
 }
 
+export async function createHealthInfoEnquiry(req,res){
+  const data=healthInfoEnquirySchema.parse(req.body);const reference=`ENQ-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
+  if(data.companyWebsite)return res.status(202).json({success:true,data:{reference},message:'Your enquiry has been received.'});
+  const category=await HealthInfoCategory.findOne({slug:data.categorySlug,active:true}).lean();
+  if(!category)throw new AppError('This health information topic is no longer available.',404,'HEALTH_INFO_TOPIC_NOT_FOUND');
+  const groupLabel={HEALTH_CONDITIONS:'Health conditions',MEDICATIONS_TREATMENT:'Medications & treatment',ACCESS_AFFORDABILITY:'Access & affordability',WELL_BEING:'Well-being'}[category.navigationGroup];
+  await sendHealthInfoEnquiryEmail({reference,name:data.name,email:data.email,group:groupLabel,category:category.name,description:category.description,medicineNames:resolveMedicineExamples(category),message:data.message,categoryUrl:`${env.FRONTEND_URL}/health-info?category=${encodeURIComponent(category.slug)}`});
+  req.log?.info({reference,categorySlug:category.slug},'Health information enquiry delivered');
+  res.set('Cache-Control','no-store').status(202).json({success:true,data:{reference},message:'Your enquiry was sent securely to the EMBODY team.'});
+}
+
 export async function getHealthInfoArticle(req,res){
   const article=await HealthInfoArticle.findOne({slug:slug.parse(req.params.slug),publicationStatus:'PUBLISHED','seo.noIndex':{$ne:true}}).populate('category','name slug navigationGroup accent active').lean();
   if(!article||!article.category?.active)throw new AppError('Health information article not found.',404,'HEALTH_INFO_NOT_FOUND');
@@ -44,7 +76,7 @@ export async function getHealthInfoArticle(req,res){
 
 export async function listAdminHealthInfo(_req,res){
   const[categories,articles]=await Promise.all([HealthInfoCategory.find().sort({navigationGroup:1,sortOrder:1,name:1}).lean(),HealthInfoArticle.find().populate('category','name slug navigationGroup accent active').sort({updatedAt:-1}).lean()]);
-  res.set('Cache-Control','no-store').json({success:true,data:{categories:categories.map(item=>({...item,id:String(item._id)})),articles:articles.map(item=>({...item,id:String(item._id),reviewedAt:dateOnly(item.reviewedAt),publishedAt:dateOnly(item.publishedAt)}))}});
+  res.set('Cache-Control','no-store').json({success:true,data:{categories:categories.map(item=>({...item,id:String(item._id),medicineExamples:resolveMedicineExamples(item)})),articles:articles.map(item=>({...item,id:String(item._id),reviewedAt:dateOnly(item.reviewedAt),publishedAt:dateOnly(item.publishedAt)}))}});
 }
 
 export async function saveHealthInfoCategory(req,res){
@@ -67,7 +99,8 @@ export async function saveHealthInfoArticle(req,res){
 
 export async function archiveHealthInfoArticle(req,res){const id=idSchema.parse(req.params.id);const article=await HealthInfoArticle.findByIdAndUpdate(id,{publicationStatus:'ARCHIVED'},{returnDocument:'after'});if(!article)throw new AppError('Health article not found.',404,'HEALTH_ARTICLE_NOT_FOUND');await audit(req,'HEALTH_ARTICLE_ARCHIVED','HealthInfoArticle',id,{title:article.title});res.json({success:true,message:'Article archived and removed from public health information.'})}
 
-function publicCategory(item){return{id:String(item._id),name:item.name,slug:item.slug,description:item.description,navigationGroup:item.navigationGroup,accent:item.accent,sortOrder:item.sortOrder}}
+function resolveMedicineExamples(item){return item.medicineExamples?.length?item.medicineExamples:medicineExamplesBySlug[item.slug]||[]}
+function publicCategory(item){return{id:String(item._id),name:item.name,slug:item.slug,description:item.description,medicineExamples:resolveMedicineExamples(item),navigationGroup:item.navigationGroup,accent:item.accent,sortOrder:item.sortOrder}}
 function publicArticle(item){return{id:String(item._id),title:item.title,slug:item.slug,category:item.category&&{id:String(item.category._id),name:item.category.name,slug:item.category.slug,navigationGroup:item.category.navigationGroup,accent:item.category.accent},eyebrow:item.eyebrow,summary:item.summary,heroImageUrl:item.heroImageUrl,heroImageAlt:item.heroImageAlt,readMinutes:item.readMinutes,takeaways:item.takeaways,sections:item.sections,faq:item.faq,sources:item.sources,authorName:item.authorName,reviewerName:item.reviewerName,reviewedAt:item.reviewedAt,publishedAt:item.publishedAt,featured:item.featured,seo:item.seo}}
 function dateOnly(value){return value?new Date(value).toISOString().slice(0,10):''}
 async function audit(req,action,resourceType,resourceId,metadata){await AuditLog.create({actor:req.user.sub,action,resourceType,resourceId:String(resourceId),requestId:req.id,metadata})}

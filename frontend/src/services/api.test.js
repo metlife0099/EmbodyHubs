@@ -27,4 +27,11 @@ describe('auth session barrier',()=>{
     const result=await api.logout();
     expect(result.message).toBe('Signed out securely.');expect(calls.map(value=>value.split('/api/v1')[1])).toEqual(['/auth/refresh','/auth/logout']);
   });
+
+  it('submits a health information enquiry to the dedicated public endpoint',async()=>{
+    let request;
+    vi.stubGlobal('fetch',vi.fn(async(url,options)=>{request={url:String(url),options};return jsonResponse({success:true,data:{reference:'ENQ-123'}})}));
+    const result=await api.healthInfoEnquiry({name:'Taylor Reed',email:'taylor@example.com',categorySlug:'diabetes',message:'Please share the general education guides.',acknowledgedNoSensitiveInfo:true,companyWebsite:''});
+    expect(result.data.reference).toBe('ENQ-123');expect(request.url.endsWith('/health-info/enquiries')).toBe(true);expect(request.options.method).toBe('POST');
+  });
 });

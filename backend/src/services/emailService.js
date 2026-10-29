@@ -20,6 +20,20 @@ export async function sendChatNotificationEmail({customerName,customerEmail,mess
     htmlContent:`<div style="font-family:Arial,sans-serif;max-width:580px;margin:auto;color:#0b1f2a"><h1 style="font-size:24px">New support message</h1><p><strong>${escapeHtml(customerName)}</strong> (${escapeHtml(customerEmail)}) sent a message at ${escapeHtml(received)} UTC.</p><p>Sign in to the secure EMBODY admin panel to read and reply.</p><p style="color:#68777c;font-size:13px">For privacy, the message content is not included in this email.</p></div>`
   });
 }
+export async function sendHealthInfoEnquiryEmail({reference,name,email,group,category,description,medicineNames,message,categoryUrl}){
+  const inbox=env.SUPPORT_NOTIFICATION_EMAIL||env.ADMIN_SEED_EMAIL;
+  if(!inbox)throw new AppError('The health information enquiry inbox is not configured.',503,'ENQUIRY_INBOX_UNAVAILABLE');
+  const medicines=medicineNames.length?medicineNames.join(', '):'No medicine examples are currently listed.';
+  return send({
+    to:[{email:inbox,name:'EMBODY Health Information',contactPixelTrackingConsent:false}],
+    replyTo:{email,name},
+    subject:`Health information enquiry: ${category} — ${reference}`,
+    tags:['transactional','health-information-enquiry'],
+    headers:{'Idempotency-Key':`health-info-enquiry-${reference}`},
+    textContent:`A general health information enquiry was submitted. Reference: ${reference}. From: ${name} (${email}). Section: ${group}. Topic: ${category}. Published description: ${description}. Medicine names shown: ${medicines}. General message: ${message}. Topic page: ${categoryUrl}. Medicine names are informational examples, not recommendations or an offer to sell. This channel is not for medical advice, emergencies, prescriptions, or protected health information.`,
+    htmlContent:`<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#0b1f2a"><p style="color:#167a72;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">EMBODY health information enquiry</p><h1 style="font-size:25px">${escapeHtml(category)}</h1><p><strong>Reference:</strong> ${escapeHtml(reference)}</p><table style="width:100%;border-collapse:collapse"><tr><td style="padding:8px 0;color:#68777c">From</td><td style="padding:8px 0">${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</td></tr><tr><td style="padding:8px 0;color:#68777c">Section</td><td style="padding:8px 0">${escapeHtml(group)}</td></tr><tr><td style="padding:8px 0;color:#68777c">Topic</td><td style="padding:8px 0">${escapeHtml(category)}</td></tr></table><p><strong>Published topic details</strong><br>${escapeHtml(description)}</p><p><strong>Medicine names shown</strong><br>${escapeHtml(medicines)}</p><p><strong>Customer's general question</strong><br>${escapeHtml(message)}</p><p><a href="${escapeHtml(categoryUrl)}">Open this topic on EMBODY</a></p><p style="padding:12px;background:#edf5f2;color:#52666c;font-size:13px">Medicine names are informational examples, not recommendations or an offer to sell. This channel is for general information only. Do not request or send diagnoses, prescriptions, emergency information, or protected health information by email.</p></div>`
+  });
+}
 export async function sendHcpApplicationNotificationEmail({applicationId}){
   const email=env.SUPPORT_NOTIFICATION_EMAIL||env.ADMIN_SEED_EMAIL;
   if(!email)return{messageId:'hcp-notification-unconfigured',skipped:true};

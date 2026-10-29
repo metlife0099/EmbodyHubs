@@ -69,6 +69,7 @@ export const api = {
   healthInfo: () => request('/health-info'),
   healthInfoNavigation: () => request('/health-info/navigation'),
   healthInfoArticle: slug => request(`/health-info/${encodeURIComponent(slug)}`),
+  healthInfoEnquiry: payload => request('/health-info/enquiries', { method: 'POST', body: JSON.stringify(payload) }),
   cartQuestions: (productSlug) => request(`/questions/cart?productSlug=${encodeURIComponent(productSlug)}`),
   submitCartAnswers: (payload) => request('/questions/cart/responses', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   checkout: (payload,idempotencyKey) => request('/checkout', { method: 'POST', headers: { ...csrfHeaders(),'Idempotency-Key': idempotencyKey }, body: JSON.stringify(payload) }),

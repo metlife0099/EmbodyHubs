@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, Search, ShoppingBag, UserRound, X, ArrowRight, Camera, BriefcaseBusiness, ChevronDown, Stethoscope, ShieldCheck, BadgeCheck, MessagesSquare, Truck } from 'lucide-react';
+import { Menu, Search, ShoppingBag, UserRound, X, ArrowRight, Camera, BriefcaseBusiness, ChevronDown, Stethoscope, ShieldCheck, BadgeCheck, MessagesSquare, Truck, PillBottle, HeartPulse } from 'lucide-react';
 import Brand from './Brand';
 import SeoManager from './SeoManager';
 import { useApp } from '../context/AppContext';
@@ -8,10 +8,30 @@ import CartQuestionnaire from './CartQuestionnaire';
 import LoginRequiredModal from './LoginRequiredModal';
 import NewsletterSignup from './NewsletterSignup';
 import SupportChatWidget from './SupportChatWidget';
+import HealthInfoEnquiryDialog from './HealthInfoEnquiryDialog';
 import { api } from '../services/api';
 
 const nav = [['How it works', '/how-it-works'], ['Compare', '/compare'], ['Learn', '/learn'], ['About', '/about']];
-const healthGroups = { HEALTH_CONDITIONS: 'Health conditions', MEDICATIONS_TREATMENT: 'Medications & treatment', ACCESS_AFFORDABILITY: 'Access & affordability', WELL_BEING: 'Well-being' };
+const healthGroups = {
+  HEALTH_CONDITIONS: { label: 'Health conditions', description: 'Learn about common health conditions and related care.', Icon: Stethoscope },
+  MEDICATIONS_TREATMENT: { label: 'Medications & treatment', description: 'Clear information about medicines and how they are used.', Icon: PillBottle },
+  ACCESS_AFFORDABILITY: { label: 'Access & affordability', description: 'Understand insurance, coverage options, and access to care.', Icon: ShieldCheck },
+  WELL_BEING: { label: 'Well-being', description: 'Practical information that supports healthier everyday habits.', Icon: HeartPulse }
+};
+const healthMenuDescriptions = {
+  diabetes: 'Diabetes: the essential basics',
+  'heart-blood-pressure': 'Understanding high blood pressure',
+  allergies: 'Allergy basics and emergency warning signs',
+  'autoimmune-health': 'What does autoimmune disease mean?',
+  'pain-relief-medicines': 'Commonly used for moderate to severe pain',
+  'anxiety-mental-health': 'Medicines used for anxiety and related conditions',
+  'glp-1-medicines': 'Approved products and safety information',
+  'other-common-medicines': 'Information on widely prescribed medicines',
+  'insurance-medicare': 'Prescription coverage questions to ask',
+  'generic-brand-name': 'Learn about generic and brand medicines',
+  telehealth: 'How to prepare for a telehealth visit',
+  sleep: 'Healthy sleep basics', nutrition: 'Build a balanced eating pattern', 'healthy-weight': 'Information on weight management medicines'
+};
 
 function MegaWhy({ compact = false }) {
   const reasons = [[ShieldCheck, 'Safety-led design'], [BadgeCheck, 'Clear information'], [MessagesSquare, 'Human support'], [Truck, 'Tracked delivery']];
@@ -29,12 +49,13 @@ export default function Layout({ children }) {
   const [careOpen, setCareOpen] = useState(false);
   const [healthOpen, setHealthOpen] = useState(false);
   const [healthNavigation, setHealthNavigation] = useState([]);
+  const [healthEnquiry, setHealthEnquiry] = useState(null);
   const careNavRef = useRef(null);
   const healthNavRef = useRef(null);
   const { count, notice, catalogProducts, catalogCategories } = useApp();
   const location = useLocation();
 
-  useEffect(() => { setOpen(false); setSearch(false); setCareOpen(false); setHealthOpen(false); window.scrollTo({ top: 0, behavior: 'instant' }); }, [location.pathname, location.search]);
+  useEffect(() => { setOpen(false); setSearch(false); setCareOpen(false); setHealthOpen(false); setHealthEnquiry(null); window.scrollTo({ top: 0, behavior: 'instant' }); }, [location.pathname, location.search]);
   useEffect(() => { api.healthInfoNavigation().then(result => setHealthNavigation(result.data || [])).catch(() => setHealthNavigation([])); }, []);
   useEffect(() => {
     const close = event => {
@@ -68,9 +89,13 @@ export default function Layout({ children }) {
           <div className={`health-nav ${healthOpen ? 'is-open' : ''}`} ref={healthNavRef}>
             <button className="health-nav-trigger" onClick={() => { setCareOpen(false); setHealthOpen(value => !value); }} aria-expanded={healthOpen} aria-controls="health-mega-menu">Health info <ChevronDown/></button>
             <div className="health-mega" id="health-mega-menu" aria-hidden={!healthOpen}>
-              <div className="health-mega-intro"><div className="mega-intro-image"><img src="/images/hcp-consultation.png" alt="Healthcare professional in conversation" loading="lazy"/></div><span className="eyebrow">EMBODY Health Info</span><h2>Useful information, in plain language.</h2><p>Source-backed guides for better conversations with licensed professionals.</p><Link className="text-link" to="/health-info">Explore health info <ArrowRight/></Link></div>
-              <div className="health-mega-groups">{Object.entries(healthGroups).map(([group, label], index) => { const categories = healthNavigation.filter(item => item.navigationGroup === group); return <section key={group}><div className={`health-mega-art health-mega-art--${index}`} aria-hidden="true"/><h3>{label}</h3>{categories.map(category => <div className="health-mega-category" key={category.id}><Link to={`/health-info?category=${category.slug}`}>{category.name}</Link>{category.articles?.slice(0, 2).map(article => <Link className="health-mega-article" to={`/health-info/${article.slug}`} key={article.slug}>{article.title}</Link>)}</div>)}</section>; })}</div>
-              <MegaWhy compact/>
+              <div className="health-mega-intro"><span className="eyebrow">EMBODY Health Info</span><h2>Better health information, in plain language.</h2><p>Explore reliable, easy-to-understand guides designed to support informed conversations with licensed professionals.</p><Link className="btn btn-primary" to="/health-info">Explore all health info <ArrowRight/></Link><aside><BadgeCheck/><p><b>General education only.</b> Enquiries are not medical advice and should never include private health information.</p></aside></div>
+              <div className="health-mega-groups">{Object.entries(healthGroups).map(([group, meta]) => {
+                const hasPainCategory = healthNavigation.some(item => item.slug === 'pain-relief-medicines');
+                const categories = healthNavigation.filter(item => item.navigationGroup === group).filter(item => !(hasPainCategory && item.slug === 'medication-basics'));
+                const Icon = meta.Icon;
+                return <section key={group}><header className="health-group-heading"><span><Icon/></span><div><h3>{meta.label}</h3><p>{meta.description}</p></div></header>{categories.map(category => { const description = healthMenuDescriptions[category.slug] || category.description; const title = category.articles?.length ? <Link className="health-category-title" to={`/health-info?category=${category.slug}`}>{category.name}</Link> : <strong className="health-category-title">{category.name}</strong>; return <article className="health-mega-category" key={category.id}>{title}<p>{description}</p>{category.medicineExamples?.length > 0 && <div className="health-category-pills" aria-label={`Medicine examples for ${category.name}`}>{category.medicineExamples.slice(0, 4).map(medicine => <span key={medicine}>{medicine}</span>)}</div>}<button className="health-enquiry-button" onClick={() => { setHealthOpen(false); setHealthEnquiry({ category: { ...category, description }, groupLabel: meta.label }); }}>Enquiry more <ArrowRight/></button></article>; })}</section>;
+              })}</div>
             </div>
           </div>
           {nav.slice(2).map(([label, path]) => <NavLink key={path} to={path}>{label}</NavLink>)}
@@ -99,6 +124,7 @@ export default function Layout({ children }) {
     {notice && <div className={`toast toast--${notice.type}`} role="status">{notice.message}</div>}
     <CartQuestionnaire/>
     <LoginRequiredModal/>
+    {healthEnquiry && <HealthInfoEnquiryDialog key={healthEnquiry.category.id} enquiry={healthEnquiry} onClose={() => setHealthEnquiry(null)}/>}
     <SupportChatWidget/>
   </>;
 }
