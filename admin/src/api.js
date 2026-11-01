@@ -65,4 +65,8 @@ export const adminApi={
   ,membershipPlans:()=>request('/admin/membership-plans')
   ,createMembershipPlan:payload=>request('/admin/membership-plans',{method:'POST',mutate:true,body:JSON.stringify(payload)})
   ,updateMembershipPlan:(id,payload)=>request(`/admin/membership-plans/${id}`,{method:'PUT',mutate:true,body:JSON.stringify(payload)})
+  ,zelleConfig:()=>request('/admin/payments/zelle/config')
+  ,saveZelleConfig:payload=>request('/admin/payments/zelle/config',{method:'PUT',mutate:true,body:JSON.stringify(payload)})
+  ,zellePayments:({status='ALL',q=''}={})=>{const params=new URLSearchParams({status});if(q)params.set('q',q);return request(`/admin/payments/zelle?${params}`)}
+  ,reconcileZellePayment:(id,payload)=>request(`/admin/payments/zelle/${id}/reconcile`,{method:'POST',mutate:true,body:JSON.stringify(payload)})
 };

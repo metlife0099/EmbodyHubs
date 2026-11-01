@@ -26,7 +26,7 @@ const schema=new mongoose.Schema({
   preferredName:{type:String,trim:true,maxLength:60,default:''},
   phone:{type:String,trim:true,maxLength:24,default:''},
   defaultShippingAddress:addressSchema,
-  role:{type:String,enum:['CUSTOMER','SUPER_ADMIN','PHARMACY_ADMIN','PHARMACIST','FULFILLMENT','SUPPORT','AUDITOR'],default:'CUSTOMER'},
+    role:{type:String,enum:['CUSTOMER','SUPER_ADMIN','PHARMACY_ADMIN','PHARMACIST','FULFILLMENT','FINANCE','SUPPORT','AUDITOR'],default:'CUSTOMER'},
   permissions:[String],
   emailVerifiedAt:Date,
   adultConfirmedAt:{type:Date,required:true},

@@ -17,9 +17,14 @@ import { getOperationsDashboard,listAuditEvents } from '../controllers/operation
 import { getAdminSupportCase,listAdminSupportCases,replyToAdminSupportCase,updateAdminSupportCase } from '../controllers/supportCaseController.js';
 import { createOperationalException,getPartnerPerformance,listOperationalExceptions,retryPrescriptionHandoff,suspendPartnerRouting,updateOperationalException } from '../controllers/operationalExceptionController.js';
 import { listAdminMembershipPlans,saveAdminMembershipPlan } from '../controllers/membershipController.js';
+import { getZelleConfiguration,listZellePayments,reconcileZellePayment,updateZelleConfiguration } from '../controllers/zellePaymentController.js';
 
 export const adminRoutes=Router();
 adminRoutes.use(authenticate);
+adminRoutes.get('/payments/zelle/config',authorize('payments:configure'),asyncHandler(getZelleConfiguration));
+adminRoutes.put('/payments/zelle/config',requireCsrf,authorize('payments:configure'),asyncHandler(updateZelleConfiguration));
+adminRoutes.get('/payments/zelle',authorize('payments:read','payments:reconcile'),asyncHandler(listZellePayments));
+adminRoutes.post('/payments/zelle/:id/reconcile',requireCsrf,authorize('payments:reconcile'),asyncHandler(reconcileZellePayment));
 adminRoutes.get('/metrics',authorize('orders:read','audit:read'),asyncHandler(metrics));
 adminRoutes.get('/operations',authorize('reports:read','audit:read'),asyncHandler(getOperationsDashboard));
 adminRoutes.get('/exceptions',authorize('exceptions:read','reports:read'),asyncHandler(listOperationalExceptions));

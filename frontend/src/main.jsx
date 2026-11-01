@@ -8,6 +8,7 @@ import OnlineCare from './pages/OnlineCare';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import ZellePayment from './pages/ZellePayment';
 import Auth from './pages/Auth';
 import Account from './pages/Account';
 import SupportChat from './pages/SupportChat';
@@ -21,7 +22,7 @@ import { PrivacyPolicy,TermsConditions } from './pages/LegalPages';
 import './styles.css';
 
 createRoot(document.getElementById('root')).render(<React.StrictMode><BrowserRouter><AppProvider><Layout><Routes>
-  <Route path="/" element={<Home/>}/><Route path="/online-care" element={<OnlineCare/>}/><Route path="/shop" element={<Navigate replace to="/online-care"/>}/><Route path="/categories/:slug" element={<OnlineCare/>}/><Route path="/products/:slug" element={<ProductDetail/>}/><Route path="/search" element={<SearchResults/>}/><Route path="/cart" element={<Cart/>}/><Route path="/checkout" element={<Checkout/>}/>
+  <Route path="/" element={<Home/>}/><Route path="/online-care" element={<OnlineCare/>}/><Route path="/shop" element={<Navigate replace to="/online-care"/>}/><Route path="/categories/:slug" element={<OnlineCare/>}/><Route path="/products/:slug" element={<ProductDetail/>}/><Route path="/search" element={<SearchResults/>}/><Route path="/cart" element={<Cart/>}/><Route path="/checkout" element={<Checkout/>}/><Route path="/payment/zelle/:orderId" element={<ZellePayment/>}/>
   <Route path="/login" element={<Auth/>}/><Route path="/register" element={<Auth mode="register"/>}/><Route path="/forgot-password" element={<Auth mode="forgot"/>}/><Route path="/reset-password/:token" element={<Auth mode="forgot"/>}/><Route path="/account/*" element={<Account/>}/><Route path="/orders/*" element={<Account/>}/><Route path="/support/chat" element={<SupportChat/>}/>
   <Route path="/professionals" element={<ProfessionalsLanding/>}/><Route path="/professionals/apply" element={<ProfessionalApplication/>}/>
   <Route path="/partner-with-us" element={<PartnershipLanding/>}/><Route path="/partner-with-us/apply" element={<PartnershipApplication/>}/><Route path="/partner-with-us/verify" element={<PartnershipVerification/>}/><Route path="/partner-account" element={<PartnerAccount/>}/>
