@@ -23,8 +23,8 @@ const staticPages={
   '/partner-with-us/apply':{title:'Secure Partnership Application | Embody Hubs',description:'Submit a secure U.S. pharmacy or pharmacist partnership application for licensing, business, and compliance review.',label:'Partnership application'},
   '/partner-with-us/verify':{title:'Verify Partnership Application Email | Embody Hubs',description:'Verify the professional email associated with an Embody Hubs partnership application.',label:'Partnership email verification'},
   '/partner-account':{title:'Secure Partner Account | Embody Hubs',description:'Access the administrator-approved Embody Hubs pharmacy partner workspace.',label:'Partner account'},
-  '/policies/privacy':{title:'Privacy Notice | Embody Hubs',description:'Review how Embody Hubs limits, protects, and handles account and storefront information.',label:'Privacy notice'},
-  '/policies/terms':{title:'Terms of Service | Embody Hubs',description:'Review the terms and important limitations that apply when using the Embody Hubs storefront.',label:'Terms of service'},
+  '/policies/privacy':{title:'Privacy Policy | Embody Hubs',description:'Learn how Embody Hubs collects, uses, shares, secures, and retains personal and health-related information, and review your U.S. privacy rights.',label:'Privacy Policy'},
+  '/policies/terms':{title:'Terms & Conditions | Embody Hubs',description:'Review the eligibility, pharmacy, prescription, payment, subscription, shipping, account, safety, and dispute terms for using Embody Hubs.',label:'Terms & Conditions'},
   '/policies/shipping':{title:'Shipping Policy | Embody Hubs',description:'Learn about Embody Hubs order verification, fulfillment gates, carrier estimates, and shipping limitations.',label:'Shipping policy'},
   '/policies/prescription':{title:'Prescription Policy | Embody Hubs',description:'Understand the licensing, prescription, pharmacist, and destination checks required before prescription fulfillment.',label:'Prescription policy'}
 };
