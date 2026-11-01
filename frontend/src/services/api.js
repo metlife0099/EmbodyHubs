@@ -43,6 +43,7 @@ export const api = {
   logout: async() => {await refreshSession().catch(()=>null);return request('/auth/logout',{method:'POST',headers:csrfHeaders()},false)},
   account: () => request('/account'),
   accountOrders: (page=1,limit=10) => request(`/account/orders?page=${page}&limit=${limit}`),
+  accountOrder: id => request(`/account/orders/${encodeURIComponent(id)}`),
   updateProfile: (payload) => request('/account/profile', { method: 'PATCH', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   updatePreferences: (payload) => request('/account/preferences', { method: 'PATCH', headers: csrfHeaders(), body: JSON.stringify(payload) }),
   changePassword: (payload) => request('/account/password', { method: 'POST', headers: csrfHeaders(), body: JSON.stringify(payload) }),

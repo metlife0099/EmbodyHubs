@@ -16,6 +16,7 @@ import { SavingsLedger } from '../models/SavingsLedger.js';
 import { pricingFingerprint } from '../services/pricingFingerprintService.js';
 import { env } from '../config/env.js';
 import { createZellePaymentSnapshot,enabledZelleConfiguration } from '../services/zellePaymentService.js';
+import { deliverOrderPlacedNotification } from '../services/orderNotificationService.js';
 
 const planSelectionSchema=z.object({sourceProductSlug:z.string().regex(/^[a-z0-9-]{2,100}$/),dosingFrequency:z.string().trim().min(1).max(60),doseLabel:z.string().trim().min(1).max(60),shippingFrequency:z.string().trim().min(1).max(60),shippingMonths:z.number().int().min(1).max(12)});
 const checkoutSchema=z.object({items:z.array(z.object({productSlug:z.string().regex(/^[a-z0-9-]{2,100}$/),variantId:z.string().regex(/^[a-f\d]{24}$/i).optional(),quantity:z.number().int().min(1).max(1200),questionnaireResponseId:z.string().regex(/^[a-f\d]{24}$/i).nullable().optional(),planSelection:planSelectionSchema.optional()})).min(1).max(40),shippingAddress:z.object({name:z.string().trim().min(2).max(120),line1:z.string().trim().min(3).max(160),line2:z.string().trim().max(160).optional().default(''),city:z.string().trim().min(2).max(100),state:z.string().regex(/^[A-Z]{2}$/),postalCode:z.string().regex(/^\d{5}(-\d{4})?$/),country:z.literal('US').default('US')}),paymentMethod:z.enum(['SANDBOX','ZELLE']).default('SANDBOX'),paymentConfirmationId:z.string().min(3).max(200).optional(),priceQuoteId:z.string().regex(/^[a-f\d]{24}$/i).optional()}).superRefine((data,ctx)=>{const keys=data.items.map(item=>{const plan=item.planSelection;return`${item.productSlug}:${item.variantId||''}:${plan?[plan.dosingFrequency,plan.doseLabel,plan.shippingFrequency].join('|'):''}`});if(new Set(keys).size!==keys.length)ctx.addIssue({code:'custom',path:['items'],message:'Each configured product option may appear only once per checkout.'});if(data.paymentMethod==='SANDBOX'&&!data.paymentConfirmationId)ctx.addIssue({code:'custom',path:['paymentConfirmationId'],message:'Payment confirmation is required.'})});
@@ -79,7 +80,8 @@ export async function createCheckoutOrder(req,res){
       await AuditLog.create([{actor:req.user.sub,action:'ORDER_CREATED',resourceType:'Order',resourceId:String(order._id),requestId:req.id,metadata:{orderNumber:order.number,itemCount:orderItems.length,totalCents,paymentMethod:data.paymentMethod}}],{session});
     });
   }finally{await session.endSession()}
-  res.status(201).json({success:true,data:publicOrder(order.toObject()),message:pendingZelle?'Payment request created. Complete the transfer in your bank and wait for independent verification.':'Payment confirmed, inventory allocated, and order created.'});
+  let emailNotification='SENT';try{await deliverOrderPlacedNotification(order._id)}catch(error){emailNotification='FAILED';req.log?.warn({err:error,orderId:String(order._id)},'Order confirmation email delivery failed')}
+  res.status(201).json({success:true,data:{...publicOrder(order.toObject()),emailNotification},message:pendingZelle?'Payment request created. Complete the transfer in your bank and wait for independent verification.':'Payment confirmed, inventory allocated, and order created.'});
 }
 
 function publicOrder(order){return{id:String(order._id),number:order.number,status:order.status,paymentStatus:order.paymentStatus,paymentProvider:order.payment?.provider,paymentReference:order.payment?.paymentReference,totalCents:order.totalCents,createdAt:order.createdAt}}

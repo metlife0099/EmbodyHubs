@@ -3,13 +3,15 @@ import { Order } from '../models/Order.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { SHIPPING_STATES } from '../constants/workflow.js';
 import { AppError } from '../utils/AppError.js';
+import { deliverShipmentNotification } from '../services/orderNotificationService.js';
 
 const objectId=z.string().regex(/^[a-f\d]{24}$/i);
 const shippingQuery=z.object({page:z.coerce.number().int().positive().default(1),limit:z.coerce.number().int().min(1).max(100).default(25),q:z.string().trim().max(100).optional().default(''),status:z.enum(['ALL','AWAITING_REVIEW','READY','IN_TRANSIT','DELIVERED','EXCEPTION']).default('ALL')});
-const shipmentSchema=z.object({provider:z.enum(['USPS','UPS','FEDEX','DHL','OTHER']),trackingNumber:z.string().trim().toUpperCase().regex(/^[A-Z0-9 -]{6,40}$/),status:z.enum(SHIPPING_STATES),description:z.string().trim().min(3).max(240)});
+export const INDIA_POST_TRACKING=/^[A-Z]{2}\d{9}IN$/;
+const shipmentSchema=z.object({provider:z.literal('INDIA_POST'),trackingNumber:z.string().trim().toUpperCase().transform(value=>value.replace(/\s+/g,'')).refine(value=>INDIA_POST_TRACKING.test(value),'Enter a valid 13-character India Post consignment ID, for example EE123456789IN.'),status:z.enum(SHIPPING_STATES),description:z.string().trim().min(3).max(240)});
 export const SHIPPING_TRANSITIONS={PRE_SHIPMENT:['PRE_SHIPMENT','LABEL_CREATED'],LABEL_CREATED:['LABEL_CREATED','ACCEPTED','IN_TRANSIT','DELIVERY_EXCEPTION'],ACCEPTED:['ACCEPTED','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERY_EXCEPTION'],IN_TRANSIT:['IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED','DELIVERY_EXCEPTION','RETURNED_TO_SENDER','UNKNOWN_DELAYED'],OUT_FOR_DELIVERY:['OUT_FOR_DELIVERY','DELIVERED','DELIVERY_EXCEPTION','UNKNOWN_DELAYED'],DELIVERY_EXCEPTION:['DELIVERY_EXCEPTION','IN_TRANSIT','OUT_FOR_DELIVERY','RETURNED_TO_SENDER'],UNKNOWN_DELAYED:['UNKNOWN_DELAYED','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED','DELIVERY_EXCEPTION','RETURNED_TO_SENDER'],DELIVERED:['DELIVERED'],RETURNED_TO_SENDER:['RETURNED_TO_SENDER']};
 
-export function canTransitionShipment(from,to){return !from?['PRE_SHIPMENT','LABEL_CREATED'].includes(to):Boolean(SHIPPING_TRANSITIONS[from]?.includes(to))}
+export function canTransitionShipment(from,to){return !from?['PRE_SHIPMENT','LABEL_CREATED','ACCEPTED','IN_TRANSIT'].includes(to):Boolean(SHIPPING_TRANSITIONS[from]?.includes(to))}
 function shipmentBucket(order){const value=order.shipment?.status;if(value==='DELIVERED')return'DELIVERED';if(['DELIVERY_EXCEPTION','RETURNED_TO_SENDER','UNKNOWN_DELAYED'].includes(value))return'EXCEPTION';if(['ACCEPTED','IN_TRANSIT','OUT_FOR_DELIVERY'].includes(value))return'IN_TRANSIT';if(order.status==='APPROVED_FOR_FULFILLMENT'||['PRE_SHIPMENT','LABEL_CREATED'].includes(value))return'READY';return'AWAITING_REVIEW'}
 function shippingOrder(order){return{id:String(order._id),number:order.number,status:order.status,paymentStatus:order.paymentStatus,pharmacyReviewStatus:order.pharmacyReviewStatus,prescriptionStatus:order.prescriptionStatus,customer:order.user&&{name:`${order.user.firstName} ${order.user.lastName}`.trim(),email:order.user.email},items:order.items.map(item=>({name:item.name,sku:item.sku,variantLabel:item.variantLabel||[item.dosage,item.form,item.packSize].filter(Boolean).join(' · '),quantity:item.quantity,prescriptionRequired:item.prescriptionRequired})),shippingAddress:order.shippingAddress,shipment:order.shipment||null,bucket:shipmentBucket(order),createdAt:order.createdAt,updatedAt:order.updatedAt}}
 
@@ -41,21 +43,22 @@ export async function updateShipment(req,res){
   if(!order)throw new AppError('Order not found.',404,'ORDER_NOT_FOUND');
   if(order.paymentStatus!=='SUCCEEDED'||!['APPROVED_FOR_FULFILLMENT','FULFILLING','SHIPPED','DELIVERED'].includes(order.status))throw new AppError('Authorize this paid order before creating a shipment.',409,'FULFILLMENT_NOT_AUTHORIZED');
   if(!canTransitionShipment(order.shipment?.status,data.status))throw new AppError(`Shipment cannot move from ${order.shipment?.status} to ${data.status}.`,409,'INVALID_SHIPMENT_TRANSITION');
-  const trackingNumber=data.trackingNumber.replace(/\s+/g,'');const trackingOwner=await Order.exists({_id:{$ne:order._id},'shipment.provider':data.provider,'shipment.trackingNumber':trackingNumber});
+  const trackingNumber=data.trackingNumber;const trackingOwner=await Order.exists({_id:{$ne:order._id},'shipment.provider':data.provider,'shipment.trackingNumber':trackingNumber});
   if(trackingOwner)throw new AppError('That carrier tracking number is already assigned to another order.',409,'TRACKING_ALREADY_ASSIGNED');
-  const now=new Date();order.shipment.provider=data.provider;order.shipment.trackingNumber=trackingNumber;order.shipment.status=data.status;order.shipment.updatedBy=req.user.sub;order.shipment.events.push({status:data.status,description:data.description,occurredAt:now,actor:req.user.sub});
+  const now=new Date();const wasShipped=Boolean(order.shipment?.shippedAt);order.shipment.provider=data.provider;order.shipment.trackingNumber=trackingNumber;order.shipment.status=data.status;order.shipment.updatedBy=req.user.sub;order.shipment.events.push({status:data.status,description:data.description,occurredAt:now,actor:req.user.sub});
   if(['PRE_SHIPMENT','LABEL_CREATED'].includes(data.status))order.status='FULFILLING';
   if(['ACCEPTED','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERY_EXCEPTION','RETURNED_TO_SENDER','UNKNOWN_DELAYED'].includes(data.status)){order.status='SHIPPED';order.shipment.shippedAt=order.shipment.shippedAt||now}
   if(data.status==='DELIVERED'){order.status='DELIVERED';order.shipment.shippedAt=order.shipment.shippedAt||now;order.shipment.deliveredAt=now}
   await order.save();
   await AuditLog.create({actor:req.user.sub,action:'SHIPMENT_UPDATED',resourceType:'Order',resourceId:String(order._id),requestId:req.id,metadata:{orderNumber:order.number,provider:data.provider,trackingNumber:data.trackingNumber,status:data.status}});
-  res.json({success:true,data:shippingOrder(order.toObject()),message:'Shipment timeline updated.'});
+  let emailNotification=order.notifications?.shipped?.status||'PENDING';if(!wasShipped&&order.shipment.shippedAt){try{await deliverShipmentNotification(order._id);emailNotification='SENT'}catch(error){emailNotification='FAILED';req.log?.warn({err:error,orderId:String(order._id)},'Shipment email delivery failed')}}
+  res.json({success:true,data:{...shippingOrder(order.toObject()),emailNotification},message:emailNotification==='FAILED'?'Shipment recorded. Customer email is queued for retry.':'Shipment timeline updated and customer notification processed.'});
 }
 
 export async function trackShipment(req,res){
   const {number}=z.object({number:z.string().trim().toUpperCase().regex(/^[A-Z0-9 -]{6,40}$/)}).parse(req.params);const normalized=number.replace(/\s+/g,'');
   const order=await Order.findOne({'shipment.trackingNumber':normalized}).select('shipment').lean();
   if(!order?.shipment?.status)throw new AppError('No shipment was found for that tracking number.',404,'TRACKING_NOT_FOUND');
-  const carrierUrls={USPS:`https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(normalized)}`,UPS:`https://www.ups.com/track?tracknum=${encodeURIComponent(normalized)}`,FEDEX:`https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(normalized)}`,DHL:`https://www.dhl.com/us-en/home/tracking.html?tracking-id=${encodeURIComponent(normalized)}`};
+  const carrierUrls={INDIA_POST:'https://www.indiapost.gov.in/_layouts/15/DOP.Portal.Tracking/TrackConsignment.aspx',USPS:`https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(normalized)}`,UPS:`https://www.ups.com/track?tracknum=${encodeURIComponent(normalized)}`,FEDEX:`https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(normalized)}`,DHL:`https://www.dhl.com/us-en/home/tracking.html?tracking-id=${encodeURIComponent(normalized)}`};
   res.json({success:true,data:{provider:order.shipment.provider,trackingNumber:normalized,status:order.shipment.status,events:[...(order.shipment.events||[])].sort((a,b)=>new Date(b.occurredAt)-new Date(a.occurredAt)).map(event=>({status:event.status,description:event.description,occurredAt:event.occurredAt})),carrierUrl:carrierUrls[order.shipment.provider]||null}});
 }

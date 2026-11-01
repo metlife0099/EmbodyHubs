@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { inventoryStatus } from '../src/controllers/inventoryController.js';
-import { canTransitionShipment } from '../src/controllers/shippingController.js';
+import { canTransitionShipment,INDIA_POST_TRACKING } from '../src/controllers/shippingController.js';
 import { allowedDosesForFrequency,pricingMatrixStatus,productRemovalMode } from '../src/controllers/productController.js';
 import { selectCheckoutVariant,validatePlanSelection,variantDisplayName } from '../src/controllers/checkoutController.js';
 import { comparisonInputSchema } from '../src/controllers/comparisonController.js';
@@ -15,10 +15,19 @@ test('inventory status uses available stock after reservations',()=>{
 
 test('shipment transition policy permits forward progress and rejects regressions',()=>{
   assert.equal(canTransitionShipment(undefined,'LABEL_CREATED'),true);
+  assert.equal(canTransitionShipment(undefined,'IN_TRANSIT'),true);
   assert.equal(canTransitionShipment('LABEL_CREATED','IN_TRANSIT'),true);
   assert.equal(canTransitionShipment('IN_TRANSIT','DELIVERED'),true);
   assert.equal(canTransitionShipment('DELIVERED','IN_TRANSIT'),false);
   assert.equal(canTransitionShipment('RETURNED_TO_SENDER','DELIVERED'),false);
+});
+
+test('India Post fulfillment accepts only canonical 13-character consignment IDs',()=>{
+  assert.equal(INDIA_POST_TRACKING.test('EE123456789IN'),true);
+  assert.equal(INDIA_POST_TRACKING.test('CP987654321IN'),true);
+  assert.equal(INDIA_POST_TRACKING.test('1234567890123'),false);
+  assert.equal(INDIA_POST_TRACKING.test('EE12345678IN'),false);
+  assert.equal(INDIA_POST_TRACKING.test('EE123456789US'),false);
 });
 
 test('product removal preserves regulated commerce history',()=>{
