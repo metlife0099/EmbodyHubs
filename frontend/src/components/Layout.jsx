@@ -10,6 +10,7 @@ import NewsletterSignup from './NewsletterSignup';
 import SupportChatWidget from './SupportChatWidget';
 import HealthInfoEnquiryDialog from './HealthInfoEnquiryDialog';
 import { api } from '../services/api';
+import './UtilityBar.css';
 
 const nav = [['How it works', '/how-it-works'], ['Compare', '/compare'], ['Learn', '/learn'], ['About', '/about']];
 const healthGroups = {
@@ -70,8 +71,11 @@ export default function Layout({ children }) {
   return <>
     <SeoManager/>
     <a className="skip-link" href="#main">Skip to content</a>
-    <div className="professional-switch"><Link to="/partner-with-us"><Stethoscope/><span>Are you a pharmacy or healthcare professional?</span><b>Partner with Embody Hubs</b><ArrowRight/></Link></div>
-    <div className="announcement">Free shipping on orders over $50 <span>•</span> <Link to="/how-it-works">See how pharmacy service works <ArrowRight size={14}/></Link></div>
+    <div className="site-utility-bar" aria-label="Store announcements">
+      <Link className="utility-professional" to="/partner-with-us"><Stethoscope/><span>Are you a pharmacy or healthcare professional?</span><b>Partner with Embody Hubs</b><ArrowRight/></Link>
+      <i aria-hidden="true"/>
+      <div className="utility-shipping"><Truck/><span>Free shipping on orders over $50</span><b aria-hidden="true">•</b><Link to="/how-it-works">See how pharmacy service works <ArrowRight/></Link></div>
+    </div>
     <header className="site-header">
       <div className="header-inner">
         <button className="icon-btn mobile-only" onClick={() => setOpen(!open)} aria-label="Toggle menu" aria-expanded={open}>{open ? <X/> : <Menu/>}</button>

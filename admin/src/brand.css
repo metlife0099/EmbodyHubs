@@ -20,6 +20,39 @@
   filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.28));
 }
 
+.login-wordmark,
+.admin-wordmark {
+  align-items: baseline;
+  display: inline-flex;
+  gap: 5px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.login-wordmark i,
+.login-wordmark em,
+.admin-wordmark b,
+.admin-wordmark em {
+  font-style: normal;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.login-wordmark i,
+.admin-wordmark b { color: #0b1f2a; }
+.login-wordmark em,
+.admin-wordmark em { color: #267a72; }
+
+.login-brand--light > span,
+.admin-brand > span {
+  background: #f7f4ec;
+  border-radius: 4px;
+  padding: 7px 9px;
+}
+
+.login-brand--light small,
+.admin-brand small { color: #54716c; }
+
 @media (max-width: 560px) {
   .admin-brand-logo {
     width: 38px;

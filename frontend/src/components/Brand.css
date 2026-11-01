@@ -10,9 +10,36 @@
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
 }
 
+.brand-wordmark {
+  align-items: baseline;
+  display: inline-flex;
+  gap: 5px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.brand-wordmark b,
+.brand-wordmark strong {
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.brand-wordmark b { color: #0b1f2a; }
+.brand-wordmark strong { color: #267a72; }
+
+.brand--light {
+  background: #f7f4ec;
+  border-radius: 5px;
+  padding: 8px 12px;
+}
+
 @media (max-width: 740px) {
   .brand-logo {
     width: 35px;
     height: 35px;
   }
+
+  .brand-wordmark b,
+  .brand-wordmark strong { font-size: 13px; }
 }
