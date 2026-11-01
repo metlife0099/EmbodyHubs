@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getOrder,listCustomers,listOrders,metrics } from '../controllers/adminController.js';
 import { createCampaign,createSubscriberGroup,deleteCampaign,deleteSubscriberGroup,listCampaigns,listSubscriberGroups,listSubscribers,sendCampaign,updateCampaign,updateSubscriberGroup } from '../controllers/newsletterController.js';
 import { listInventory,adjustInventory } from '../controllers/inventoryController.js';
-import { authorizeFulfillment,listShipments,updateShipment } from '../controllers/shippingController.js';
+import { authorizeFulfillment,listShipments,updateIndiaPostDetails,updateShipment } from '../controllers/shippingController.js';
 import { authenticate,authorize } from '../middleware/auth.js';
 import { requireCsrf } from '../middleware/csrf.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -91,6 +91,7 @@ adminRoutes.post('/inventory/:productId/:variantId/adjust',requireCsrf,authorize
 adminRoutes.get('/shipping',authorize('shipping:read','shipping:write','orders:read','orders:fulfillable'),asyncHandler(listShipments));
 adminRoutes.post('/shipping/:id/authorize',requireCsrf,authorize('fulfillment:authorize','fulfillment:write'),asyncHandler(authorizeFulfillment));
 adminRoutes.patch('/shipping/:id',requireCsrf,authorize('shipping:write'),asyncHandler(updateShipment));
+adminRoutes.patch('/shipping/:id/details',requireCsrf,authorize('shipping:write'),asyncHandler(updateIndiaPostDetails));
 adminRoutes.get('/orders',authorize('orders:read'),asyncHandler(listOrders));
 adminRoutes.get('/orders/:id',authorize('orders:read'),asyncHandler(getOrder));
 adminRoutes.get('/chat/summary',authorize('chat:read','support:write'),asyncHandler(adminChatSummary));
