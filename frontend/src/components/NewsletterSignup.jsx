@@ -22,7 +22,7 @@ export default function NewsletterSignup(){
     <div className="newsletter-orbit newsletter-orbit--one" aria-hidden="true"/><div className="newsletter-orbit newsletter-orbit--two" aria-hidden="true"/>
     <div className="newsletter-inner">
       <div className="newsletter-copy">
-        <span className="eyebrow light"><Sparkles/> The EMBODY letter</span>
+        <span className="eyebrow light"><Sparkles/> The Embody Hubs letter</span>
         <h2 id="newsletter-title">Useful health guidance.<br/><em>Never inbox clutter.</em></h2>
         <p>Get practical medication-safety education, thoughtful product updates, and pharmacy news written for everyday decisions.</p>
         <div className="newsletter-benefits" aria-label="Newsletter benefits"><span><BookOpenCheck/> Plain-language guidance</span><span><ShieldCheck/> Privacy-minded delivery</span></div>
@@ -37,7 +37,7 @@ export default function NewsletterSignup(){
             </div>
             {status==='error'&&<p className="newsletter-error" role="alert">{message}</p>}
             <button className="newsletter-submit" disabled={status==='loading'}>{status==='loading'?'Subscribing…':<>Subscribe free <ArrowRight/></>}</button>
-            <p className="newsletter-disclosure">By selecting “Subscribe free,” you agree to receive EMBODY marketing emails. Unsubscribe anytime. Read our <Link to="/policies/privacy">privacy notice</Link>.</p>
+            <p className="newsletter-disclosure">By selecting “Subscribe free,” you agree to receive Embody Hubs marketing emails. Unsubscribe anytime. Read our <Link to="/policies/privacy">privacy notice</Link>.</p>
           </form>
         </>}
       </div>

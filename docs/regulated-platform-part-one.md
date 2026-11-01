@@ -1,6 +1,6 @@
 # Regulated platform — part one implementation map
 
-This document maps the nine-page “EmbodyHubs: Complete platform scope of work” specification (version 1.0, October 27, 2026) to the implementation. The source PDF is treated as a product specification, not as legal advice or authority to operate a pharmacy.
+This document maps the nine-page “Embody Hubs: Complete platform scope of work” specification (version 1.0, October 27, 2026) to the implementation. The source PDF is treated as a product specification, not as legal advice or authority to operate a pharmacy.
 
 ## Operating boundaries
 
@@ -8,9 +8,9 @@ The system has three separate authenticated surfaces:
 
 - Customer Account: secure prescription submission, status history, pharmacy clarification response, cancellation where permitted, privacy requests, account and order management.
 - Pharmacy Partner Portal: assigned-only prescription queue, secure receipt confirmation, professional review, clarification, accept/reject/hold decisions, and audited document access.
-- EmbodyHubs Operations: workflow oversight, eligible-pharmacy routing, operational holds, partner controls, release gates, privacy operations, reporting, alerts, and audit review.
+- Embody Hubs Operations: workflow oversight, eligible-pharmacy routing, operational holds, partner controls, release gates, privacy operations, reporting, alerts, and audit review.
 
-EmbodyHubs operations has no endpoint that records a pharmacy acceptance or rejection. Those decisions are available only through an active, approved pharmacy partner with prescription capability. Operational holds are labeled and stored separately from professional decisions.
+Embody Hubs operations has no endpoint that records a pharmacy acceptance or rejection. Those decisions are available only through an active, approved pharmacy partner with prescription capability. Operational holds are labeled and stored separately from professional decisions.
 
 ## Prescription state machine
 

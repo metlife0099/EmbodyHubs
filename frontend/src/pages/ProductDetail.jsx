@@ -38,7 +38,7 @@ export default function ProductDetail() {
     <section className="pdp-hero-modern">
       <div className={`pdp-gallery product-visual--${product.tone}`}>
         <div className="pdp-gallery-top"><span className="pdp-care-label">{content.careName}</span><span className="rx-pill">{(hasPlanBuilder?!hasAvailableStock:selectedProduct.stock<=0) ? 'Out' : product.prescriptionRequired ? 'Rx' : 'OTC'}</span></div>
-        {product.imageUrl ? <img className="pdp-photo" src={product.imageUrl} alt={product.imageAlt || product.name}/> : <div className="pdp-pack-stage"><div className="product-pack product-pack--large"><small>EMBODY</small><b>{product.name}</b><span>{selectedProduct.dosage} · {selectedProduct.form}</span><i>{selectedProduct.pack}</i></div><div className="pdp-shape pdp-shape--one"/><div className="pdp-shape pdp-shape--two"/></div>}
+        {product.imageUrl ? <img className="pdp-photo" src={product.imageUrl} alt={product.imageAlt || product.name}/> : <div className="pdp-pack-stage"><div className="product-pack product-pack--large"><small>Embody Hubs</small><b>{product.name}</b><span>{selectedProduct.dosage} · {selectedProduct.form}</span><i>{selectedProduct.pack}</i></div><div className="pdp-shape pdp-shape--one"/><div className="pdp-shape pdp-shape--two"/></div>}
         <p>Actual packaging and appearance may vary. Always read the package label.</p>
       </div>
 

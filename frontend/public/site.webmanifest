@@ -1,0 +1,24 @@
+{
+  "name": "Embody Hubs",
+  "short_name": "Embody Hubs",
+  "description": "Everyday health, clearly explained.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f4ec",
+  "theme_color": "#0b1f2a",
+  "icons": [
+    {
+      "src": "/images/embody-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/embody-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

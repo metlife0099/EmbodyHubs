@@ -38,7 +38,7 @@ export function Learn() {
   return <main className="learn-hub">
     <section className="learn-hero">
       <div className="learn-hero__copy">
-        <span className="eyebrow light">EMBODY Learn</span>
+        <span className="eyebrow light">Embody Hubs Learn</span>
         <h1>Better information.<br/><em>Better conversations.</em></h1>
         <p>Clear, source-backed guides to help you understand common concerns, prepare better questions, and talk with a licensed healthcare professional.</p>
         <form className="learn-search" role="search" onSubmit={event => event.preventDefault()}>

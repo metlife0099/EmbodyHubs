@@ -8,7 +8,7 @@ const emptyCategory=()=>({id:'',name:'',slug:'',description:'',medicineExamplesT
 const emptySection=()=>({heading:'',paragraphsText:'',bulletsText:''});
 const emptySource=()=>({label:'',url:''});
 const emptyFaq=()=>({question:'',answer:''});
-const emptyArticle=()=>({id:'',title:'',slug:'',category:'',eyebrow:'Health information',summary:'',heroImageUrl:'/images/pharmacy-still-life-v2.png',heroImageAlt:'Organized pharmacy and wellness items',readMinutes:5,takeawaysText:'',sections:[emptySection()],faq:[],sources:[emptySource()],authorName:'EMBODY Health Editorial Team',reviewerName:'',reviewedAt:'',publishedAt:'',featured:false,sortOrder:0,publicationStatus:'DRAFT',seoTitle:'',seoDescription:'',seoKeywords:'',noIndex:false});
+const emptyArticle=()=>({id:'',title:'',slug:'',category:'',eyebrow:'Health information',summary:'',heroImageUrl:'/images/pharmacy-still-life-v2.png',heroImageAlt:'Organized pharmacy and wellness items',readMinutes:5,takeawaysText:'',sections:[emptySection()],faq:[],sources:[emptySource()],authorName:'Embody Hubs Health Editorial Team',reviewerName:'',reviewedAt:'',publishedAt:'',featured:false,sortOrder:0,publicationStatus:'DRAFT',seoTitle:'',seoDescription:'',seoKeywords:'',noIndex:false});
 const splitLines=value=>value.split('\n').map(item=>item.trim()).filter(Boolean);
 const slugify=value=>value.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,100);
 

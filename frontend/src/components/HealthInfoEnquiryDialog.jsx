@@ -42,7 +42,7 @@ export default function HealthInfoEnquiryDialog({ enquiry, onClose }) {
       {state.reference ? <div className="health-enquiry-success">
         <CheckCircle2/>
         <span>Enquiry sent</span>
-        <h2 id="health-enquiry-title">The EMBODY team has your question.</h2>
+        <h2 id="health-enquiry-title">The Embody Hubs team has your question.</h2>
         <p>Your reference is <strong>{state.reference}</strong>. A team member can reply to the email address you supplied.</p>
         <button className="btn btn-primary" onClick={onClose}>Close</button>
       </div> : <>
@@ -61,7 +61,7 @@ export default function HealthInfoEnquiryDialog({ enquiry, onClose }) {
           <label className="health-enquiry-honeypot" aria-hidden="true">Company website<input name="companyWebsite" value={form.companyWebsite} onChange={update} tabIndex="-1" autoComplete="off"/></label>
           <label className="health-enquiry-consent"><input name="acknowledgedNoSensitiveInfo" type="checkbox" checked={form.acknowledgedNoSensitiveInfo} onChange={update} required/><span><ShieldCheck/>I understand this is for general information only and will not include symptoms, diagnoses, prescriptions, emergencies, or other sensitive health information.</span></label>
           {state.error && <p className="health-enquiry-error" role="alert">{state.error}</p>}
-          <button className="btn btn-primary btn-wide" disabled={state.saving}>{state.saving ? 'Sending securely…' : <>Send enquiry to EMBODY <ArrowRight/></>}</button>
+          <button className="btn btn-primary btn-wide" disabled={state.saving}>{state.saving ? 'Sending securely…' : <>Send enquiry to Embody Hubs <ArrowRight/></>}</button>
         </form>
       </>}
     </section>

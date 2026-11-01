@@ -1,6 +1,6 @@
 # My Health Hub — 64-point implementation register
 
-This register maps the attached product specification to the implemented EmbodyHubs surfaces. The PDF is treated as a product specification; the repository's security, legal, and deployment controls remain authoritative. “Production ready” here means implemented, tested, feature-gated, and ready for required U.S. legal, pharmacy, privacy, accessibility, and security review—not permission to launch regulated functionality without those approvals.
+This register maps the attached product specification to the implemented Embody Hubs surfaces. The PDF is treated as a product specification; the repository's security, legal, and deployment controls remain authoritative. “Production ready” here means implemented, tested, feature-gated, and ready for required U.S. legal, pharmacy, privacy, accessibility, and security review—not permission to launch regulated functionality without those approvals.
 
 ## Requirement traceability
 
@@ -17,7 +17,7 @@ This register maps the attached product specification to the implemented EmbodyH
 | 9 | Verified orders | Dashboard reads server order/payment/shipment state; no client-invented milestones. |
 | 10 | Viewed/Saved/Journey separation | `SavedItem` requires an explicit save; `CustomerJourney` is separate; server recently-viewed tracking is disabled. |
 | 11 | Customer-facing support card | Existing encrypted `SupportCase` workflow exposes reference, subject, state, customer timeline, and next action only. |
-| 12 | Bound assistant architecture | Ask Embody uses authenticated context, policy intent routing, approved read tools, verified sources, and audit events. |
+| 12 | Bound assistant architecture | Ask Embody Hubs uses authenticated context, policy intent routing, approved read tools, verified sources, and audit events. |
 | 13 | Desktop information architecture | Overview, My Journey, My Orders, Saved & Compared, Support, Benefits, Family Access, Privacy & Security; regulated items are contextual. |
 | 14 | Mobile navigation | Fixed Home, Journey, Orders, Support, Account bar on small screens. |
 | 15 | Journey entry points | Products, comparisons, learning guides, orders, prescriptions, and support can be represented as distinct source types. |
@@ -35,7 +35,7 @@ This register maps the attached product specification to the implemented EmbodyH
 | 27 | Order accuracy | Existing order views retain verified item, quote, tax, shipping, discount, total, status, and tracking fields. |
 | 28 | Price clarity | Existing quote/order certainty fields distinguish estimates from confirmed price; realized savings ledger is unchanged. |
 | 29 | Contextual prescription/pharmacy | Prescription Center remains a restricted contextual route, not a general profile field. |
-| 30 | Restricted prescription data | Existing encrypted prescription documents, access logs, separate storage, and pharmacy controls are not available to Ask Embody. |
+| 30 | Restricted prescription data | Existing encrypted prescription documents, access logs, separate storage, and pharmacy controls are not available to Ask Embody Hubs. |
 | 31 | Integrated support | Existing encrypted support cases, order linking, response continuation, and internal-note separation are reused. |
 | 32 | Support states | Existing OPEN/WAITING/ESCALATED/RESOLVED/CLOSED model maps to customer-facing next-step classifications. |
 | 33 | Optional Family Access | Existing `FamilyProfile` feature remains a separate Health Hub area. |
@@ -47,11 +47,11 @@ This register maps the attached product specification to the implemented EmbodyH
 | 39 | Privacy & Security | Unified page links profile, sessions/password, communications, privacy requests, preferences, lifecycle, and memory deletion. |
 | 40 | Separate histories/retention | Lifecycle endpoint documents purchases, saved items, journeys, support, Rx, assistant, security, and viewed data separately. |
 | 41 | Assistant is not a health record | Temporary requests are not stored; saved conversations require opt-in, are encrypted, and expire after 90 days. |
-| 42 | One assistant surface | Ask Embody presents product guide, account guide, and journey guide capabilities under one interface. |
+| 42 | One assistant surface | Ask Embody Hubs presents product guide, account guide, and journey guide capabilities under one interface. |
 | 43 | Context boundary | Authentication → intent → least-data tool → verified result; the assistant cannot authorize or directly mutate regulated records. |
 | 44 | Assistant examples | Supports product search, latest order, next step, memory summary, support status, and verified deletion controls. |
 | 45 | Assistant prohibitions | Clinical intent is blocked; no diagnosis, prescription, approval, overrides, unauthorized access, or invented states. |
-| 46 | Shared next-step engine | `healthHubNextStepService` feeds both dashboard and Ask Embody. |
+| 46 | Shared next-step engine | `healthHubNextStepService` feeds both dashboard and Ask Embody Hubs. |
 | 47 | Customer control outside AI | Every saved item, journey, preference, session, family permission, and privacy request has direct UI controls. |
 | 48 | Security baseline | Server auth/CSRF, object ownership, session validation, rate limits, encryption, audit events, minimization, and isolation. |
 | 49 | Late-response invalidation | `authSessionBarrier` discards protected responses when account/session identity changes; auth expiry clears local account/cart state. |

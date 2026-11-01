@@ -22,7 +22,7 @@ const fdaOnline = source('FDA BeSafeRx — Considering an Online Pharmacy', 'htt
 export const learnArticles = [
   {
     slug:'how-prescription-ed-treatments-work', categoryId:'treatment-basics', category:'Treatment Basics', title:'How do prescription ED treatments work?', summary:'A clear introduction to erections, blood flow, and what oral PDE5 inhibitors are designed to do.', read:'6 min', featured:true,
-    seoTitle:'How Prescription ED Treatments Work | EMBODY Learn', keywords:['ED treatment','PDE5 inhibitor','erectile dysfunction education'], updated:'2026-10-22', reviewStatus:'source-checked',
+    seoTitle:'How Prescription ED Treatments Work | Embody Hubs Learn', keywords:['ED treatment','PDE5 inhibitor','erectile dysfunction education'], updated:'2026-10-22', reviewStatus:'source-checked',
     takeaways:['Oral ED medicines support a natural response; they do not create automatic arousal.','Different medicines have different instructions, timing, and interaction risks.','A licensed healthcare professional must decide whether a prescription option is appropriate for you.'],
     sections:[
       { heading:'Start with the normal response', body:['An erection involves signals from the brain and nerves, relaxation of smooth muscle, and increased blood flow into the penis. Physical health, medicines, stress, and relationship factors can all influence that process.'] },
@@ -32,7 +32,7 @@ export const learnArticles = [
   },
   {
     slug:'how-long-ed-treatment-effects-last', categoryId:'treatment-basics', category:'Treatment Basics', title:'How long does ED treatment typically last?', summary:'Why “how long” can mean onset, effective window, or how long a medicine remains in the body.', read:'5 min',
-    seoTitle:'How Long Do ED Treatments Last? | EMBODY Learn', keywords:['ED treatment duration','tadalafil duration','sildenafil timing'], updated:'2026-10-22', reviewStatus:'source-checked',
+    seoTitle:'How Long Do ED Treatments Last? | Embody Hubs Learn', keywords:['ED treatment duration','tadalafil duration','sildenafil timing'], updated:'2026-10-22', reviewStatus:'source-checked',
     takeaways:['Onset and duration are not the same thing.','Food, dose, other medicines, and individual health can change timing.','Never take an extra dose because a medicine seems slow to work unless your prescriber instructs you to.'],
     sections:[
       { heading:'Three different clocks', body:['Onset is how soon an effect may begin. The effective window is the period when a medicine may support a response with stimulation. Half-life describes how the body clears a medicine; it does not tell you exactly how long an erection will last.'] },

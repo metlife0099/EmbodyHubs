@@ -37,7 +37,7 @@ function MegaWhy({ compact = false }) {
   const reasons = [[ShieldCheck, 'Safety-led design'], [BadgeCheck, 'Clear information'], [MessagesSquare, 'Human support'], [Truck, 'Tracked delivery']];
   return <aside className={`mega-why ${compact ? 'mega-why--compact' : ''}`}>
     <div className="mega-why-image"><img src="/images/pharmacist-consultation-v3.png" alt="Pharmacist speaking with an adult customer" loading="lazy"/></div>
-    <span>Why EMBODY</span><h2>Clear care, with people behind it.</h2>
+    <span>Why Embody Hubs</span><h2>Clear care, with people behind it.</h2>
     <div className="mega-why-list">{reasons.map(([Icon, label]) => <p key={label}><Icon/><b>{label}</b></p>)}</div>
     <Link to="/about">Our approach <ArrowRight/></Link>
   </aside>;
@@ -70,7 +70,7 @@ export default function Layout({ children }) {
   return <>
     <SeoManager/>
     <a className="skip-link" href="#main">Skip to content</a>
-    <div className="professional-switch"><Link to="/partner-with-us"><Stethoscope/><span>Are you a pharmacy or healthcare professional?</span><b>Partner with EmbodyHubs</b><ArrowRight/></Link></div>
+    <div className="professional-switch"><Link to="/partner-with-us"><Stethoscope/><span>Are you a pharmacy or healthcare professional?</span><b>Partner with Embody Hubs</b><ArrowRight/></Link></div>
     <div className="announcement">Free shipping on orders over $50 <span>•</span> <Link to="/how-it-works">See how pharmacy service works <ArrowRight size={14}/></Link></div>
     <header className="site-header">
       <div className="header-inner">
@@ -89,7 +89,7 @@ export default function Layout({ children }) {
           <div className={`health-nav ${healthOpen ? 'is-open' : ''}`} ref={healthNavRef}>
             <button className="health-nav-trigger" onClick={() => { setCareOpen(false); setHealthOpen(value => !value); }} aria-expanded={healthOpen} aria-controls="health-mega-menu">Health info <ChevronDown/></button>
             <div className="health-mega" id="health-mega-menu" aria-hidden={!healthOpen}>
-              <div className="health-mega-intro"><span className="eyebrow">EMBODY Health Info</span><h2>Better health information, in plain language.</h2><p>Explore reliable, easy-to-understand guides designed to support informed conversations with licensed professionals.</p><Link className="btn btn-primary" to="/health-info">Explore all health info <ArrowRight/></Link><aside><BadgeCheck/><p><b>General education only.</b> Enquiries are not medical advice and should never include private health information.</p></aside></div>
+              <div className="health-mega-intro"><span className="eyebrow">Embody Hubs Health Info</span><h2>Better health information, in plain language.</h2><p>Explore reliable, easy-to-understand guides designed to support informed conversations with licensed professionals.</p><Link className="btn btn-primary" to="/health-info">Explore all health info <ArrowRight/></Link><aside><BadgeCheck/><p><b>General education only.</b> Enquiries are not medical advice and should never include private health information.</p></aside></div>
               <div className="health-mega-groups">{Object.entries(healthGroups).map(([group, meta]) => {
                 const hasPainCategory = healthNavigation.some(item => item.slug === 'pain-relief-medicines');
                 const categories = healthNavigation.filter(item => item.navigationGroup === group).filter(item => !(hasPainCategory && item.slug === 'medication-basics'));
@@ -118,8 +118,8 @@ export default function Layout({ children }) {
         <div><h3>Company</h3><Link to="/about">About</Link><Link to="/compare">Compare</Link><Link to="/health-info">Health info</Link><Link to="/learn">Learn</Link><Link to="/partner-with-us">Partner with us</Link><Link to="/contact">Contact</Link><Link to="/account">My account</Link></div>
         <div><h3>Important</h3><Link to="/policies/privacy">Privacy</Link><Link to="/policies/terms">Terms</Link><Link to="/policies/shipping">Shipping</Link><Link to="/policies/prescription">Prescription policy</Link></div>
       </div>
-      <div className="footer-notice"><p><b>Important safety note:</b> EMBODY is a demonstration platform and is not a pharmacy or medical practice. Prescription products require review by an appropriately licensed professional and verification by a licensed dispensing pharmacy before fulfillment. For emergencies, call 911.</p></div>
-      <div className="footer-bottom"><span>© {new Date().getFullYear()} EMBODY Pharmacy</span><span>Built for legal, pharmacy, privacy, and security review before launch.</span></div>
+      <div className="footer-notice"><p><b>Important safety note:</b> Embody Hubs is a demonstration platform and is not a pharmacy or medical practice. Prescription products require review by an appropriately licensed professional and verification by a licensed dispensing pharmacy before fulfillment. For emergencies, call 911.</p></div>
+      <div className="footer-bottom"><span>© {new Date().getFullYear()} Embody Hubs</span><span>Built for legal, pharmacy, privacy, and security review before launch.</span></div>
     </footer>
     {notice && <div className={`toast toast--${notice.type}`} role="status">{notice.message}</div>}
     <CartQuestionnaire/>

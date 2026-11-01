@@ -64,7 +64,7 @@ export async function createHealthInfoEnquiry(req,res){
   const groupLabel={HEALTH_CONDITIONS:'Health conditions',MEDICATIONS_TREATMENT:'Medications & treatment',ACCESS_AFFORDABILITY:'Access & affordability',WELL_BEING:'Well-being'}[category.navigationGroup];
   await sendHealthInfoEnquiryEmail({reference,name:data.name,email:data.email,group:groupLabel,category:category.name,description:category.description,medicineNames:resolveMedicineExamples(category),message:data.message,categoryUrl:`${env.FRONTEND_URL}/health-info?category=${encodeURIComponent(category.slug)}`});
   req.log?.info({reference,categorySlug:category.slug},'Health information enquiry delivered');
-  res.set('Cache-Control','no-store').status(202).json({success:true,data:{reference},message:'Your enquiry was sent securely to the EMBODY team.'});
+  res.set('Cache-Control','no-store').status(202).json({success:true,data:{reference},message:'Your enquiry was sent securely to the Embody Hubs team.'});
 }
 
 export async function getHealthInfoArticle(req,res){

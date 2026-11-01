@@ -1,0 +1,18 @@
+.brand-logo {
+  width: 43px;
+  height: 43px;
+  object-fit: contain;
+  flex: none;
+  filter: drop-shadow(0 4px 9px rgba(10, 51, 55, 0.16));
+}
+
+.brand--light .brand-logo {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+}
+
+@media (max-width: 740px) {
+  .brand-logo {
+    width: 35px;
+    height: 35px;
+  }
+}

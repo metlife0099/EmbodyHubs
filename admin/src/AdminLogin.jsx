@@ -26,9 +26,9 @@ export default function AdminLogin(){
   };
 
   return <main className="admin-login"><section>
-    <div className="admin-login-art"><div className="login-brand login-brand--light"><b>E</b><span>EMBODY<small>SECURE OPERATIONS</small></span></div><div><span className="overline">Pharmacy operations</span><h2>Clarity for every order.</h2><p>Manage products, customer responses, and fulfillment workflows from one protected workspace.</p></div><span className="admin-art-note"><ShieldCheck/> Authorized staff only</span></div>
+    <div className="admin-login-art"><div className="login-brand login-brand--light"><img className="login-brand-logo" src={`${import.meta.env.BASE_URL}images/embody-logo-512.png`} alt="" aria-hidden="true"/><span>EMBODY HUBS<small>SECURE OPERATIONS</small></span></div><div><span className="overline">Pharmacy operations</span><h2>Clarity for every order.</h2><p>Manage products, customer responses, and fulfillment workflows from one protected workspace.</p></div><span className="admin-art-note"><ShieldCheck/> Authorized staff only</span></div>
     <div className="admin-login-card">
-      <div className="login-brand"><b>E</b><span>EMBODY<small>SECURE OPERATIONS</small></span></div>
+      <div className="login-brand"><img className="login-brand-logo" src={`${import.meta.env.BASE_URL}images/embody-logo-512.png`} alt="" aria-hidden="true"/><span>EMBODY HUBS<small>SECURE OPERATIONS</small></span></div>
       <div className="login-symbol-wrap"><LockKeyhole className="login-symbol"/></div>
       <span className="overline">Restricted access</span>
       <h1>Welcome back.</h1>

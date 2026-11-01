@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: EMBODY Pharmacy API
+  title: Embody Hubs API
   version: 1.2.0
   description: OTC commerce and pharmacy-readiness API. Prescription dispensing is disabled until verified configuration is supplied.
 servers:

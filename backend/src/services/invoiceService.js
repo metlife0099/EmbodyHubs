@@ -2,10 +2,10 @@ import PDFDocument from 'pdfkit';
 
 export function createInvoicePdf(order,customer){
   return new Promise((resolve,reject)=>{
-    const doc=new PDFDocument({size:'LETTER',margin:54,info:{Title:`Invoice ${order.invoice.number}`,Author:'EMBODY Pharmacy'}});
+    const doc=new PDFDocument({size:'LETTER',margin:54,info:{Title:`Invoice ${order.invoice.number}`,Author:'Embody Hubs'}});
     const chunks=[];
     doc.on('data',chunk=>chunks.push(chunk));doc.on('end',()=>resolve(Buffer.concat(chunks)));doc.on('error',reject);
-    doc.fillColor('#0b1f2a').fontSize(24).text('EMBODY');doc.fontSize(10).fillColor('#557078').text('PHARMACY SERVICES');doc.moveDown(2);
+    doc.fillColor('#0b1f2a').fontSize(24).text('EMBODY HUBS');doc.fontSize(10).fillColor('#557078').text('HEALTH & PHARMACY SERVICES');doc.moveDown(2);
     doc.fillColor('#14242b').fontSize(18).text(`Invoice ${order.invoice.number}`);doc.fontSize(10).text(`Order: ${order.number}`).text(`Issued: ${new Date(order.invoice.issuedAt).toLocaleDateString('en-US')}`).text(`Customer: ${customer.firstName} ${customer.lastName}`);
     doc.moveDown();doc.moveTo(54,doc.y).lineTo(558,doc.y).strokeColor('#dbe1de').stroke();doc.moveDown();
     for(const item of order.items){const option=item.variantLabel||[item.dosage,item.form,item.packSize].filter(Boolean).join(' · ');const lineTotal=item.lineTotalCents??item.unitPriceCents*item.quantity;doc.fillColor('#14242b').fontSize(10).text(`${item.name}${option?` — ${option}`:''} × ${item.quantity}`,54,doc.y,{continued:true}).text(`$${(lineTotal/100).toFixed(2)}`,400,doc.y,{align:'right'});if(item.sku)doc.fillColor('#607078').fontSize(8).text(`SKU ${item.sku}`)}

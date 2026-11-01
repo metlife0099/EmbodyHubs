@@ -1,6 +1,6 @@
-# EMBODY Pharmacy Platform
+# Embody Hubs Platform
 
-EMBODY is a full-stack US pharmacy and health-commerce platform with a customer storefront, an operations/admin application, and an Express/MongoDB API. It includes catalog management, configurable pricing, authenticated cart questionnaires, customer accounts, prescription intake and partner routing, health education, newsletters, human support, inventory, fulfillment controls, and auditable administrative workflows.
+Embody Hubs is a full-stack US pharmacy and health-commerce platform with a customer storefront, an operations/admin application, and an Express/MongoDB API. It includes catalog management, configurable pricing, authenticated cart questionnaires, customer accounts, prescription intake and partner routing, health education, newsletters, human support, inventory, fulfillment controls, and auditable administrative workflows.
 
 > **Regulatory notice:** this repository is software infrastructure, not a pharmacy license, legal opinion, HIPAA certification, DEA authorization, or permission to dispense. Prescription sales and controlled-substance handling fail closed by default. Production activation requires approval by the real operating pharmacy, counsel, privacy/security reviewers, payment provider, carriers, and applicable federal and state authorities.
 
@@ -90,7 +90,7 @@ Main stack: Node.js 22.12+, npm workspaces, React 19, Vite, Express 5, MongoDB/M
 - Password recovery uses a one-time email challenge and single-use reset grant.
 - Customer and privileged sessions have a fixed 24-hour absolute lifetime. Customer access tokens last 10 minutes; refresh tokens rotate without extending that absolute deadline.
 - Customers can explicitly log out, edit their profile/address, manage marketing preference, change password, and revoke other sessions.
-- Account navigation includes Overview, My Journey, Orders, Upload prescription, Saved & Compared, Support, Benefits, Family access, Privacy & Security, and Ask Embody.
+- Account navigation includes Overview, My Journey, Orders, Upload prescription, Saved & Compared, Support, Benefits, Family access, Privacy & Security, and Ask Embody Hubs.
 - Browser refresh requests are coordinated across tabs; expired auth clears stale user/cart state.
 
 ### Products, variants and pricing
@@ -125,7 +125,7 @@ Main stack: Node.js 22.12+, npm workspaces, React 19, Vite, Express 5, MongoDB/M
 - Dashboard combines journeys, orders, support, benefits, prescriptions, saved content, preferences, and next actions.
 - Authenticated journey CRUD plus a 30-day guest journey that can migrate after sign-in.
 - Saved content/comparisons/products, explicit preferences, data-lifecycle explanation, and optional saved assistant history.
-- Ask Embody provides navigation and verified account information; it does not diagnose or prescribe. Saving history requires opt-in and transcripts are encrypted.
+- Ask Embody Hubs provides navigation and verified account information; it does not diagnose or prescribe. Saving history requires opt-in and transcripts are encrypted.
 - Individual Hub capabilities can be disabled and require approved active controls in production.
 
 ### Prescription intake and pharmacy routing

@@ -19,7 +19,7 @@ const navItems=[
   {key:'membership',label:'Benefits',path:'/account/membership',icon:CreditCard},
   {key:'family',label:'Family access',path:'/account/family',icon:UsersRound},
   {key:'privacy-security',label:'Privacy & Security',path:'/account/privacy-security',icon:ShieldCheck},
-  {key:'assistant',label:'Ask Embody',path:'/account/ask-embody',icon:MessageCircleQuestion}
+  {key:'assistant',label:'Ask Embody Hubs',path:'/account/ask-embody',icon:MessageCircleQuestion}
 ];
 const legacyNavItems=[{key:'overview',label:'Overview',path:'/account',icon:Home},{key:'profile',label:'Personal profile',path:'/account/profile',icon:UserRound},{key:'orders',label:'Orders',path:'/orders',icon:PackageCheck},{key:'prescriptions',label:'Prescriptions',path:'/account/prescriptions',icon:FileHeart},{key:'privacy',label:'Privacy requests',path:'/account/privacy',icon:LockKeyhole},{key:'support-cases',label:'Support cases',path:'/account/support-cases',icon:Headphones},{key:'membership',label:'Membership',path:'/account/membership',icon:CreditCard},{key:'family',label:'Family access',path:'/account/family',icon:UsersRound},{key:'security',label:'Password & security',path:'/account/security',icon:ShieldCheck},{key:'notifications',label:'Notifications',path:'/account/notifications',icon:Bell}];
 

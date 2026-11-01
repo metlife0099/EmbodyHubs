@@ -1,0 +1,34 @@
+.admin-brand-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex: none;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+}
+
+.login-brand-logo {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex: none;
+  filter: drop-shadow(0 4px 10px rgba(10, 51, 55, 0.18));
+}
+
+.login-brand--light .login-brand-logo {
+  width: 52px;
+  height: 52px;
+  filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.28));
+}
+
+@media (max-width: 560px) {
+  .admin-brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .login-brand-logo,
+  .login-brand--light .login-brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+}

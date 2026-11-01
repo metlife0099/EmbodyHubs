@@ -17,7 +17,7 @@ const schema=new mongoose.Schema({
   sections:{type:[sectionSchema],default:[]},
   faq:{type:[faqSchema],default:[]},
   sources:{type:[sourceSchema],default:[]},
-  authorName:{type:String,trim:true,maxLength:120,default:'EMBODY Health Editorial Team'},
+  authorName:{type:String,trim:true,maxLength:120,default:'Embody Hubs Health Editorial Team'},
   reviewerName:{type:String,trim:true,maxLength:160,default:''},
   reviewedAt:{type:Date},
   publishedAt:{type:Date},

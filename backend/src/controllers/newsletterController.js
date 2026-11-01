@@ -9,7 +9,7 @@ import { runCampaignWorker } from '../services/campaignWorker.js';
 import { logger } from '../utils/logger.js';
 import { AppError } from '../utils/AppError.js';
 
-const SUCCESS_MESSAGE='Thanks for subscribing. You are on the EMBODY newsletter list.';
+const SUCCESS_MESSAGE='Thanks for subscribing. You are on the Embody Hubs newsletter list.';
 
 export async function subscribe(req,res){
   const data=newsletterSubscriptionSchema.parse(req.body);

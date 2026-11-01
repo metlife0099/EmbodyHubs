@@ -6,7 +6,7 @@ import { buildCampaignHtml } from '../src/services/campaignDeliveryService.js';
 const campaign={
   name:'October product update',
   type:'PRODUCT_ARRIVAL',
-  subject:'A new arrival from EMBODY',
+  subject:'A new arrival from Embody Hubs',
   previewText:'Discover the latest addition.',
   content:{eyebrow:'New arrival',headline:'Meet a new care essential',body:'A useful update for your daily routine.',imageUrl:'',ctaLabel:'Explore online care',ctaUrl:'https://example.com/online-care'},
   audience:{type:'ALL_ACTIVE',subscriberIds:[],group:'',filters:{syncStatus:'ANY',source:'ANY',joinedAfter:'',joinedBefore:''}}
